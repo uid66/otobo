@@ -303,7 +303,7 @@ my $RefreshZZZAAutoMiddleWare = sub {
     return sub {
         my $Env = shift;
 
-        # Module::Refresh::Cache already set up in Plack::Middleware::Refresh::prepara_app();
+        # Module::Refresh::Cache already set up in Plack::Middleware::Refresh::prepare_app();
         Module::Refresh->refresh_module_if_modified( 'Kernel/Config/Files/ZZZAAuto.pm' );
 
         return $App->($Env);
@@ -528,11 +528,12 @@ my $DBViewerApp = builder {
             1;
         };
 
-    # relies on that Plack::Middleware::Refresh already has populated %Module::Refresh::CACHE
-    enable $RefreshZZZAAutoMiddleWare;
-
-    # check ever 10s for changed Perl modules, including Kernel/Config/Files/ZZZAAuto.pm
+    # Populate %Module::Refresh::CACHE.
+    # Check ever 10s for changed Perl modules.
     enable 'Plack::Middleware::Refresh';
+
+    # Relies on that Plack::Middleware::Refresh already has already populated %Module::Refresh::CACHE.
+    enable $RefreshZZZAAutoMiddleWare;
 
     my $Server = Mojo::Server::PSGI->new();
     $Server->load_app("$FindBin::Bin/../mojo-bin/dbviewer.pl");
@@ -593,11 +594,12 @@ my $OTOBOApp = builder {
     # conditionally enable profiling
     enable $NYTProfMiddleWare;
 
-    # relies on that Plack::Middleware::Refresh already has populates %Module::Refresh::CACHE
-    enable $RefreshZZZAAutoMiddleWare;
-
-    # check ever 10s for changed Perl modules, including Kernel/Config/Files/ZZZAAuto.pm
+    # Populate %Module::Refresh::CACHE.
+    # Check ever 10s for changed Perl modules.
     enable 'Plack::Middleware::Refresh';
+
+    # Relies on that Plack::Middleware::Refresh already has already populated %Module::Refresh::CACHE.
+    enable $RefreshZZZAAutoMiddleWare;
 
     # we might catch an instance of Kernel::System::Web::Exception
     enable 'Plack::Middleware::HTTPExceptions';
