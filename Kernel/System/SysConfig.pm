@@ -3672,6 +3672,15 @@ sub ConfigurationDeploy {
         mkdir $BasePath;
     }
 
+    if ( $ENV{OTOBO_RUNS_UNDER_PSGI} ) {
+
+        # Declare ZZZAAuto.pm to module Refresh,
+        # so that the middleware $RefreshZZZAAutoMiddleWare actually checks
+        # whether ZZZAAuto.pm has been modified.
+        # This should work even if $TargetPath does not exist yet.
+        Module::Refresh->update_cache( $TargetPath );
+    }
+
     $Result{Success} = $Self->_FileWriteAtomic(
         Filename => "$Self->{Home}/$TargetPath",
         Content  => \$EffectiveValueStrg,
