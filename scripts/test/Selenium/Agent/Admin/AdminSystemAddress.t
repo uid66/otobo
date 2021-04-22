@@ -23,7 +23,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 my $CheckBreadcrumb = sub {
 
@@ -243,8 +245,7 @@ $Selenium->RunTest(
             "#Comment stored value",
         );
 
-        my $ErrorMessage
-            = 'This system address cannot be set to invalid, because it is used in one or more queue(s) or auto response(s).';
+        my $ErrorMessage = 'This system address cannot be set to invalid, because it is used in one or more queue(s) or auto response(s).';
 
         # Verify field explanation for valid field when system address is used in one or more queues or auto response.
         $Self->Is(
@@ -550,7 +551,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

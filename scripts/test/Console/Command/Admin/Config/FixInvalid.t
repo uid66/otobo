@@ -38,7 +38,7 @@ my ( $Result, $ExitCode );
 
 {
     local *STDOUT;
-    open STDOUT, '>:utf8', \$Result;    ## no critic
+    open STDOUT, '>:utf8', \$Result;    ## no critic qw(InputOutput::RequireEncodingWithUTF8Layer)
     $ExitCode = $CommandObject->Execute();
 }
 
@@ -100,7 +100,7 @@ $Self->True(
 
 {
     local *STDOUT;
-    open STDOUT, '>:utf8', \$Result;    ## no critic
+    open STDOUT, '>:utf8', \$Result;    ## no critic qw(InputOutput::RequireEncodingWithUTF8Layer)
     $ExitCode = $CommandObject->Execute('--non-interactive');
 }
 
@@ -120,7 +120,4 @@ $Self->True(
 
 # cleanup cache is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

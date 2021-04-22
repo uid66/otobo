@@ -14,17 +14,15 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
 
-# Set up the test driver $Self when we are running as a standalone script.
-use Kernel::System::UnitTest::RegisterDriver;
+# OTOBO modules
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
+use Kernel::Config;
 
 use vars (qw($Self));
-
-use Kernel::Config;
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
@@ -204,7 +202,4 @@ for my $Language ( sort keys %Languages ) {
     );
 }
 
-
 $Self->DoneTesting();
-
-

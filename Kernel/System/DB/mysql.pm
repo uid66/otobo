@@ -33,7 +33,7 @@ sub new {
     my ( $Class, %Param ) = @_;
 
     # allocate new hash for object
-    return bless { %Param }, $Class;
+    return bless {%Param}, $Class;
 }
 
 sub LoadPreferences {
@@ -58,14 +58,16 @@ sub LoadPreferences {
     # version can have package prefix, we need to extract that
     # example of VERSION() output: '5.5.32-0ubuntu0.12.04.1'
     # if VERSION() contains 'MariaDB', add MariaDB, otherwise MySQL.
-    $Self->{'DB::Version'}
-        = "SELECT CONCAT( IF (INSTR( VERSION(),'MariaDB'),'MariaDB ','MySQL '), SUBSTRING_INDEX(VERSION(),'-',1))";
+    $Self->{'DB::Version'} = "SELECT CONCAT( IF (INSTR( VERSION(),'MariaDB'),'MariaDB ','MySQL '), SUBSTRING_INDEX(VERSION(),'-',1))";
 
     # how to get list of tables in the current schema
     $Self->{'DB::ListTables'} = 'SHOW TABLES';
 
     # how to turn off foreign key checks for the current session
     $Self->{'DB::DeactivateForeignKeyChecks'} = 'SET FOREIGN_KEY_CHECKS = 0';
+
+    # how to delete all rows of a table, use with sprintf for inserting the table name
+    $Self->{'DB::PurgeTable'} = 'TRUNCATE TABLE %s';
 
     # DBI/DBD::mysql attributes
     # disable automatic reconnects as they do not execute DB::Connect, which will
@@ -339,10 +341,10 @@ sub TableCreate {
         for ( 0 .. $#Array ) {
             push @{ $Self->{Post} },
                 $Self->ForeignKeyCreate(
-                LocalTableName   => $TableName,
-                Local            => $Array[$_]->{Local},
-                ForeignTableName => $ForeignKey,
-                Foreign          => $Array[$_]->{Foreign},
+                    LocalTableName   => $TableName,
+                    Local            => $Array[$_]->{Local},
+                    ForeignTableName => $ForeignKey,
+                    Foreign          => $Array[$_]->{Foreign},
                 );
         }
     }
@@ -803,8 +805,9 @@ sub Insert {
                 $SQL .= $Self->{'DB::Comment'}
                     . "----------------------------------------------------------\n";
             }
+
             # TODO: might be safer to call $Self->QuoteIndetifier() for quoting the table.
-            #       but beware that $Tag->{Table} might already be quoted. 
+            #       but beware that $Tag->{Table} might already be quoted.
             $SQL .= "INSERT INTO $Tag->{Table} ";
         }
         if ( $Tag->{Tag} eq 'Data' && $Tag->{TagType} eq 'Start' ) {

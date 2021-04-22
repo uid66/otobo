@@ -36,7 +36,7 @@ my $NumberOfPackagesInstalled = scalar @List;
 # Skip the test if there is more then 8 packages installed (8 because of SaaS scenarios).
 # TODO: fix the main issue with "unexpected alert open".
 if ( $NumberOfPackagesInstalled > 8 ) {
-    skip_all( "Found $NumberOfPackagesInstalled packages installed, skipping test..." );
+    skip_all("Found $NumberOfPackagesInstalled packages installed, skipping test...");
 }
 
 # Make sure to enable cloud services.
@@ -65,7 +65,7 @@ use strict;
 use warnings;
 ## nofilter(TidyAll::Plugin::OTOBO::Perl::TestSubs)
 {
-    no warnings 'redefine';
+    no warnings 'redefine'; ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
     sub Request {
         return (
             Status  => '200 OK',
@@ -80,7 +80,10 @@ $Helper->CustomCodeActivate(
     Identifier => 'AdminPackageManager' . $RandomID,
 );
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 my $CheckBreadcrumb = sub {
 
@@ -358,7 +361,4 @@ if ($TestPackage) {
     );
 }
 
-
 $Self->DoneTesting();
-
-

@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::OTOBOMigrateConfigFromOTRS;    ## no critic
+package Kernel::System::MigrateFromOTRS::OTOBOMigrateConfigFromOTRS;
 
 use strict;
 use warnings;
@@ -23,7 +23,6 @@ use namespace::autoclean;
 use parent qw(Kernel::System::MigrateFromOTRS::Base);
 
 # core modules
-use File::Copy qw(copy);
 
 # CPAN modules
 
@@ -79,7 +78,7 @@ sub Run {
     my $SysConfigObject     = $Kernel::OM->Get('Kernel::System::SysConfig');
     my $SysConfigDBObject   = $Kernel::OM->Get('Kernel::System::SysConfig::DB');
 
-    my $Epoch   = $DateTimeObject->ToEpoch();
+    my $Epoch = $DateTimeObject->ToEpoch();
 
     $CacheObject->Set(
         Type  => 'OTRSMigration',
@@ -105,9 +104,8 @@ sub Run {
 
     if ( !$Export ) {
         my %Result;
-        $Result{Message} = $Self->{LanguageObject}->Translate("Migrate configuration settings.");
-        $Result{Comment} = $Self->{LanguageObject}
-            ->Translate("An error occured during SysConfig data migration or no configuration exists.");
+        $Result{Message}    = $Self->{LanguageObject}->Translate("Migrate configuration settings.");
+        $Result{Comment}    = $Self->{LanguageObject}->Translate("An error occured during SysConfig data migration or no configuration exists.");
         $Result{Successful} = 1;
 
         return \%Result;
@@ -168,12 +166,12 @@ sub Run {
 
     # Convert XML files to entries in the database
     if (
-        ! $SysConfigObject->ConfigurationXML2DB(
+        !$SysConfigObject->ConfigurationXML2DB(
             Force   => 1,
             UserID  => 1,
             CleanUp => 1,
         )
-    )
+        )
     {
         # Log info to apache error log and OTOBO log (syslog or file)
         $MigrationBaseObject->MigrationLog(
@@ -185,10 +183,10 @@ sub Run {
             Message    => $Self->{LanguageObject}->Translate("Migrate configuration settings."),
             Comment    => $Self->{LanguageObject}->Translate("An error occured during SysConfig migration when writing XML to DB."),
             Successful => 0,
-        }
+        };
     }
 
-    # Write ZZZAuto.pm
+    # Write ZZZAAuto.pm
     my $Success = $SysConfigObject->ConfigurationDeploy(
         Comments    => $Param{Comments} || "Migrate Configuration from OTRS to OTOBO",
         AllSettings => 1,

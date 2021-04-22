@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -59,10 +58,9 @@ $ConfigObject->Set(
     Value => '6.0.2',
 );
 
-my @OrigPackageInstalledList
-    = $Kernel::OM->Get('Kernel::System::Package')->RepositoryList(    # do not create object instance
+my @OrigPackageInstalledList = $Kernel::OM->Get('Kernel::System::Package')->RepositoryList(    # do not create object instance
     Result => 'short',
-    );
+);
 my %OrigInstalledList = map { $_->{Name} => $_->{Version} } @OrigPackageInstalledList;
 
 my $Home     = $ConfigObject->Get('Home');
@@ -254,7 +252,7 @@ for my $Test (@Tests) {
     );
 
     # Redefine key features to prevent real network communications and use local results for this test.
-    no warnings qw( once redefine );    ## no critic
+    no warnings qw(once redefine);    ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
     local *Kernel::System::Package::PackageOnlineList = sub {
         return do "$TestPath/$Test->{PackageOnlineList}";
     };
@@ -277,8 +275,7 @@ for my $Test (@Tests) {
     my @PackageInstalledList = $PackageObject->RepositoryList(
         Result => 'short',
     );
-    my %InstalledList
-        = map { $_->{Name} => $_->{Version} } grep { !defined $OrigInstalledList{ $_->{Name} } } @PackageInstalledList;
+    my %InstalledList = map { $_->{Name} => $_->{Version} } grep { !defined $OrigInstalledList{ $_->{Name} } } @PackageInstalledList;
     $Self->IsDeeply(
         \%InstalledList,
         $Test->{RepositoryListBefore},
@@ -296,8 +293,7 @@ for my $Test (@Tests) {
     @PackageInstalledList = $PackageObject->RepositoryList(
         Result => 'short',
     );
-    %InstalledList
-        = map { $_->{Name} => $_->{Version} } grep { !defined $OrigInstalledList{ $_->{Name} } } @PackageInstalledList;
+    %InstalledList = map { $_->{Name} => $_->{Version} } grep { !defined $OrigInstalledList{ $_->{Name} } } @PackageInstalledList;
     $Self->IsDeeply(
         \%InstalledList,
         $Test->{RepositoryListAfter},
@@ -324,7 +320,4 @@ continue {
     );
 }
 
-
 $Self->DoneTesting();
-
-

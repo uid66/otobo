@@ -14,10 +14,12 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::OTOBOOTRSConnectionCheck;    ## no critic
+package Kernel::System::MigrateFromOTRS::OTOBOOTRSConnectionCheck;
 
 use strict;
 use warnings;
+use v5.24;
+use utf8;
 use namespace::autoclean;
 
 use parent qw(Kernel::System::MigrateFromOTRS::Base);
@@ -75,12 +77,12 @@ sub Run {
                 Priority => 'error',
                 Message  => "Need $Key!"
             );
-            my %Result;
-            $Result{Message}    = $Self->{LanguageObject}->Translate("Check if OTOBO version is correct.");
-            $Result{Comment}    = $Self->{LanguageObject}->Translate( 'Need %s!', $Key );
-            $Result{Successful} = 0;
 
-            return \%Result;
+            return {
+                Message    => $Self->{LanguageObject}->Translate('Check if OTOBO version is correct.'),
+                Comment    => $Self->{LanguageObject}->Translate( 'Need %s!', $Key ),
+                Successful => 0.
+            };
         }
     }
 
@@ -132,15 +134,14 @@ sub Run {
         );
     }
 
-    if ( ! $OTRSConfigpmPath || ! -e $OTRSConfigpmPath ) {
+    if ( !$OTRSConfigpmPath || !-e $OTRSConfigpmPath ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message  => "Can't open Kernel/Config.pm file from OTRSHome: $Param{OTRSData}->{OTRSHome}!",
         );
         my %Result;
-        $Result{Message} = $Self->{LanguageObject}->Translate("Check if OTOBO and OTRS connect is possible.");
-        $Result{Comment} = $Self->{LanguageObject}
-            ->Translate( 'Can\'t open Kernel/Config.pm file from OTRSHome: %s!', $Param{OTRSData}->{OTRSHome} );
+        $Result{Message}    = $Self->{LanguageObject}->Translate("Check if OTOBO and OTRS connect is possible.");
+        $Result{Comment}    = $Self->{LanguageObject}->Translate( 'Can\'t open Kernel/Config.pm file from OTRSHome: %s!', $Param{OTRSData}->{OTRSHome} );
         $Result{Successful} = 0;
 
         return \%Result;
@@ -148,15 +149,15 @@ sub Run {
 
     # Check OTOBO version
     my $ResultOTOBO = $Self->_CheckOTOBOConfigpmExists();
+
     return $ResultOTOBO unless $ResultOTOBO->{Successful};
 
     # Check OTRS version
     my $ResultOTRS = $Self->_CheckOTRSConfigpm(
         OTRSConfigpmPath => $OTRSConfigpmPath,
     );
-    if ( $ResultOTRS->{Successful} == 0 ) {
-        return $ResultOTRS;
-    }
+
+    return $ResultOTRS if $ResultOTRS->{Successful} == 0;
 
     # Everything is correct, return that info
     return {
@@ -173,7 +174,7 @@ sub _CheckOTOBOConfigpmExists {
     my $Message   = $Self->{LanguageObject}->Translate("Check if Kernel/Config.pm exists in OTOBO home.");
 
     # load Kernel/Config.pm file
-    if ( ! -e "$OTOBOHome/Kernel/Config.pm" ) {
+    if ( !-e "$OTOBOHome/Kernel/Config.pm" ) {
         my %Result;
         $Result{Message}    = $Message;
         $Result{Comment}    = $Self->{LanguageObject}->Translate( '%s does not exist!', "$OTOBOHome/Kernel/Config.pm" );
@@ -197,32 +198,29 @@ sub _CheckOTRSConfigpm {
     my $OTRSConfigpmPath = $Param{OTRSConfigpmPath};
 
     # load Kernel/Config.pm file
-    if ( ! -e "$OTRSConfigpmPath" ) {
-        my %Result;
-        $Result{Message}    = $Self->{LanguageObject}->Translate("Check if we are able to connect to OTRS Home.");
-        $Result{Comment}    = $Self->{LanguageObject}->Translate("Can't connect to OTRS file directory.");
-        $Result{Successful} = 0;
-
-        return \%Result;
+    if ( !-e "$OTRSConfigpmPath" ) {
+        return {
+            Message    => $Self->{LanguageObject}->Translate("Check if we are able to connect to OTRS Home."),
+            Comment    => $Self->{LanguageObject}->Translate("Can't connect to OTRS file directory."),
+            Successful => 0,
+        };
     }
 
-    # load Kernel/Config.pm file
+    # look at Kernel/Config.pm file and extract DB connection settings
     if ( !$Self->_CheckConfigpmAndWriteCache( ConfigpmPath => $OTRSConfigpmPath ) ) {
-        my %Result;
-        $Result{Message}    = $Self->{LanguageObject}->Translate("Check if we are able to connect to OTRS Home.");
-        $Result{Comment}    = $Self->{LanguageObject}->Translate("Can't connect to OTRS file directory.");
-        $Result{Successful} = 0;
-
-        return \%Result;
+        return {
+            Message    => $Self->{LanguageObject}->Translate("Check if we are able to connect to OTRS Home."),
+            Comment    => $Self->{LanguageObject}->Translate("Can't connect to OTRS file directory."),
+            Successful => 0,
+        };
     }
 
     # Everything is correct, return %Result
-    my %Result;
-    $Result{Message}    = $Self->{LanguageObject}->Translate("Check if we are able to connect to OTRS Home.");
-    $Result{Comment}    = $Self->{LanguageObject}->Translate("Connect to OTRS file directory is possible.");
-    $Result{Successful} = 1;
-
-    return \%Result;
+    return {
+        Message    => $Self->{LanguageObject}->Translate("Check if we are able to connect to OTRS Home."),
+        Comment    => $Self->{LanguageObject}->Translate("Connect to OTRS file directory is possible."),
+        Successful => 1,
+    };
 }
 
 sub _CheckConfigpmAndWriteCache {
@@ -231,36 +229,35 @@ sub _CheckConfigpmAndWriteCache {
     my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
     my $ConfigFile  = $Param{ConfigpmPath};
 
-    # Build config options to save in cache.
-    # ConfigOption => CacheKeyName
-    my %COptions = (
-        DatabaseHost => 'DBHost',
-        Database     => 'DBName',
-        DatabaseUser => 'DBUser',
-        DatabasePw   => 'DBPassword',
-        DatabaseDSN  => 'DBDSN',
-    );
-
+    # Extract options from Config.pm to save in cache.
     my %CacheOptions;
-
     {
-        ## TODO: why does Perl::Critic still complain about OTOBO::ProhibitOpen ??
-        ## no critic qw(OTOBO::ProhibitOpen OTOBO::ProhibitLowPrecedenceOps InputOutput::RequireBriefOpen)
-        open( my $In, '<', $ConfigFile )
-            or return "Can't open $ConfigFile: $!";
+        my %ConfigKey2CacheKey = (
+            DatabaseHost => 'DBHost',
+            Database     => 'DBName',
+            DatabaseUser => 'DBUser',
+            DatabasePw   => 'DBPassword',
+            DatabaseDSN  => 'DBDSN',
+        );
+
+        open my $In, '<', $ConfigFile                  ## no critic qw(OTOBO::ProhibitOpen InputOutput::RequireBriefOpen)
+            or return "Can't open $ConfigFile: $!";    ## no critic qw(OTOBO::ProhibitLowPrecedenceOps)
 
         CONFIGLINE:
-        while (<$In>) {
+        while ( my $Line = <$In> ) {
 
             # Search config option value and save in %CacheOptions{CacheKey} => ConfigOption
-            if ( m/^\s*\$Self->\{['"\s]*(\w+)['"\s]*\}\s*=\s*['"](.+)['"]\s*;/ ) {
-                for my $Key ( sort keys %COptions ) {
-                    if ( lc($1) eq lc($Key) ) {
-                        $CacheOptions{ $COptions{$Key} } = $2;
+            # e.g.:  $Self->{'DatabaseUser'} = "otrs";
+            next CONFIGLINE unless $Line =~ m/^\s*\$Self->\{['"\s]*(\w+)['"\s]*\}\s*=\s*['"](.+)['"]\s*;/;
 
-                        next CONFIGLINE;
-                    }
-                }
+            KEY:
+            for my $Key ( sort keys %ConfigKey2CacheKey ) {
+
+                next KEY unless lc $1 eq lc $Key;
+
+                $CacheOptions{ $ConfigKey2CacheKey{$Key} } = $2;
+
+                next CONFIGLINE;
             }
         }
     }
@@ -276,7 +273,18 @@ sub _CheckConfigpmAndWriteCache {
     }
     elsif ( $DBType =~ /Oracle/ ) {
         $CacheOptions{DBType} = 'oracle';
-        $CacheOptions{DBPort} = ( $CacheOptions{DBDSN} =~ m/^DBI:.*:(\d+)/ );
+
+        # This utterly depends on the conventions used in the OTRS Config.pm.
+        # But the sane approach is to simply use the DSN from Config.pm.
+        # Avoid a string eval, but try to support the common cases.
+        # e.g. $Self->{'DatabaseDSN'} = "DBI:Oracle://$Self->{DatabaseHost}:1521/$Self->{Database}";
+        # TODO: q{DatabaseHost} is not supported
+        if ( $CacheOptions{DBHost} ) {
+            $CacheOptions{DBDSN} =~ s/\$Self->\{\s*['"]?DatabaseHost['"]?\s*\}/$CacheOptions{DBHost}/;
+        }
+        if ( $CacheOptions{DBName} ) {
+            $CacheOptions{DBDSN} =~ s/\$Self->\{\s*['"]?Database['"]?\s*\}/$CacheOptions{DBName}/;
+        }
     }
 
     $CacheObject->Set(
@@ -284,13 +292,11 @@ sub _CheckConfigpmAndWriteCache {
         Key   => 'OTRSDBSettings',
         Value => {
             DBType     => $CacheOptions{DBType},
-            DBHost     => $CacheOptions{DBHost},   # usually needs to be adapted when running under Docker
+            DBHost     => $CacheOptions{DBHost},       # usually needs to be adapted when running under Docker
             DBUser     => $CacheOptions{DBUser},
             DBPassword => $CacheOptions{DBPassword},
             DBName     => $CacheOptions{DBName},
             DBDSN      => $CacheOptions{DBDSN},
-            DBSID      => $CacheOptions{DBSID} || '',
-            DBPort     => $CacheOptions{DBPort} || '',
         },
     );
 

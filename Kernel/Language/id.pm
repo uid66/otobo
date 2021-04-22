@@ -32,7 +32,7 @@ sub Data {
     $Self->{DateFormatShort}     = '%D/%M/%Y';
     $Self->{DateInputFormat}     = '%D/%M/%Y';
     $Self->{DateInputFormatLong} = '%D/%M/%Y - %T';
-    $Self->{Completeness}        = 0.631613112625771;
+    $Self->{Completeness}        = 0.631245944192083;
 
     # csv separator
     $Self->{Separator}         = ',';
@@ -3103,7 +3103,6 @@ bin/otobo.Daemon.pl status\').',
         'Welcome to %s' => 'Selamat datang di %s',
         'Germany' => '',
         'Phone' => 'Telepon',
-        'Switzerland' => '',
         'Web site' => 'Website',
 
         # Template: InstallerConfigureMail
@@ -3259,6 +3258,7 @@ bin/otobo.Daemon.pl status\').',
         ' Continue anyways :(' => '',
 
         # Template: OTRSDBSettings
+        'DSN' => '',
         'Skip DB migration' => '',
         'Expert option! Only works if the migration has already been done by hand.' =>
             '',
@@ -5076,7 +5076,6 @@ bin/otobo.Daemon.pl status\').',
         'Check if OTOBO version is correct.' => '',
         'Copy database.' => '',
         'Skipped...' => '',
-        'Need %s for Oracle db!' => '',
         'System was unable to connect to OTRS database.' => '',
         'System was unable to complete data transfer.' => '',
         'Data transfer completed.' => '',
@@ -5108,11 +5107,7 @@ bin/otobo.Daemon.pl status\').',
 
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBOMigrateWebServiceConfiguration.pm
         'Migrate web service configuration.' => '',
-        'Can\'t add web service for Elasticsearch. File %s not found!' =>
-            '',
         'Failed - see the log!' => '',
-        'Migration completed. Please activate the web service in Admin -> Web Service when ElasticSearch installation is completed.' =>
-            '',
 
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBONotificationMigrate.pm
         'Migrate database table notification.' => '',
@@ -5185,8 +5180,9 @@ bin/otobo.Daemon.pl status\').',
         '<p>Additional packages can enhance OTOBO with plenty of useful features. Ensure, however, that the origin of this package is trustworthy, as it can modify OTOBO in any possible way.</p>' =>
             '',
         'Package not verified by the OTOBO community!' => '',
-        '<p>The installation of packages which are not verified is disabled. You can activate the installation of not verified packages via the "AllowNotVerifiedPackages" system configuration setting.</p>' =>
+        '<p>The installation of packages which are not verified is disabled. You can activate the installation of not verified packages via the "Package::AllowNotVerifiedPackages" system configuration setting.</p>' =>
             '',
+        'Verification not possible (e.g. no internet connection)!' => '',
 
         # Perl Module: Kernel/System/ProcessManagement/DB/Process.pm
         'The process "%s" and all of its data has been imported successfully.' =>
@@ -5323,8 +5319,7 @@ bin/otobo.Daemon.pl status\').',
 
         # Perl Module: Kernel/System/SupportDataCollector/Plugin/Database/mysql/MaxAllowedPacket.pm
         'Maximum Query Size' => 'Maksimum Ukuran Query',
-        'The setting \'max_allowed_packet\' must be higher than 64 MB.' =>
-            '',
+        'The setting \'max_allowed_packet\' must be 64 MB or higher.' => '',
 
         # Perl Module: Kernel/System/SupportDataCollector/Plugin/Database/mysql/Performance.pm
         'Query Cache Size' => 'Ukuran Query Cache',
@@ -6616,7 +6611,7 @@ Helpdesk Team Anda
         'Configure which screen should be shown after a new ticket has been created.' =>
             'Konfigurasi yang layar harus ditampilkan setelah tiket baru telah dibuat.',
         'Configure your own log text for PGP.' => 'Mengkonfigurasi teks log Anda sendiri untuk PGP.',
-        'Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".' =>
+        'Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".' =>
             '',
         'Controls how to display the ticket history entries as readable values.' =>
             'Kontrol bagaimana menampilkan entri sejarah tiket sebagai nilai-nilai yang dapat dibaca.',
@@ -6966,6 +6961,8 @@ Helpdesk Team Anda
         'Defines the config options for the autocompletion feature.' => 'Mendefinisikan pilihan konfigurasi untuk fitur autocomplete.',
         'Defines the config parameters of this item, to be shown in the preferences view.' =>
             'Mendefinisikan parameter konfigurasi dari item ini, akan ditampilkan dalam preferensi tampilan.',
+        'Defines the config parameters of this item, to be shown in the preferences view. \'PasswordRegExp\' allows to match passwords against a regular expression. Define the minimum number of characters using \'PasswordMinSize\'. Define if at least 2 lowercase and 2 uppercase letter characters are needed by setting the appropriate option to \'1\'. \'PasswordMin2Characters\' defines if the password needs to contain at least 2 letter characters (set to 0 or 1). \'PasswordNeedDigit\' controls the need of at least 1 digit (set to 0 or 1 to control). \'PasswordMaxLoginFailed\' allows to set an agent to invalid-temporarily if max failed logins reached. Please note: setting \'Active\' to 0 will only prevent agents from editing settings of this group in their personal preferences, but will still allow administrators to edit the settings of another user\'s behalf. Use \'PreferenceGroup\' to control in which area these settings should be shown in the user interface.' =>
+            '',
         'Defines the config parameters of this item, to be shown in the preferences view. Please note: setting \'Active\' to 0 will only prevent agents from editing settings of this group in their personal preferences, but will still allow administrators to edit the settings of another user\'s behalf. Use \'PreferenceGroup\' to control in which area these settings should be shown in the user interface.' =>
             '',
         'Defines the connections for http/ftp, via a proxy.' => 'Mendefinisikan koneksi untuk http / ftp, melalui proxy.',
@@ -6982,7 +6979,7 @@ Helpdesk Team Anda
             'Mendefinisikan tubuh default catatan dalam tiket layar teks bebas dari antarmuka agen.',
         'Defines the default filter fields in the customer user address book search (CustomerUser or CustomerCompany). For the CustomerCompany fields a prefix \'CustomerCompany_\' must be added.' =>
             '',
-        'Defines the default front-end (HTML) theme to be used by the agents and customers. If you like, you can add your own theme. Please refer the administrator manual located at https://doc.otobo.org/doc/.' =>
+        'Defines the default front-end (HTML) theme to be used by the agents and customers. If you like, you can add your own theme. Please refer the administrator manual located at https://doc.otobo.org/.' =>
             '',
         'Defines the default front-end language. All the possible values are determined by the available language files on the system (see the next setting).' =>
             'Mendefinisikan bahasa default front-end. Semua nilai yang mungkin ditentukan oleh file bahasa yang tersedia pada sistem (lihat pengaturan berikutnya).',
@@ -7912,6 +7909,8 @@ Helpdesk Team Anda
             'Jika salah satu "SMTP" mekanisme terpilih sebagai Sendmail Modul, port mana mail server Anda mendengarkan koneksi masuk harus ditentukan.',
         'If enabled debugging information for ACLs is logged.' => 'Jika informasi debugging diaktifkan untuk ACL login.',
         'If enabled debugging information for transitions is logged.' => 'Jika diaktifkan informasi untuk transisi debug login.',
+        'If enabled defines the preselected state for customer follow-up in the customer interface.' =>
+            '',
         'If enabled the daemon will redirect the standard error stream to a log file.' =>
             'Jika diaktifkan daemon akan mengarahkan aliran standard error ke file log.',
         'If enabled the daemon will redirect the standard output stream to a log file.' =>
@@ -8210,6 +8209,7 @@ Helpdesk Team Anda
         'Objects to search for, how many entries and which attributs to show. Ticket attributes, except queue, have to explicitely be stored via Elasticsearch.' =>
             '',
         'Open an external link!' => '',
+        'Open the OTOBO home page in a new window' => '',
         'Open tickets (customer user)' => 'Tiket terbuka (pelanggan pengguna)',
         'Open tickets (customer)' => 'Buka tiket (pelanggan)',
         'Option' => 'Pilihan',
@@ -8467,7 +8467,6 @@ Helpdesk Team Anda
         'Select the main interface language.' => '',
         'Select the separator character used in CSV files (stats and searches). If you don\'t select a separator here, the default separator for your language will be used.' =>
             'Pilih pemisah karakter yang digunakan pada berkas CSV (Statistik dan pencarian). Jika anda tidak memilih pemisah disini, pemisah default untuk bahasa anda akan digunakan.',
-        'Select your frontend Theme.' => 'Pilih tema frontend anda',
         'Select your personal time zone. All times will be displayed relative to this time zone.' =>
             '',
         'Select your preferred layout for the software.' => '',
@@ -8502,6 +8501,8 @@ Helpdesk Team Anda
         'Service Level Agreements' => 'Perjanjian Tingkat Layanan',
         'Service view' => 'lihat layanan',
         'ServiceView' => 'Tampilan servis',
+        'Set a new password by filling in your current password and a new one.' =>
+            '',
         'Set sender email addresses for this system.' => 'Mengatur alamat email pengirim untuk sistem ini.',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             'Mengatur tinggi default (dalam piksel) dari artikel HTML inline di Agen Tiket Zoom.',
@@ -9216,6 +9217,8 @@ Helpdesk Team Anda
             'Ketika tiket digabung, catatan akan ditambahkan secara otomatis ke tiket yang tidak lagi aktif. Di sini Anda dapat menentukan subjek catatan ini (hal ini tidak dapat diubah oleh agen).',
         'When tickets are merged, the customer can be informed per email by setting the check box "Inform Sender". In this text area, you can define a pre-formatted text which can later be modified by the agents.' =>
             'Ketika tiket digabung, pelanggan dapat diinformasikan per email dengan menetapkan kotak centang "Informasikan Sender". Di area teks ini, Anda dapat menentukan teks berformat pra yang nantinya dapat dimodifikasi oleh agen.',
+        'Whether extended customer information is shown in the ticket print screen of the customer interface.' =>
+            '',
         'Whether fields should be automatically filled (1), and in that case also be hidden from ticket formulars (2).' =>
             '',
         'Whether or not to collect meta information from articles using filters configured in Ticket::Frontend::ZoomCollectMetaFilters.' =>

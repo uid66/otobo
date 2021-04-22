@@ -41,7 +41,7 @@ sub Configure {
     );
 
     $Self->AddOption(
-        Name => 'values-from-path',
+        Name        => 'values-from-path',
         Description =>
             "Read values for invalid settings from a YAML file instead of user input (takes precedence in non-interactive mode).",
         Required   => 0,
@@ -211,7 +211,7 @@ sub Run {
             )
         {
             $Self->Print("\nYour choice: ");
-            $SelectedIndex = <STDIN>;    ## no critic
+            $SelectedIndex = <STDIN>;    ## no critic qw(InputOutput::ProhibitExplicitStdin)
 
             # Remove white space.
             $SelectedIndex =~ s{\s}{}smx;

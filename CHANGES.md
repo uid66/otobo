@@ -1,4 +1,132 @@
 
+# OTOBO 10.0.10 2021-04-21
+- 2021-04-21 18:43:00 +0200 Create new OTOBO language files.
+- 2021-04-21 07:52:24 +0000 Translated using Weblate (Danish)
+- 2021-04-20 05:26:43 +0000 Translated using Weblate (Japanese)
+- 2021-04-19 12:25:49 +0000 Translated using Weblate (German)
+- 2021-03-29 19:10:16 +0000 Translated using Weblate (Portuguese (Brazil))
+- 2021-03-23 16:54:39 +0000 Translated using Weblate (Czech)
+- 2021-03-10 07:26:34 +0000 Translated using Weblate (Sinhala)
+- 2021-03-10 07:25:45 +0000 Added translation using Weblate (Sinhala)
+- 2021-02-19 14:16:16 +0000 Update translation files
+- 2021-04-21 18:09:42 +0200 [Tidied]   Rework standard settings for passwords and other preferences. (https://github.com/RotherOSS/otobo/issues/935)
+- 2021-04-21 17:00:23 +0200 [Bugfix]   Migration: column size in PostgreSQL (https://github.com/RotherOSS/otobo/issues/836)
+- 2021-04-21 16:49:07 +0200 [Security] Update jquery-validate to 1.19.3. (CVE-2021-21252)
+- 2021-04-21 11:35:37 +0200 Add Kerberos SSO.
+- 2021-04-21 09:22:17 +0200 Update Installer.tt
+- 2021-04-20 18:11:02 +0200 [Bugfix]   Fix OTRS oracle to OTOBO oracle migration. (https://github.com/RotherOSS/otobo/issues/873) - in progress
+- 2021-04-20 15:22:07 +0200 [Security] Fix a XSS vulnerability. Thanks to the Znuny team for sharing the issue and providing the fix.
+- 2021-04-20 13:00:04 +0200 [Enhanced] Rework data type translation between different DBs in the migration. (https://github.com/RotherOSS/otobo/issues/955)
+- 2021-04-19 19:49:36 +0200 [Bugfix]   backup.pl fails when source db is mysql 5.7 and destination db is mysql 8.0 (https://github.com/RotherOSS/otobo/issues/884)
+- 2021-04-19 08:41:05 +0200 Elasticsearch initial customeruser migration from ldap (https://github.com/RotherOSS/otobo/issues/950)
+- 2021-04-18 14:39:11 +0200 Add Kerberos support.
+- 2021-04-17 15:20:01 +0200 Add Kerberos support.
+- 2021-04-17 14:05:35 +0200 Add Kerberos support.
+- 2021-04-16 16:26:15 +0200 [Bugfix]   Testing: Resolve remaining failures of Selenium tests (https://github.com/RotherOSS/otobo/issues/682) - in progress
+- 2021-04-14 18:23:51 +0200 [Enhanced] Enable customer preferences (https://github.com/RotherOSS/otobo/issues/693)
+- 2021-04-13 16:48:33 +0200 Link to Admin Manual inside the Admin Interface is brocken. (https://github.com/RotherOSS/otobo/issues/936)
+- 2021-04-11 20:41:18 +0200 [Bugfix]   SeleniumTesting: find_no_element_ok() throws exeception (https://github.com/RotherOSS/otobo/issues/925)
+- 2021-04-07 13:06:23 +0200 Bugfix: Fix typo in ticket list css for the customer interface.
+- 2021-04-07 11:20:08 +0200 [Tidied]   Adjust the code to work with CodePolicy. (https://github.com/RotherOSS/otobo/issues/760) - in progress
+- 2021-04-06 14:59:54 +0200 Bugfix: For the github action CodePolicy install libxml2-utils to be able to use xmllint.
+- 2021-04-03 17:01:02 +0200 [Tidied]   Don't use object manager for Kernel::System::UnitTest::Selenium (https://github.com/RotherOSS/otobo/issues/902)
+- 2021-03-29 12:48:28 +0200 [Bugfix]   CustomerID is not correctly added, when creating a new ticket via AgentTicketPhone or -Email. (https://github.com/RotherOSS/otobo/issues/544)
+- 2021-03-27 12:28:48 +0100 [Enhanced] Docker: screen should start a bash session (https://github.com/RotherOSS/otobo/issues/876)
+- 2021-03-19 09:37:20 +0100 Fix CodePolicy github action.
+- 2021-03-18 18:06:54 +0100 [Bugfix]   Config Option Frontend::Navigation###ExternalURLJump###1 not possible to change (https://github.com/RotherOSS/otobo/issues/867)
+- 2021-03-17 12:43:01 +0100 [Bugfix]   Docker: GenericInterface TicketCreate - uninitialized value in pattern match (https://github.com/RotherOSS/otobo/issues/853)
+- 2021-03-16 20:35:18 +0100 Kernel::System::UnitTest::Selenium should extend Test::Selenium::Remote::Driver (https://github.com/RotherOSS/otobo/issues/868)
+- 2021-03-16 17:43:35 +0100 Fix regression of psgi specific handling of $ENV{REQUEST_SCHEME}. (follow up to 258d49b5e57a07dfaf56b1e3d554460adec14d46)
+- 2021-03-10 19:25:54 +0100 Selenium Testing: no warning when subject is empty (https://github.com/RotherOSS/otobo/issues/862) - in progress
+- 2021-03-09 21:57:11 +0100 [Enhanced] Github action: run the compile action only for the changed files (https://github.com/RotherOSS/otobo/issues/856) - in progress
+- 2021-03-08 16:26:06 +0100 Update code_policy.yml
+- 2021-03-08 16:20:50 +0100 Run CodePolicy on pull requests. (https://github.com/RotherOSS/otobo/issues/854)
+- 2021-03-04 17:16:12 +0100 [Bugfix]   Migration: ResetAutoIncrementFields for PostgreSQL  (https://github.com/RotherOSS/otobo/issues/837) - in progress
+- 2021-03-04 15:52:13 +0100 [Enhanced] Migration: skip the table system_data (https://github.com/RotherOSS/otobo/issues/838)
+- 2021-03-03 12:32:19 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 11:43:24 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 11:25:25 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 11:19:00 +0100 [Bugfix]   Migration OTRS PostgreSQL to OTOBO PostgreSQL (https://github.com/RotherOSS/otobo/issues/818)
+- 2021-03-03 08:11:23 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 07:59:28 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 07:26:01 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 07:05:09 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-03 06:44:45 +0100 Add Kerberos module for Nginx in dockerfile.
+- 2021-03-02 16:59:12 +0100 [Enhanced] Add ###StatePreset to CustomerTicketZoom (https://github.com/RotherOSS/otobo/issues/833)
+- 2021-03-01 16:21:15 +0100 Fix missing colon on css top
+- 2021-02-24 21:39:01 +0100 Issue rotheross/CodePolicy#44: accept more suggestions from Perl::Tid:y
+- 2021-02-24 20:59:33 +0100 Issue rotheross/CodePolicy#44: don't ignore policy OTOBO::Perl::ParamObject
+- 2021-02-22 17:56:21 +0100 Fix CodePolicy violations from OTOBO::Perl::ObjectDependencies; (https://github.com/RotherOSS/otobo/issues/816)
+- 2021-02-19 17:19:17 +0100 [Enhanced] Default value for max-allowed-packet backup.pl (https://github.com/RotherOSS/otobo/issues/648)
+
+
+# OTOBO 10.0.9 2021-02-19
+- 2021-02-19 15:15:48 +0100 Create new OTOBO language files.
+- 2021-02-17 23:32:31 +0000 Translated using Weblate (French)
+- 2021-02-14 21:04:12 +0000 Translated using Weblate (Danish)
+- 2021-02-12 15:57:52 +0000 Translated using Weblate (German)
+- 2021-02-12 15:31:23 +0000 Update translation files
+- 2021-02-19 10:45:27 +0100 fix for GenericInterface: If one ticket has less articles than a given article limit, the article limit is set to the number of articles in that article.
+- 2021-02-18 19:16:48 +0100 [Security] PSGI: remove the /otobo/dbviewer route (https://github.com/RotherOSS/otobo/issues/806)
+- 2021-02-16 14:25:44 +0100 [Enhanced] Optionally remove CustomerInfomation from CustomerTicketPrint. (https://github.com/RotherOSS/otobo/issues/801)
+- 2021-02-15 17:31:51 +0100 Issue rotheross/CodePolicy#8: filter out a Perl::Critic violation
+- 2021-02-15 16:00:37 +0100 Issue rotheross/CodePolicy#8: remove the command Dev::Git::InstallHooks
+- 2021-02-15 12:14:08 +0100 [Tidied]   Adjust the code to work with CodePolicy. (https://github.com/RotherOSS/otobo/issues/760) - in progress
+- 2021-02-14 16:04:05 +0100 Perl::Critiic: do not violate ValuesAndExpressions::ProhibitCommaSeparatedStatements (https://github.com/RotherOSS/otobo/issues/795)
+- 2021-02-13 21:50:33 +0100 Issue rotheross/CodePolicy#21: don't filter OTOBO::RequireParensWithMethods violations
+- 2021-02-13 15:00:59 +0100 Issue rotheross/CodePolicy#22: give 'no strict refs' it's own scope
+- 2021-02-13 14:56:12 +0100 Issue rotheross/CodePolicy#22: no strict 'refs' moved up
+- 2021-02-13 14:03:29 +0100 Issue rotheross/CodePolicy#22: remove a file scoped 'no critic'
+- 2021-02-13 14:02:46 +0100 Issue rotheross/CodePolicy#22: remove some unneeded 'use critic' declarations
+- 2021-02-13 13:54:41 +0100 Issue rotheross/CodePolicy#22: fix syntax error
+- 2021-02-13 13:19:05 +0100 Issue rotheross/CodePolicy#22: eliminate unrestricted 'no critic'
+- 2021-02-13 13:15:07 +0100 Issue rotheross/CodePolicy#22: eliminate unrestricted 'no critic'
+- 2021-02-13 12:59:42 +0100 Issue rotheross/CodePolicy#22: eliminate unrestricted 'no critic'
+- 2021-02-13 12:57:27 +0100 Issue rotheross/CodePolicy#22: elimininate unrestricted 'no critic'
+- 2021-02-12 17:15:51 +0100 Fix CHANGES (Hallo Wochenende!^^)
+- 2021-02-08 22:21:17 +0100 Issue rotheross/CodePolicy#22: remove some useless 'no critic' declarations
+- 2021-02-08 21:26:54 +0100 Issue rotheross/CodePolicy#22: restrict 'no critic' for some 'no strict' lines
+- 2021-02-08 20:19:38 +0100 Issue rotheross/CodePolicy#22: restrict 'no critic'
+- 2021-02-08 20:13:06 +0100 Issue rotheross/CodePolicy#22: restrict some 'no critic' directives
+- 2021-02-08 19:52:25 +0100 Issue rotheross/CodePolicy#22: remove unrestricted 'no critic'
+- 2021-02-08 19:51:13 +0100 Issue rotheross/CodePolicy#22: remove an unrestricted and an allegedly unneeded 'no critic'
+- 2021-02-08 19:40:26 +0100 Issue rotheross/CodePolicy#22: first batch of removing useless 'no critic'
+
+
+# OTOBO 10.0.8 2021-02-12
+- 2021-02-12 16:30:54 +0100 Create new OTOBO language files.
+- 2021-02-12 13:04:53 +0000 Translated using Weblate (Danish)
+- 2021-02-10 18:13:13 +0000 Translated using Weblate (Portuguese (Brazil))
+- 2021-02-07 18:08:21 +0000 Translated using Weblate (German)
+- 2021-02-12 16:14:44 +0100 Fix CHANGES.
+- 2021-02-12 15:59:30 +0100 [Bugfix]   Problem with SecureMode (https://github.com/RotherOSS/otobo/issues/789) - in progress
+- 2021-02-12 14:45:28 +0100 [Enhanced] Define CKEditor Plugins which should be used. (https://github.com/RotherOSS/otobo/issues/790) - in progress
+- 2021-02-11 16:56:42 +0100 Fix dynamic field validation on server side.
+- 2021-02-11 11:56:10 +0100 Fix migration on psgi with http. (Env{REQUEST_SCHEME} added for template rendering.)
+- 2021-02-10 14:41:58 +0100 [Security] Update CKEditor. (https://github.com/RotherOSS/otobo/issues/780)
+- 2021-02-10 09:57:33 +0100 [Bugfix]   Package install not possible without verification despite Package::AllowNotVerifiedPackages (https://github.com/RotherOSS/otobo/issues/647)
+- 2021-02-09 19:36:13 +0100 [Bugfix]   PSGI: adapt dbviewer.pl to Mojolicious 8.73 (https://github.com/RotherOSS/otobo/issues/785)
+- 2021-02-09 12:06:15 +0100 Update the copyright year (https://github.com/RotherOSS/otobo/issues/740)
+- 2021-02-08 18:50:13 +0100 Issue rotheross/CodePolicy#23: name of code policy has changed
+- 2021-01-18 12:44:30 +0300 Fix ChannelSync() API description
+- 2021-02-06 14:17:52 +0100 [Tidied]   Adjust the code to work with CodePolicy. (https://github.com/RotherOSS/otobo/issues/760) - in progress
+- 2021-02-03 17:18:59 +0100 Appearance: Use overflow auto instead of scroll.
+- 2021-02-03 17:06:49 +0100 [Bugfix]   Fix webservice integration for migrations with existing webservices. (https://github.com/RotherOSS/otobo/issues/769)
+- 2021-02-02 19:14:38 +0100 [Bugfix]   Testing: Resolve remaining failures of Selenium tests (https://github.com/RotherOSS/otobo/issues/682) - in progress
+- 2021-01-31 17:57:02 +0100 Avoid jquery selector, use find_element_by_xpath() instead
+- 2021-01-30 15:41:18 +0100 Locally installed modules are not for the Docker image.
+- 2021-01-19 18:57:44 +0000 Update translation files
+- 2021-01-28 09:29:26 +0100 Update Copyright, tidy code.
+- 2021-01-27 20:08:52 +0100 [Tidied]   Check whether the input "Expand" for the different forms is still needed, remove it if not. (https://github.com/RotherOSS/otobo/issues/632)
+- 2021-01-25 17:16:48 +0100 [Tidied]   Align AgentTicketPhone and AgentTicketEmail (https://github.com/RotherOSS/otobo/issues/755)
+- 2021-01-25 10:16:01 +0100 Cleanup template: Replace div in Login.tt.
+- 2021-01-22 15:17:54 +0100 PSGI: is PSGI fully supported ? (https://github.com/RotherOSS/otobo/issues/252)
+- 2021-01-20 16:17:10 +0100 [Enhanced] Explicitly require the distribution URI, which includes URI::Escape (https://github.com/RotherOSS/otobo/issues/736)
+- 2020-12-28 13:05:07 +0100 [Bugfix]   Error in logs after changing the config option "TimeWorkingHours" (https://github.com/RotherOSS/otobo/issues/592)
+- 2020-12-27 17:33:36 +0100 "Send a bugreport" in Layout->FatalError links to bugzilla. (https://github.com/RotherOSS/otobo/issues/412)
+- 2020-12-21 16:59:52 +0100 [Bugfix]   Files in Custom/Kernel are (initially) not loaded in docker installations.  (https://github.com/RotherOSS/otobo/issues/666)
+
+
 # OTOBO 10.0.7 2021-01-19
 - 2021-01-19 19:57:10 +0100 Create new OTOBO language files.
 - 2021-01-06 12:40:11 +0000 Translated using Weblate (Portuguese (Brazil))
@@ -158,7 +286,7 @@
 # OTOBO 10.0.3 2020-09-23
 - 2020-09-23 10:35:02 +0200 Create new OTOBO language files.
 - 2020-09-22 12:17:52 +0200 PSGI: Consistent use of DBIx::Connector (https://github.com/RotherOSS/otobo/issues/434)
-- 2020-09-21 13:45:11 +0200 Migration: Ergebnis der DatenbankprÃ¼fung (https://github.com/RotherOSS/otobo/issues/451)
+- 2020-09-21 13:45:11 +0200 Migration: Ergebnis der Datenbankpruefung (https://github.com/RotherOSS/otobo/issues/451)
 - 2020-09-21 13:08:25 +0200 Fix Issue: COPYING vs. LICENSE - https://github.com/RotherOSS/otobo/issues/43
 - 2020-09-21 13:05:38 +0200 Fix Issue: Invalid references to transifex -  https://github.com/RotherOSS/otobo/issues/358
 - 2020-09-02 12:27:52 +0000 Translated using Weblate (Portuguese (Brazil))
@@ -405,7 +533,7 @@
 - 2020-06-08 17:31:25 +0200 Fix Bux in notification messages. Fix incorrect information in README.md file. Add postmaster filter to migration process.
 - 2020-06-08 16:42:09 +0200 Issue-82: Fix syntax of the CREATE USER statement.
 - 2020-06-07 20:14:52 +0200 Fixed MySQL add user bug and extend migration script.
-- 2020-06-06 20:37:29 +0200 Now itÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ´s possible to import otrs stats too!
+- 2020-06-06 20:37:29 +0200 Now it is possible to import otrs stats too!
 - 2020-06-06 19:59:14 +0200 Fix bug in migrated statistics, CheckModules and add DoNotClean function.
 - 2020-06-06 12:10:28 +0200 Check the usage of $ENV{SCRIPT_NAME} (https://github.com/RotherOSS/otobo/issues/17)
 - 2020-06-06 08:02:06 +0200 Change CREATE USER and DB statements.
@@ -422,7 +550,7 @@
 - 2020-06-02 14:30:57 +0200 Fix typo.
 - 2020-06-02 14:25:22 +0200 CodePolicy: Edited wrong licenses, allowed usage of Kernel::System::Time for certain cases, deleted alternate skins, updated class dependencies, minor code changes.
 - 2020-05-31 10:58:09 +0200 Issur #55: specify charset=utf-8 for the /hello route
-- 2020-05-30 10:25:39 +0200 Issue 55: replace Welt with ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ
+- 2020-05-30 10:25:39 +0200 Issue 55: replace Welt with the utf-world
 - 2020-05-29 17:09:42 +0200 Tidied via CodePolicy, plus some small, related corrections.
 - 2020-05-29 11:26:03 +0200 Use a process watcher instead of cron when running under Docker (https://github.com/RotherOSS/otobo/issues/51)
 - 2020-05-28 19:39:19 +0200 Issus #51: move two commands into the Dockerfile
@@ -545,3 +673,4 @@
 
 # OTOBO 10.0.0 beta1 2020-01-30
  - First official OTOBO release, yippie!
+

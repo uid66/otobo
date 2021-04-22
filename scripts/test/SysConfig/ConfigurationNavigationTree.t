@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -54,7 +53,7 @@ my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
             OTOBO => {
                 DisplayName => 'OTOBO',
                 Files       => [
-                    'Calendar.xml', 'CloudServices.xml', 'Daemon.xml', 'Framework.xml',
+                    'Calendar.xml',         'CloudServices.xml',     'Daemon.xml', 'Framework.xml',
                     'GenericInterface.xml', 'ProcessManagement.xml', 'Ticket.xml',
                 ],
             },
@@ -306,7 +305,4 @@ if ( $PackageObject->PackageIsInstalled( Name => $PackageName ) ) {
     );
 }
 
-
 $Self->DoneTesting();
-
-

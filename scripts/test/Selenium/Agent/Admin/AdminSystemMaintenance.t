@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 my $CheckBredcrumb = sub {
 
@@ -255,8 +257,7 @@ $Selenium->RunTest(
         );
 
         # Check for upcoming System Maintenance notification.
-        my $UpcomingSysMaintenanceNotif
-            = "A system maintenance period will start at: $StartTimeString and is expected to stop at: $EndTimeString";
+        my $UpcomingSysMaintenanceNotif = "A system maintenance period will start at: $StartTimeString and is expected to stop at: $EndTimeString";
         $Self->False(
             $Selenium->execute_script(
                 "return \$('.MessageBox.Notice p:contains(\"$UpcomingSysMaintenanceNotif\")').length"
@@ -570,7 +571,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

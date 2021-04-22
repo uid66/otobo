@@ -27,7 +27,7 @@ use Test2::V0;
 
 # OTOBO modules
 use Kernel::System::UnitTest::MockTime qw(:all);
-use Kernel::System::UnitTest::RegisterDriver; # set up the $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # set up the $Self and $Kernel::OM
 use Kernel::Output::HTML::ArticleCheck::SMIME;
 
 our $Self;
@@ -77,8 +77,8 @@ my $HomeDir = $ConfigObject->Get('Home');
 # create directory for certificates and private keys
 my $CertPath    = $ConfigObject->Get('Home') . "/var/tmp/certs";
 my $PrivatePath = $ConfigObject->Get('Home') . "/var/tmp/private";
-mkpath( [$CertPath],    0, 0770 );    ## no critic
-mkpath( [$PrivatePath], 0, 0770 );    ## no critic
+mkpath( [$CertPath],    0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
+mkpath( [$PrivatePath], 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
 # set SMIME paths
 $ConfigObject->Set(
@@ -640,13 +640,13 @@ for my $Test (@Tests) {
         Data    => $Test->{Data},
         Message => {
             en => {
-                Subject => 'JobName',
-                Body    => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
+                Subject     => 'JobName',
+                Body        => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
                 ContentType => 'text/plain',
             },
             de => {
-                Subject => 'JobName',
-                Body    => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
+                Subject     => 'JobName',
+                Body        => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
                 ContentType => 'text/plain',
             },
         },
@@ -760,6 +760,5 @@ for my $Directory ( $CertPath, $PrivatePath ) {
 }
 
 # cleanup is done by RestoreDatabase.
-
 
 done_testing();

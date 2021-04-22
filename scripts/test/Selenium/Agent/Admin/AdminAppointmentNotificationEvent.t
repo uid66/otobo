@@ -23,7 +23,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -80,8 +82,7 @@ $Selenium->RunTest(
         );
 
         # Click "Add notification"
-        $Selenium->find_element("//a[contains(\@href, \'Action=AdminAppointmentNotificationEvent;Subaction=Add' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AdminAppointmentNotificationEvent;Subaction=Add' )]")->VerifiedClick();
 
         # Check add NotificationEvent screen.
         for my $ID (
@@ -314,8 +315,7 @@ $Selenium->RunTest(
         );
 
         # Create copy of test Notification.
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=NotificationCopy;ID=$NotifEventID{ID}' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=NotificationCopy;ID=$NotifEventID{ID}' )]")->VerifiedClick();
         my $TranslatedNotificationCopy = $LanguageObject->Translate( '%s (copy)', $NotifEventRandomID );
         $Self->True(
             $Selenium->find_element("//a[contains(.,'$TranslatedNotificationCopy')]"),
@@ -339,8 +339,7 @@ JAVASCRIPT
             );
 
             # Delete test Notification with delete button.
-            $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$NotifEventID{ID}' )]")
-                ->VerifiedClick();
+            $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$NotifEventID{ID}' )]")->VerifiedClick();
 
             # Check if test NotificationEvent is deleted
             $Self->False(
@@ -365,8 +364,8 @@ JAVASCRIPT
 
         my $TranslatedMessage =
             $LanguageObject->Translate(
-            'There where errors adding/updating the following Notifications: %s. Please check the log file for more information.',
-            $NotifEventRandomID
+                'There where errors adding/updating the following Notifications: %s. Please check the log file for more information.',
+                $NotifEventRandomID
             );
         $TranslatedMessage = substr( $TranslatedMessage, 0, 30 );
         $Selenium->find_element(
@@ -389,7 +388,4 @@ JAVASCRIPT
     }
 );
 
-
 $Self->DoneTesting();
-
-

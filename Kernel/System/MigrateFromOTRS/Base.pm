@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::Base;    ## no critic
+package Kernel::System::MigrateFromOTRS::Base;
 ## nofilter(TidyAll::Plugin::OTOBO::Perl::Dumper)
 ## nofilter(TidyAll::Plugin::OTOBO::Common::CustomizationMarkers)
 
@@ -98,9 +98,7 @@ sub CleanLicenseHeader {
     my $NewContent;
 
     # Open file
-    ## no critic qw(InputOutput::RequireBriefOpen)
-    open my $FileHandle, '<:encoding(utf-8)', $FilePathAndName;
-
+    open my $FileHandle, '<:encoding(utf-8)', $FilePathAndName;    ## no critic qw(OTOBO::ProhibitOpen InputOutput::RequireBriefOpen)
     if ( !$FileHandle ) {
 
         # Log info to apache error log and OTOBO log (syslog or file)
@@ -114,7 +112,7 @@ sub CleanLicenseHeader {
 
     # Read parse content from _ChangeLicenseHeaderRules
     my @Parser = $Self->_ChangeLicenseHeaderRules();
-    my $Parse = first { $FilePathAndName =~ m/$_->{File}/ } @Parser;
+    my $Parse  = first { $FilePathAndName =~ m/$_->{File}/ } @Parser;
 
     if ( !$Parse ) {
 
@@ -339,8 +337,7 @@ sub CleanOTRSFileToOTOBOStyle {
     my @ParserRegExLicence = _ChangeLicenseHeaderRules();
 
     my $NewContent;
-    open( my $FileHandle, '<:encoding(utf-8)', $FilePathAndName ); ## no critic (InputOutput::RequireBriefOpen)
-
+    open( my $FileHandle, '<:encoding(utf-8)', $FilePathAndName );    ## no critic qw(OTOBO::ProhibitOpen)
     if ( !$FileHandle ) {
 
         # Log info to apache error log and OTOBO log (syslog or file)
@@ -349,6 +346,7 @@ sub CleanOTRSFileToOTOBOStyle {
             Priority => 'error',
         );
         close $FileHandle;
+
         return;
     }
 
@@ -483,8 +481,8 @@ sub ChangePathFileName {
 
             # Log info to apache error log and OTOBO log (syslog or file)
             $Self->MigrationLog(
-            String   => "Can\'t create directory $NewFileDirname: $!",
-            Priority => 'error',
+                String   => "Can\'t create directory $NewFileDirname: $!",
+                Priority => 'error',
             );
     }
 
@@ -498,8 +496,8 @@ sub ChangePathFileName {
 
         # Log info to apache error log and OTOBO log (syslog or file)
         $Self->MigrationLog(
-        String   => "The move operation failed: $!",
-        Priority => 'error',
+            String   => "The move operation failed: $!",
+            Priority => 'error',
         );
     return 1;
 }
@@ -1193,19 +1191,19 @@ sub PackageMigrateIgnorePackages {
             {
                 PackageName => 'ShowDynamicField',
                 IgnoreType  => 'Ignore',
-                Comment =>
+                Comment     =>
                     'HideShow package is in OTOBO standard integrated in a better version. We only migrate the config and database data.',
             },
             {
                 PackageName => 'TicketForms',
                 IgnoreType  => 'Ignore',
-                Comment =>
+                Comment     =>
                     'TicketForms package is integrated in OTOBO standard in a better version. We only migrate the config and database data.',
             },
             {
                 PackageName => 'RotherOSS-LongEscalationPerformanceBoost',
                 IgnoreType  => 'Ignore',
-                Comment =>
+                Comment     =>
                     'RotherOSS-LongEscalationPerformanceBoost package is integrated in OTOBO standard in a better version.',
             },
             {
@@ -1221,7 +1219,7 @@ sub PackageMigrateIgnorePackages {
             {
                 PackageName => 'Znuny4OTRS-EscalationSuspend',
                 IgnoreType  => 'Ignore',
-                Comment => 'Znuny4OTRS-EscalationSuspend package is integrated in OTOBO standard in a newer version.',
+                Comment     => 'Znuny4OTRS-EscalationSuspend package is integrated in OTOBO standard in a newer version.',
             },
             {
                 PackageName => 'Znuny4OTRS-ExternalURLJump',
@@ -1300,23 +1298,26 @@ sub ResetConfigOption {
     };
 }
 
+# These tables will either be not  migrated or in some cases truncated.
+# The table names must be in lower case.
+# The order of the tables is relevant. Truncating must be possible
+# without violating foreign key constraints.
 sub DBSkipTables {
-
-    # the tables must be lower case
-    return {
-        cloud_service_config           => 1,
-        communication_log              => 1,
-        communication_log_obj_lookup   => 1,
-        communication_log_object       => 1,
-        communication_log_object_entry => 1,
-        gi_debugger_entry              => 1,
-        gi_debugger_entry_content      => 1,
-        package_repository             => 1,
-        process_id                     => 1,
-        scheduler_recurrent_task       => 1,
-        sessions                       => 1,
-        web_upload_cache               => 1,
-    };
+    return qw(
+        cloud_service_config
+        communication_log_obj_lookup
+        communication_log_object_entry
+        communication_log_object
+        communication_log
+        gi_debugger_entry_content
+        gi_debugger_entry
+        package_repository
+        process_id
+        scheduler_recurrent_task
+        sessions
+        system_data
+        web_upload_cache
+    );
 }
 
 # OTOBO Table Name => OTRS Table Name
@@ -1333,79 +1334,256 @@ sub DBRenameTables {
 # The values were determined by looking at the patches in scripts/database/otobo-schema.xml.
 sub DBShortenedColumns {
     return
-        { Table => 'acl', Column => 'name' },
-        { Table => 'acl_sync', Column => 'acl_id' },
-        { Table => 'article_data_mime_send_error', Column => 'message_id' },
-        { Table => 'article_search_index', Column => 'article_key' },
-        { Table => 'article_sender_type', Column => 'name' },
-        { Table => 'auto_response', Column => 'name' },
-        { Table => 'auto_response_type', Column => 'name' },
-        { Table => 'calendar', Column => 'name' },
-        { Table => 'cloud_service_config', Column => 'name' },
-        { Table => 'communication_channel', Column => 'name' },
-        { Table => 'communication_log', Column => 'direction' },
-        { Table => 'communication_log', Column => 'status' },
-        { Table => 'communication_log', Column => 'transport' },
-        { Table => 'communication_log_obj_lookup', Column => 'object_type' },
-        { Table => 'communication_log_object', Column => 'status' },
-        { Table => 'communication_log_object_entry', Column => 'log_key' },
-        { Table => 'customer_company', Column => 'name' },
-        { Table => 'customer_preferences', Column => 'user_id' },
-        { Table => 'customer_user', Column => 'login' },
-        { Table => 'dynamic_field', Column => 'name' },
-        { Table => 'dynamic_field_obj_id_name', Column => 'object_name' },
-        { Table => 'follow_up_possible', Column => 'name' },
-        { Table => 'form_draft', Column => 'action' },
-        { Table => 'generic_agent_jobs', Column => 'job_name' },
-        { Table => 'gi_webservice_config', Column => 'name' },
-        { Table => 'groups_table', Column => 'name' },
-        { Table => 'notification_event', Column => 'name' },
-        { Table => 'notification_event_item', Column => 'event_key' },
-        { Table => 'notification_event_item', Column => 'event_value' },
-        { Table => 'postmaster_filter', Column => 'f_name' },
-        { Table => 'queue', Column => 'name' },
-        { Table => 'roles', Column => 'name' },
-        { Table => 'salutation', Column => 'name' },
-        { Table => 'search_profile', Column => 'login' },
-        { Table => 'search_profile', Column => 'profile_name' },
-        { Table => 'service', Column => 'name' },
-        { Table => 'service_customer_user', Column => 'customer_user_login' },
-        { Table => 'signature', Column => 'name' },
-        { Table => 'sla', Column => 'name' },
-        { Table => 'standard_attachment', Column => 'name' },
-        { Table => 'standard_template', Column => 'name' },
-        { Table => 'sysconfig_default', Column => 'name' },
-        { Table => 'sysconfig_default_version', Column => 'name' },
-        { Table => 'sysconfig_modified', Column => 'name' },
-        { Table => 'sysconfig_modified_version', Column => 'name' },
-        { Table => 'ticket', Column => 'customer_user_id' },
-        { Table => 'ticket', Column => 'title' },
-        { Table => 'ticket_history_type', Column => 'name' },
-        { Table => 'ticket_index', Column => 'queue' },
-        { Table => 'ticket_lock_type', Column => 'name' },
-        { Table => 'ticket_loop_protection', Column => 'sent_to' },
-        { Table => 'ticket_priority', Column => 'name' },
-        { Table => 'ticket_state', Column => 'name' },
-        { Table => 'ticket_state_type', Column => 'name' },
-        { Table => 'ticket_type', Column => 'name' },
-        { Table => 'users', Column => 'login' },
-        { Table => 'valid', Column => 'name' },
-        { Table => 'virtual_fs', Column => 'filename' },
-        { Table => 'virtual_fs_db', Column => 'filename' };
+        {
+            Table  => 'acl',
+            Column => 'name'
+        },
+        {
+            Table  => 'acl_sync',
+            Column => 'acl_id'
+        },
+        {
+            Table  => 'article_data_mime_send_error',
+            Column => 'message_id'
+        },
+        {
+            Table  => 'article_search_index',
+            Column => 'article_key'
+        },
+        {
+            Table  => 'article_sender_type',
+            Column => 'name'
+        },
+        {
+            Table  => 'auto_response',
+            Column => 'name'
+        },
+        {
+            Table  => 'auto_response_type',
+            Column => 'name'
+        },
+        {
+            Table  => 'calendar',
+            Column => 'name'
+        },
+        {
+            Table  => 'cloud_service_config',
+            Column => 'name'
+        },
+        {
+            Table  => 'communication_channel',
+            Column => 'name'
+        },
+        {
+            Table  => 'communication_log',
+            Column => 'direction'
+        },
+        {
+            Table  => 'communication_log',
+            Column => 'status'
+        },
+        {
+            Table  => 'communication_log',
+            Column => 'transport'
+        },
+        {
+            Table  => 'communication_log_obj_lookup',
+            Column => 'object_type'
+        },
+        {
+            Table  => 'communication_log_object',
+            Column => 'status'
+        },
+        {
+            Table  => 'communication_log_object_entry',
+            Column => 'log_key'
+        },
+        {
+            Table  => 'customer_company',
+            Column => 'name'
+        },
+        {
+            Table  => 'customer_preferences',
+            Column => 'user_id'
+        },
+        {
+            Table  => 'customer_user',
+            Column => 'login'
+        },
+        {
+            Table  => 'dynamic_field',
+            Column => 'name'
+        },
+        {
+            Table  => 'dynamic_field_obj_id_name',
+            Column => 'object_name'
+        },
+        {
+            Table  => 'follow_up_possible',
+            Column => 'name'
+        },
+        {
+            Table  => 'form_draft',
+            Column => 'action'
+        },
+        {
+            Table  => 'generic_agent_jobs',
+            Column => 'job_name'
+        },
+        {
+            Table  => 'gi_webservice_config',
+            Column => 'name'
+        },
+        {
+            Table  => 'groups_table',
+            Column => 'name'
+        },
+        {
+            Table  => 'notification_event',
+            Column => 'name'
+        },
+        {
+            Table  => 'notification_event_item',
+            Column => 'event_key'
+        },
+        {
+            Table  => 'notification_event_item',
+            Column => 'event_value'
+        },
+        {
+            Table  => 'postmaster_filter',
+            Column => 'f_name'
+        },
+        {
+            Table  => 'queue',
+            Column => 'name'
+        },
+        {
+            Table  => 'roles',
+            Column => 'name'
+        },
+        {
+            Table  => 'salutation',
+            Column => 'name'
+        },
+        {
+            Table  => 'search_profile',
+            Column => 'login'
+        },
+        {
+            Table  => 'search_profile',
+            Column => 'profile_name'
+        },
+        {
+            Table  => 'service',
+            Column => 'name'
+        },
+        {
+            Table  => 'service_customer_user',
+            Column => 'customer_user_login'
+        },
+        {
+            Table  => 'signature',
+            Column => 'name'
+        },
+        {
+            Table  => 'sla',
+            Column => 'name'
+        },
+        {
+            Table  => 'standard_attachment',
+            Column => 'name'
+        },
+        {
+            Table  => 'standard_template',
+            Column => 'name'
+        },
+        {
+            Table  => 'sysconfig_default',
+            Column => 'name'
+        },
+        {
+            Table  => 'sysconfig_default_version',
+            Column => 'name'
+        },
+        {
+            Table  => 'sysconfig_modified',
+            Column => 'name'
+        },
+        {
+            Table  => 'sysconfig_modified_version',
+            Column => 'name'
+        },
+        {
+            Table  => 'ticket',
+            Column => 'customer_user_id'
+        },
+        {
+            Table  => 'ticket',
+            Column => 'title'
+        },
+        {
+            Table  => 'ticket_history_type',
+            Column => 'name'
+        },
+        {
+            Table  => 'ticket_index',
+            Column => 'queue'
+        },
+        {
+            Table  => 'ticket_lock_type',
+            Column => 'name'
+        },
+        {
+            Table  => 'ticket_loop_protection',
+            Column => 'sent_to'
+        },
+        {
+            Table  => 'ticket_priority',
+            Column => 'name'
+        },
+        {
+            Table  => 'ticket_state',
+            Column => 'name'
+        },
+        {
+            Table  => 'ticket_state_type',
+            Column => 'name'
+        },
+        {
+            Table  => 'ticket_type',
+            Column => 'name'
+        },
+        {
+            Table  => 'users',
+            Column => 'login'
+        },
+        {
+            Table  => 'valid',
+            Column => 'name'
+        },
+        {
+            Table  => 'virtual_fs',
+            Column => 'filename'
+        },
+        {
+            Table  => 'virtual_fs_db',
+            Column => 'filename'
+        };
 }
 
 # list of files that need to be copied
 sub CopyFileListfromOTRSToOTOBO {
     my @Files = (
         '/Kernel/Config.pm',
-        '/Kernel/Config.po', # what is that ?
-        '/var/httpd/htdocs/index.html',
+        '/Kernel/Config.po',               # what is that ?
+        '/var/httpd/htdocs/index.html',    # why ?
         '/var/article',
         '/var/stats',
     );
 
     # Under Docker there is no var/cron
-    if ( ! $ENV{OTOBO_RUNS_UNDER_DOCKER} ) {
+    if ( !$ENV{OTOBO_RUNS_UNDER_DOCKER} ) {
         push @Files, '/var/cron';
     }
 

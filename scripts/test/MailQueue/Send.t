@@ -43,7 +43,7 @@ my %FakeSMTPEnv = (
     'connect' => 1,
 );
 
-no strict 'refs';    ## no critic
+no strict 'refs';    ## no critic (TestingAndDebugging::ProhibitNoStrict)
 
 # Overwrite the OTOBO Email::SMTP check method to use our fake smtp client,
 #   but make this change local to the unit test scope, as you can see, it also
@@ -56,7 +56,7 @@ local *{'Kernel::System::Email::SMTP::Check'} = sub {
     #   that happen, it'll check if the FakeSMTPEnv has an attribute with the same
     #   name and returns it, otherwise always returns True to ensure that the code
     #   that will use this object continues as everything is ok.
-    package FakeSMTP {    ## no critic
+    package FakeSMTP {
         our $AUTOLOAD;
 
         sub new {
@@ -235,8 +235,7 @@ my $CheckForCommunicationLog = sub {
         }
     ];
 
-    my $CommunicationLogConnection
-        = List::Util::first { $_->{ObjectLogType} eq 'Connection' } @{$CommunicationLogObjects};
+    my $CommunicationLogConnection = List::Util::first { $_->{ObjectLogType} eq 'Connection' } @{$CommunicationLogObjects};
     $Self->True(
         $CommunicationLogConnection->{ObjectLogStatus} eq $CommunicationLogStatus->{Connection},
         $TestBaseMessage
@@ -613,7 +612,4 @@ for my $Test (@Tests) {
 
 # restore to the previous state is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

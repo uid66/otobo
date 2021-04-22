@@ -26,13 +26,13 @@ use File::Path qw(mkpath rmtree);
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
 
 our $Self;
 
-
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -45,8 +45,8 @@ $Selenium->RunTest(
         # create directory for certificates and private keys
         my $CertPath    = $ConfigObject->Get('Home') . "/var/tmp/certs";
         my $PrivatePath = $ConfigObject->Get('Home') . "/var/tmp/private";
-        mkpath( [$CertPath],    0, 0770 );    ## no critic
-        mkpath( [$PrivatePath], 0, 0770 );    ## no critic
+        mkpath( [$CertPath],    0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
+        mkpath( [$PrivatePath], 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
         # make sure to enable cloud services
         $Helper->ConfigSettingChange(

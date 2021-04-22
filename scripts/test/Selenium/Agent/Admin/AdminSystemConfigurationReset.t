@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -24,13 +23,15 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
 
-        my $Helper               = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject      = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
         # Create test user and login.
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -132,7 +133,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -62,7 +61,4 @@ $Self->True(
 
 $Self->Note( Note => $Result );
 
-
 $Self->DoneTesting();
-
-

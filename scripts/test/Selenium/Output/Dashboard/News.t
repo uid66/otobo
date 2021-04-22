@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -113,7 +116,7 @@ use strict;
 use warnings;
 ## nofilter(TidyAll::Plugin::OTOBO::Perl::TestSubs)
 {
-    no warnings 'redefine';
+    no warnings 'redefine'; ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
     sub Request {
         my \$JSONString = q^
 $CloudServiceResponseJSON

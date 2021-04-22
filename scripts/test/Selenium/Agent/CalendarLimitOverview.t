@@ -23,7 +23,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -115,8 +117,8 @@ $Selenium->RunTest(
 
         # Verify that only first calendars (limited by CalendarLimitOverview setting) are checked.
         for my $Index ( 0 .. $LastCalendarIndex ) {
-            my $Length  = ( $Index < $Limit ) ? 1         : 0;
-            my $Checked = $Length             ? 'checked' : 'unchecked';
+            my $Length       = ( $Index < $Limit ) ? 1         : 0;
+            my $Checked      = $Length             ? 'checked' : 'unchecked';
             my $CalendarID   = $Calendars[$Index]->{CalendarID};
             my $CalendarName = $Calendars[$Index]->{CalendarName};
 
@@ -184,8 +186,8 @@ $Selenium->RunTest(
 
         # Verify that only calendars from the array are checked (see bug#14054).
         for my $Index ( 0 .. $LastCalendarIndex ) {
-            my $Length  = $CheckedIndicesHash{$Index} ? 1         : 0;
-            my $Checked = $Length                     ? 'checked' : 'unchecked';
+            my $Length       = $CheckedIndicesHash{$Index} ? 1         : 0;
+            my $Checked      = $Length                     ? 'checked' : 'unchecked';
             my $CalendarID   = $Calendars[$Index]->{CalendarID};
             my $CalendarName = $Calendars[$Index]->{CalendarName};
 
@@ -261,7 +263,4 @@ $Selenium->RunTest(
     },
 );
 
-
 $Self->DoneTesting();
-
-

@@ -318,12 +318,12 @@ sub Run {
         );
     }
 
-    my $DynamicFields = $Param{Data}->{DynamicFields} || 0;
-    my $Extended      = $Param{Data}->{Extended}      || 0;
-    my $AllArticles   = $Param{Data}->{AllArticles}   || 0;
-    my $ArticleOrder  = $Param{Data}->{ArticleOrder}  || 'ASC';
-    my $ArticleLimit  = $Param{Data}->{ArticleLimit}  || 0;
-    my $Attachments   = $Param{Data}->{Attachments}   || 0;
+    my $DynamicFields         = $Param{Data}->{DynamicFields} || 0;
+    my $Extended              = $Param{Data}->{Extended}      || 0;
+    my $AllArticles           = $Param{Data}->{AllArticles}   || 0;
+    my $ArticleOrder          = $Param{Data}->{ArticleOrder}  || 'ASC';
+    my $ArticleLimit          = $Param{Data}->{ArticleLimit}  || 0;
+    my $Attachments           = $Param{Data}->{Attachments}   || 0;
     my $GetAttachmentContents = $Param{Data}->{GetAttachmentContents} // 1;
 
     my $ReturnData = {
@@ -348,6 +348,7 @@ sub Run {
     # start ticket loop
     TICKET:
     for my $TicketID (@TicketIDs) {
+        my $TicketArticleLimit = $ArticleLimit;
 
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -436,15 +437,15 @@ sub Run {
 
         # Modify ArticleLimit if it is greater then number of articles (see bug#14585).
         if ( $ArticleLimit > scalar @Articles ) {
-            $ArticleLimit = scalar @Articles;
+            $TicketArticleLimit = scalar @Articles;
         }
 
         # Set number of articles by ArticleLimit and ArticleOrder parameters.
-        if ( IsArrayRefWithData( \@Articles ) && $ArticleLimit ) {
+        if ( IsArrayRefWithData( \@Articles ) && $TicketArticleLimit ) {
             if ( $ArticleOrder eq 'DESC' ) {
                 @Articles = reverse @Articles;
             }
-            @Articles = @Articles[ 0 .. ( $ArticleLimit - 1 ) ];
+            @Articles = @Articles[ 0 .. ( $TicketArticleLimit - 1 ) ];
         }
 
         # start article loop

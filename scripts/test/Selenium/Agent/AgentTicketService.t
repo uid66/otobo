@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -154,8 +156,7 @@ $Selenium->RunTest(
         $Element->VerifiedClick();
 
         # click on child service
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketService;ServiceID=$ServiceIDs[1];\' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketService;ServiceID=$ServiceIDs[1];\' )]")->VerifiedClick();
 
         # check different views for filters
         for my $View (qw(Small Medium Preview)) {
@@ -275,7 +276,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

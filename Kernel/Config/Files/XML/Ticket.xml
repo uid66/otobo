@@ -7436,6 +7436,13 @@
             <Item ValueType="String" ValueRegex="">Kernel::Output::HTML::CustomerNewTicket::QueueSelectionGeneric</Item>
         </Value>
     </Setting>
+    <Setting Name="Ticket::Frontend::CustomerTicketPrint###CustomerInformation" Required="0" Valid="1">
+        <Description Translatable="1">Whether extended customer information is shown in the ticket print screen of the customer interface.</Description>
+        <Navigation>Frontend::Customer::View::TicketPrint</Navigation>
+        <Value>
+            <Item ValueType="Checkbox">0</Item>
+        </Value>
+    </Setting>
     <Setting Name="Ticket::Frontend::CustomerTicketZoom###NextScreenAfterFollowUp" Required="1" Valid="1">
         <Description Translatable="1">Determines the next screen after the follow-up screen of a zoomed ticket in the customer interface.</Description>
         <Navigation>Frontend::Customer::View::TicketZoom</Navigation>
@@ -7490,6 +7497,13 @@
     </Setting>
     <Setting Name="Ticket::Frontend::CustomerTicketZoom###StateDefault" Required="1" Valid="1">
         <Description Translatable="1">Defines the default next state for a ticket after customer follow-up in the customer interface.</Description>
+        <Navigation>Frontend::Customer::View::TicketZoom</Navigation>
+        <Value>
+            <Item ValueType="Entity" ValueEntityType="State" ValueRegex="">open</Item>
+        </Value>
+    </Setting>
+    <Setting Name="Ticket::Frontend::CustomerTicketZoom###StatePreset" Required="0" Valid="0">
+        <Description Translatable="1">If enabled defines the preselected state for customer follow-up in the customer interface.</Description>
         <Navigation>Frontend::Customer::View::TicketZoom</Navigation>
         <Value>
             <Item ValueType="Entity" ValueEntityType="State" ValueRegex="">open</Item>
@@ -13050,7 +13064,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element1" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13061,7 +13075,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element2" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13072,7 +13086,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element3" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13083,7 +13097,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element4" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13094,7 +13108,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element5" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13105,7 +13119,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element6" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13116,7 +13130,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element7" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13127,7 +13141,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element8" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13138,7 +13152,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element9" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13149,7 +13163,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element10" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13160,7 +13174,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element11" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13171,7 +13185,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element12" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13182,7 +13196,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element13" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13193,7 +13207,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element14" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13204,7 +13218,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element15" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>
@@ -13215,7 +13229,7 @@ Thanks for your help!
         </Value>
     </Setting>
     <Setting Name="Ticket::TicketDynamicFieldDefault###Element16" Required="0" Valid="0">
-        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".</Description>
+        <Description Translatable="1">Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".</Description>
         <Navigation>Core::Ticket::DynamicFieldDefault</Navigation>
         <Value>
             <Hash>

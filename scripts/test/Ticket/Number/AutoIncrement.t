@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -202,11 +201,11 @@ $TicketID = $TicketObject->TicketCreate(
 my $TicketNumber = $TicketNumberGeneratorObject->TicketNumberBuild();
 
 # Get last ticket number counter.
-my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+my $DBObject       = $Kernel::OM->Get('Kernel::System::DB');
 my $PrepareSuccess = $DBObject->Prepare(
     SQL => 'SELECT MAX(counter) FROM ticket_number_counter',
 );
-if ( !$PrepareSuccess) {
+if ( !$PrepareSuccess ) {
     done_testing();
 
     exit 0;
@@ -237,7 +236,6 @@ if ( !$DoSuccess ) {
 
     exit 0;
 }
-
 
 $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 

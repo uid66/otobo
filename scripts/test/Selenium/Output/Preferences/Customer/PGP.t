@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -27,7 +26,10 @@ use vars (qw($Self));
 use File::Path qw(mkpath rmtree);
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -73,7 +75,7 @@ $Selenium->RunTest(
 
         # create test PGP path and set it in sysConfig
         my $PGPPath = $Home . '/var/tmp/pgp' . $Helper->GetRandomID();
-        mkpath( [$PGPPath], 0, 0770 );    ## no critic
+        mkpath( [$PGPPath], 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
         $Helper->ConfigSettingChange(
             Valid => 1,
@@ -118,7 +120,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

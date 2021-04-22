@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 ## nofilter(TidyAll::Plugin::OTOBO::Perl::TestSubs)
 use strict;
 use warnings;
@@ -229,7 +228,4 @@ $Self->Is(
     "Finish ConfigurationDeploymentSync() result",
 );
 
-
 $Self->DoneTesting();
-
-

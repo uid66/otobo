@@ -147,51 +147,33 @@ sub ResetAutoIncrementField {
         }
     }
 
-    my $QuotedTable = $Param{DBObject}->QuoteIdentifier( Table => $Param{Table} );
+    # The OTOBO naming convention uses 'id' for the primary keys.
+    # Special handling for a table with no 'id' column but with a 'object_id' column.
+    my $TableName       = $Param{Table};
+    my $SerialAttribute = $TableName eq 'dynamic_field_obj_id_name' ? 'object_id' : 'id';
+
+    # check whether there is a sequence for the serial attribute.
+    # early exit when there is no sequence
+    my $Row = $Param{DBObject}->SelectAll(
+        SQL   => qq{SELECT pg_get_serial_sequence(?, ?)},
+        Bind  => [ \$TableName, \$SerialAttribute ],
+        LIMIT => 1,
+    );
+
+    return 1 unless $Row;
+    return 1 unless $Row->@*;
+
+    my $SequenceName = $Row->[0]->[0];
+
+    return 1 unless $SequenceName;
+
+    # The 2 argument form setval() sets the last used value of the sequence.
+    # Thus the next value will be the set plus one.
     $Param{DBObject}->Prepare(
-        SQL => "
-            SELECT id
-            FROM $QuotedTable
-            ORDER BY id DESC",
-        Limit => 1,
+        SQL => qq{ SELECT setval('$SequenceName', ( SELECT coalesce(max(id), 0) FROM $TableName ) )},
     ) || return;
 
-    my $LastID;
-    while ( my @Row = $Param{DBObject}->FetchrowArray() ) {
-        $LastID = $Row[0];
-    }
-
-    # add one more to the last ID
-    $LastID++;
-
-    # assuming that the sequnce name does not have to be quoted
-    my $SequenceName = "$Param{Table}_id_seq";
-
-    # check if sequence exists
-    $Param{DBObject}->Prepare(
-        SQL => "
-        SELECT
-            1
-        FROM pg_class c
-        WHERE
-            c.relkind = 'S' AND
-            c.relname = '$SequenceName'",
-        Limit => 1,
-    ) || return;
-
-    my $SequenceExists = 0;
-    while ( my @Row = $Param{DBObject}->FetchrowArray() ) {
-        $SequenceExists = $Row[0];
-    }
-
-    return 1 if !$SequenceExists;
-
-    my $SQL = qq{ALTER SEQUENCE $SequenceName RESTART WITH $LastID;};
-
-    $Param{DBObject}->Do(
-        SQL => $SQL,
-    ) || return;
-
+    # no need to fetch anything, as Prepare() already executes the query
     return 1;
 }
 
@@ -223,8 +205,8 @@ END_SQL
     ) || return {};
 
     my %Result;
-    while ( my ($Column, $Type) = $Param{DBObject}->FetchrowArray() ) {
-        $Result{ $Column } = $Type;
+    while ( my ( $Column, $Type ) = $Param{DBObject}->FetchrowArray() ) {
+        $Result{$Column} = $Type;
     }
 
     return \%Result;
@@ -290,36 +272,50 @@ sub TranslateColumnInfos {
     my %Result;
 
     if ( $Param{DBType} =~ /mysql/ ) {
-        $Result{'character varying'}                = 'VARCHAR';
-        $Result{integer}                            = 'INTEGER';
-        $Result{bigint}                             = 'BIGINT';
-        $Result{'timestamp without time zone'}      = 'DATETIME';
-        $Result{smallint}                           = 'SMALLINT';
-        $Result{longblob}                           = 'LONGBLOB';
-        $Result{mediumtext}                         = 'MEDIUMTEXT';
-        $Result{text}                               = 'TEXT';
+        $Result{VARCHAR} = 'VARCHAR';
+        $Result{TEXT}    = 'TEXT';
+        $Result{BLOB}    = 'TEXT';
+
+        $Result{DATE}      = 'DATE';
+        $Result{TIME}      = 'TIME';
+        $Result{DATETIME}  = 'TIMESTAMP';
+        $Result{TIMESTAMP} = 'TIMESTAMP';
+
+        $Result{TINYINT}            = 'SMALLINT';
+        $Result{SMALLINT}           = 'SMALLINT';
+        $Result{MEDIUMINT}          = 'INTEGER';
+        $Result{INTEGER}            = 'INTEGER';
+        $Result{INT}                = 'INTEGER';
+        $Result{BIGINT}             = 'BIGINT';
+        $Result{DECIMAL}            = 'DECIMAL';
+        $Result{FLOAT}              = 'REAL';
+        $Result{REAL}               = 'REAL';
+        $Result{DOUBLE}             = 'DOUBLE PRECISION';
+        $Result{'DOUBLE PRECISION'} = 'DOUBLE PRECISION';
+
+        $ColumnInfos{DATA_TYPE} = $Result{ $Param{ColumnInfos}->{DATA_TYPE} };
     }
     elsif ( $Param{DBType} =~ /postgresql/ ) {
-        $Result{'character varying'}                = 'VARCHAR';
-        $Result{integer}                            = 'INTEGER';
-        $Result{bigint}                             = 'BIGSERIAL';
-        $Result{'timestamp without time zone'}      = 'timestamp';
-        $Result{smallint}                           = 'SMALLINT';
-        $Result{longblob}                           = 'TEXT';
-        $Result{mediumtext}                         = 'VARCHAR';
-        $Result{text}                               = 'TEXT';
+
+        # no translation necessary
+        $ColumnInfos{DATA_TYPE} = $Param{ColumnInfos}->{DATA_TYPE};
     }
     elsif ( $Param{DBType} =~ /oracle/ ) {
-        $Result{'character varying'}                = 'VARCHAR2';
-        $Result{integer}                            = 'NUMBER';
-        $Result{bigint}                             = 'NUMBER';
-        $Result{'timestamp without time zone'}      = 'DATE';
-        $Result{smallint}                           = 'NUMBER';
-        $Result{longblob}                           = 'CLOB';
-        $Result{mediumtext}                         = 'CLOB';
-        $Result{text}                               = 'VARCHAR2';
+        $Result{VARCHAR2} = 'VARCHAR';
+        $Result{TEXT}     = 'TEXT';
+        $Result{CLOB}     = 'TEXT';
+
+        $Result{DATE}     = 'DATE';
+        $Result{DATETIME} = 'DATETIME';
+
+        $Result{SHORTINTEGER} = 'SMALLINT';
+        $Result{INTEGER}      = 'INTEGER';
+        $Result{LONGINTEGER}  = 'BIGINT';
+        $Result{SHORTDECIMAL} = 'DECIMAL';
+        $Result{NUMBER}       = 'DECIMAL';
+
+        $ColumnInfos{DATA_TYPE} = $Result{ $Param{ColumnInfos}->{DATA_TYPE} };
     }
-    $ColumnInfos{DATA_TYPE} = $Result{ $Param{ColumnInfos}->{DATA_TYPE} };
 
     return \%ColumnInfos;
 }
@@ -341,8 +337,7 @@ sub AlterTableAddColumn {
     }
 
     my %ColumnInfos = %{ $Param{ColumnInfos} };
-    my $QuotedTable = $Param{DBObject}->QuoteIdentifier( Table => $Param{Table} );
-    my $SQL = qq{ALTER TABLE $QuotedTable ADD $Param{Column} $ColumnInfos{DATA_TYPE}};
+    my $SQL         = qq{ALTER TABLE $Param{Table} ADD $Param{Column} $ColumnInfos{DATA_TYPE}};
 
     if ( $ColumnInfos{LENGTH} ) {
         $SQL .= " \($ColumnInfos{LENGTH}\)";

@@ -25,7 +25,10 @@ use vars (qw($Self));
 
 use File::Path qw(mkpath rmtree);
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -39,8 +42,8 @@ $Selenium->RunTest(
         my $PrivatePath = $ConfigObject->Get('Home') . "/var/tmp/private$RandomID";
         rmtree($CertPath);
         rmtree($PrivatePath);
-        mkpath( [$CertPath],    0, 0770 );    ## no critic
-        mkpath( [$PrivatePath], 0, 0770 );    ## no critic
+        mkpath( [$CertPath],    0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
+        mkpath( [$PrivatePath], 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
         # Enable SMIME in config.
         $Helper->ConfigSettingChange(
@@ -299,4 +302,3 @@ $Selenium->RunTest(
 );
 
 $Self->DoneTesting();
-

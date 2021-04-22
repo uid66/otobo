@@ -1695,7 +1695,7 @@ sub _DynamicFieldsCreate {
             ObjectType    => $NewDynamicField->{ObjectType},
             Config        => $NewDynamicField->{Config},
             InternalField => $NewDynamicField->{InternalField} || 0,
-            ValidID       => $NewDynamicField->{ValidID} || $ValidID,
+            ValidID       => $NewDynamicField->{ValidID}       || $ValidID,
             UserID        => 1,
         );
         next DYNAMICFIELD if !$FieldID;
@@ -3307,7 +3307,7 @@ sub _ITSMConfigItemDefinitionCreate {
         )
     {
         # Turn Perl config item file into Perl structure.
-        $Content = eval $Content;    ## no critic
+        $Content = eval $Content;    ## no critic qw(BuiltinFunctions::ProhibitStringyEval)
         return if !defined $Content;
 
         # Turn Perl structure into YAML.
@@ -4442,7 +4442,7 @@ sub _ProcessCreateIfNotExists {
 
             $LogObject->Log(
                 Priority => 'error',
-                Message =>
+                Message  =>
                     "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n"
                     . "\tBackend Error Message:\n\t$ProcessImport{Message}!",
             );
@@ -4722,7 +4722,7 @@ sub _ProcessWidgetDynamicFieldGroupsRemove {
         my $NewDynamicFields;
 
         if ( !$Groups{$Group} ) {
-            $NewDynamicFields = join ',', @{ $ProcessWidgetDynamicFieldGroups{$Group} };
+            $NewDynamicFields              = join ',', @{ $ProcessWidgetDynamicFieldGroups{$Group} };
             $NewDynamicFieldConfig{$Group} = $NewDynamicFields;
             next GROUP;
         }
@@ -4821,7 +4821,7 @@ sub _ModuleGroupAdd {
     return if !IsHashRefWithData($FrontendList);
 
     # Split module "path" (e. g. Admin###001-Framework)
-    my $Module             = $Param{Module};
+    my $Module = $Param{Module};
     my @ModulePathElements = split '###', $Module;
 
     my $ModuleRegistration = $FrontendList;
@@ -4934,7 +4934,7 @@ sub _ModuleGroupRemove {
     return if !IsHashRefWithData($FrontendList);
 
     # Split module "path" (e. g. Admin###001-Framework)
-    my $Module             = $Param{Module};
+    my $Module = $Param{Module};
     my @ModulePathElements = split '###', $Module;
 
     my $ModuleRegistration = $FrontendList;

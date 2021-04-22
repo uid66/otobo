@@ -25,7 +25,10 @@ use vars (qw($Self));
 
 use Kernel::Language;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 my $PostMasterFilterSubmit = sub {
     $Selenium->execute_script(
@@ -85,8 +88,7 @@ $Selenium->RunTest(
         );
 
         # Click 'Add filter'.
-        $Selenium->find_element("//a[contains(\@href, \'Action=AdminPostMasterFilter;Subaction=AddAction' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AdminPostMasterFilter;Subaction=AddAction' )]")->VerifiedClick();
 
         # Check client side validation.
         $Selenium->find_element( "#EditName", 'css' )->clear();
@@ -276,8 +278,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Submit",      'css' )->VerifiedClick();
 
         # Try to create PostMasterFilter with the same name, (see https://bugs.otrs.org/show_bug.cgi?id=12718).
-        $Selenium->find_element("//a[contains(\@href, \'Action=AdminPostMasterFilter;Subaction=AddAction' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AdminPostMasterFilter;Subaction=AddAction' )]")->VerifiedClick();
 
         $Selenium->find_element( "#EditName", 'css' )->send_keys($PostMasterName);
         $Selenium->InputFieldValueSet(
@@ -445,7 +446,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

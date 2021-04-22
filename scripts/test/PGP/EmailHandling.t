@@ -114,7 +114,7 @@ if ( !$PGPBin || !( -e $PGPBin ) ) {
 # create local crypt object
 my $PGPObject = $Kernel::OM->Get('Kernel::System::Crypt::PGP');
 
-skip_all( 'no PGP support' ) unless $PGPObject;
+skip_all('no PGP support') unless $PGPObject;
 
 # make some preparations
 my %Search = (
@@ -803,7 +803,7 @@ for my $Test (@TestVariations) {
     if ( $Test->{VerifySignature} ) {
         my $SignatureVerified =
             grep {
-            $_->{Successful} && $_->{Key} eq 'Signed' && $_->{SignatureFound} && $_->{Message}
+                $_->{Successful} && $_->{Key} eq 'Signed' && $_->{SignatureFound} && $_->{Message}
             } @CheckResult;
 
         $Self->True(
@@ -935,6 +935,5 @@ for my $Count ( 1 .. 2 ) {
 }
 
 # cleanup is done by RestoreDatabase.
-
 
 $Self->DoneTesting();

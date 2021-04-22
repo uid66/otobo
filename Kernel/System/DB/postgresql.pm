@@ -76,7 +76,11 @@ ORDER BY table_name
 EOF
 
     # how to turn off foreign key checks for the current session
+    # Attention: all triggers will be deactivated
     $Self->{'DB::DeactivateForeignKeyChecks'} = 'set session_replication_role to replica;';
+
+    # how to delete all rows of a table, use with sprintf for inserting the table name
+    $Self->{'DB::PurgeTable'} = 'DELETE FROM %s';
 
     # dbi attributes
     $Self->{'DB::Attribute'} = {};
@@ -307,9 +311,9 @@ sub TableCreate {
     for my $Name ( sort keys %Index ) {
         push @Return,
             $Self->IndexCreate(
-            TableName => $TableName,
-            Name      => $Name,
-            Data      => $Index{$Name},
+                TableName => $TableName,
+                Name      => $Name,
+                Data      => $Index{$Name},
             );
     }
 
@@ -319,10 +323,10 @@ sub TableCreate {
         for ( 0 .. $#Array ) {
             push @{ $Self->{Post} },
                 $Self->ForeignKeyCreate(
-                LocalTableName   => $TableName,
-                Local            => $Array[$_]->{Local},
-                ForeignTableName => $ForeignKey,
-                Foreign          => $Array[$_]->{Foreign},
+                    LocalTableName   => $TableName,
+                    Local            => $Array[$_]->{Local},
+                    ForeignTableName => $ForeignKey,
+                    Foreign          => $Array[$_]->{Foreign},
                 );
         }
     }

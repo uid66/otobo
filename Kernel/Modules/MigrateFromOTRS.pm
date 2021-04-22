@@ -152,18 +152,17 @@ sub Run {
         }
         elsif ( $Self->{Subaction} eq 'OTRSDBSettings' && $AJAXTask eq 'CheckSettings' ) {
             my %GetParam;
-            for my $Key (qw/DBType DBHost DBUser DBPassword DBName DBSID DBPort SkipDBMigration/) {
+            for my $Key (qw/DBType DBHost DBUser DBPassword DBName DBDSN SkipDBMigration/) {
                 $GetParam{$Key} = $ParamObject->GetParam( Param => $Key ) // '';
-                chomp( $GetParam{$Key} );
+                chomp $GetParam{$Key};
                 $GetParam{$Key} =~ s/^\s+//;
                 $GetParam{$Key} =~ s/\s+$//;
             }
             $GetParam{DBDSN} =
                 $GetParam{DBType} eq 'mysql'      ? "DBI:mysql:database=;host=$GetParam{DBHost};" :
                 $GetParam{DBType} eq 'postgresql' ? "DBI:Pg:host=$GetParam{DBHost};" :
-                $GetParam{DBType} eq 'oracle'
-                ? "DBI:Oracle://$GetParam{DBHost}:$GetParam{DBPort}/$GetParam{DBSID}"
-                : '';
+                $GetParam{DBType} eq 'oracle'     ? $GetParam{DBDSN} :
+                '';
 
             $CacheObject->Set(
                 Type  => 'OTRSMigration',
@@ -249,8 +248,8 @@ sub Run {
                         Task           => $PerlTask,
                         UserID         => 1,
                         OTRSData       => $OTRSData // {},
-                        DBData         => $DBData // {},
-                        PackageResolve => $Resolve // {},
+                        DBData         => $DBData   // {},
+                        PackageResolve => $Resolve  // {},
                     );
                 };
                 if ( !$Result || !defined $Result->{$PerlTask}{Successful} ) {
@@ -410,7 +409,6 @@ sub Run {
                 OTRSDBSettings => {
                     DBName => 'otrs',
                     DBUser => 'otrs',
-                    DBPort => 1521,     # why Oracle port as default ?
                 },
                 PreChecks => {
                     NextTask => 'OTOBOFrameworkVersionCheck',
@@ -588,8 +586,8 @@ sub _Finish {
 
     # Only if we have mod_perl we have to restart.
     if ( exists $ENV{MOD_PERL} ) {
-        eval 'require mod_perl';               ## no critic
-        if ( defined $mod_perl::VERSION ) {    ## no critic
+        eval 'require mod_perl';    ## no critic qw(BuiltinFunctions::ProhibitStringyEval)
+        if ( defined $mod_perl::VERSION ) {
             $Webserver = 'systemctl restart apache2';
             if ( -f '/etc/SuSE-release' ) {
                 $Webserver = 'rcapache2 restart';

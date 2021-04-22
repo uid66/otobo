@@ -3107,7 +3107,7 @@ for my $Test (@Tests) {
 
         # Redirect STDOUT from string so that the transport layer will write there.
         local *STDOUT;
-        open STDOUT, '>:utf8', \$Response;    ## no critic
+        open STDOUT, '>:utf8', \$Response;    ## no critic qw(InputOutput::RequireEncodingWithUTF8Layer)
 
         # Discard request object to prevent errors.
         $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Web::Request'] );
@@ -3142,7 +3142,4 @@ $Self->True(
     "Deleted web service $WebserviceID",
 );
 
-
 $Self->DoneTesting();
-
-

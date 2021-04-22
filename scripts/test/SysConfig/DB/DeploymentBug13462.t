@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -25,19 +24,19 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self and $Kernel::OM
 
 our $Self;
 
 # plan the tests
-my $ChildCount = $Kernel::OM->Get('Kernel::Config')->Get('UnitTest::TicketCreateNumber::ChildCount') || 5;
+my $ChildCount   = $Kernel::OM->Get('Kernel::Config')->Get('UnitTest::TicketCreateNumber::ChildCount') || 5;
 my $NumTestUsers = 3;
 plan(
-    $NumTestUsers                        # creation of a test user
-    + 2 * $NumTestUsers * $ChildCount    # two tests per process and testuser 
+    $NumTestUsers                            # creation of a test user
+        + 2 * $NumTestUsers * $ChildCount    # two tests per process and testuser
 );
 
-my $Helper     = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # testing with three test users
 my @TargetUserIDs;
@@ -46,7 +45,7 @@ my @TargetUserIDs;
     for my $Cnt ( 1 .. $NumTestUsers ) {
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
-        ) || bail_out( 'Did not get test user' );
+        ) || bail_out('Did not get test user');
 
         my $TestUserID = $UserObject->UserLookup(
             UserLogin => $TestUserLogin,
@@ -62,7 +61,7 @@ my $FileBase = << 'EOF';
 package Kernel::Config::Files::User::0;
 use strict;
 use warnings;
-no warnings 'redefine'; ## no critic
+no warnings 'redefine'; ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 use utf8;
  sub Load {
     my ($File, $Self) = @_;
@@ -72,10 +71,10 @@ $Self->{'Ticket::Frontend::AgentTicketQueue'}->{'Blink'} =  '1';
 1;
 EOF
 
-my $DBObject   = $Kernel::OM->Get('Kernel::System::DB');
-my $CacheType  = 'UnitTestTicketCounter';
+my $DBObject  = $Kernel::OM->Get('Kernel::System::DB');
+my $CacheType = 'UnitTestTicketCounter';
 
-for my $TargetUserID ( @TargetUserIDs ) {
+for my $TargetUserID (@TargetUserIDs) {
 
     my $UserFile = $FileBase;
     $UserFile =~ s{0}{$TargetUserID}gmxi;
@@ -182,5 +181,3 @@ for my $TargetUserID ( @TargetUserIDs ) {
         Type => $CacheType,
     );
 }
-
-

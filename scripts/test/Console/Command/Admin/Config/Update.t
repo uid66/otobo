@@ -14,9 +14,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
+use v5.24;
 use utf8;
 
 # Set up the test driver $Self when we are running as a standalone script.
@@ -64,7 +64,7 @@ EOF
 
     # Get SysConfig XML object.
     my $SysConfigXMLObject = $Kernel::OM->Get('Kernel::System::SysConfig::XML');
-my $SysConfigObject        = $Kernel::OM->Get('Kernel::System::SysConfig');
+my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 my @DefaultSettingAddParams = $SysConfigXMLObject->SettingListParse(
     XMLInput    => $SettingsXML,
@@ -298,7 +298,4 @@ if ( -e $SourcePath ) {
 
 # cleanup is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

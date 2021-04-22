@@ -873,7 +873,7 @@ sub RequesterPerformRequest {
     # Check if we have response data for the specified operation in the soap result.
     if ( !exists $Body->{$OperationResponse} ) {
         return {
-            Success => 0,
+            Success      => 0,
             ErrorMessage =>
                 "No response data found for specified operation '$Param{Operation}'"
                 . " in soap response",
@@ -1036,7 +1036,7 @@ sub _Output {
     # This solution to set the binmode in the constructor and then :utf8 layer before the response
     #   is sent  apparently works in all situations. ( Linux circumstances to requires :raw was no
     #   reproducible, and not tested in this solution).
-    binmode STDOUT, ':utf8';    ## no critic
+    binmode STDOUT, ':utf8';    ## no critic qw(InputOutput::RequireEncodingWithUTF8Layer)
 
     # Print data to http - '\r' is required according to HTTP RFCs.
     my $StatusMessage = HTTP::Status::status_message( $Param{HTTPCode} );
@@ -1436,14 +1436,14 @@ sub _SOAPOutputTypesGet {
             my @SortArrayElementKeys = sort keys %{$SortArrayElement};
             if ( scalar @SortArrayElementKeys != 1 ) {
                 return {
-                    Success => 0,
+                    Success      => 0,
                     ErrorMessage =>
                         'Sort array element hash reference must contain exactly one key/value pair',
                 };
             }
             if ( !IsStringWithData( $SortArrayElementKeys[0] ) ) {
                 return {
-                    Success => 0,
+                    Success      => 0,
                     ErrorMessage =>
                         'Key of sort array element hash reference must be a non zero-length string',
                 };

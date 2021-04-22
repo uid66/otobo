@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -145,8 +148,7 @@ $Selenium->RunTest(
         $Selenium->find_element("//button[\@value='Search'][\@type='submit']")->VerifiedClick();
 
         $Self->Is(
-            $Selenium->find_element("//input[contains(\@title, \'Toggle active state for $CustomerUserName' )]")
-                ->is_selected(),
+            $Selenium->find_element("//input[contains(\@title, \'Toggle active state for $CustomerUserName' )]")->is_selected(),
             1,
             "Service $ServiceName is active for CustomerUser $CustomerUserName",
         ) || die;
@@ -211,7 +213,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

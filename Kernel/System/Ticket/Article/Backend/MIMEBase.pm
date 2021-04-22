@@ -405,8 +405,8 @@ sub ArticleCreate {
             \$ArticleID, \$Param{From}, \$Param{ReplyTo}, \$Param{To}, \$Param{Cc}, \$Param{Bcc},
             \$Param{Subject},
             \$ArticleInsertFingerprint,    # just for next search; will be updated with correct MessageID
-            \$Param{MD5}, \$Param{InReplyTo}, \$Param{References}, \$Param{ContentType},
-            \$Param{Body}, \$IncomingTime, \$ArticleContentPath, \$Param{UserID}, \$Param{UserID},
+            \$Param{MD5},  \$Param{InReplyTo}, \$Param{References},  \$Param{ContentType},
+            \$Param{Body}, \$IncomingTime,     \$ArticleContentPath, \$Param{UserID}, \$Param{UserID},
         ],
     );
 
@@ -432,7 +432,7 @@ sub ArticleCreate {
     if ( !$ArticleDataID ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message =>
+            Message  =>
                 "Can't store article data (TicketID=$Param{TicketID}, ArticleID=$ArticleID, MessageID=$Param{MessageID})!",
         );
         return;
@@ -513,7 +513,7 @@ sub ArticleCreate {
             );
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'notice',
-                Message =>
+                Message  =>
                     "Ticket [$OldTicketData{TicketNumber}] unlocked, current owner is out of office!",
             );
         }
@@ -1020,7 +1020,7 @@ Delete article data, its plain message, and all attachments.
 
 =cut
 
-sub ArticleDelete {    ## no critic;
+sub ArticleDelete {
     my ( $Self, %Param ) = @_;
 
     for my $Needed (qw(ArticleID TicketID UserID)) {
@@ -1070,8 +1070,9 @@ Write a plain email to storage. This is a delegate method from active backend.
 
 =cut
 
-sub ArticleWritePlain {    ## no critic;
+sub ArticleWritePlain {    ## no critic qw(Subroutines::RequireArgUnpacking)
     my $Self = shift;
+
     return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticleWritePlain(@_);
 }
 
@@ -1099,9 +1100,10 @@ Returns:
 
 =cut
 
-sub ArticlePlain {    ## no critic;
-    my $Self = shift;
-    return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticlePlain(@_);
+sub ArticlePlain {
+    my ( $Self, @Args ) = @_;
+
+    return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticlePlain(@Args);
 }
 
 =head2 ArticleDeletePlain()
@@ -1115,8 +1117,9 @@ Delete a plain article from storage. This is a delegate method from active backe
 
 =cut
 
-sub ArticleDeletePlain {    ## no critic;
+sub ArticleDeletePlain {    ## no critic qw(Subroutines::RequireArgUnpacking)
     my $Self = shift;
+
     return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticleDeletePlain(@_);
 }
 
@@ -1137,8 +1140,9 @@ Write an article attachment to storage. This is a delegate method from active ba
 
 =cut
 
-sub ArticleWriteAttachment {    ## no critic;
+sub ArticleWriteAttachment {    ## no critic qw(Subroutines::RequireArgUnpacking)
     my $Self = shift;
+
     return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticleWriteAttachment(@_);
 }
 
@@ -1165,8 +1169,9 @@ Returns:
 
 =cut
 
-sub ArticleAttachment {    ## no critic;
+sub ArticleAttachment {    ## no critic qw(Subroutines::RequireArgUnpacking)
     my $Self = shift;
+
     return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticleAttachment(@_);
 }
 
@@ -1181,8 +1186,9 @@ Delete all attachments of an article from storage. This is a delegate method fro
 
 =cut
 
-sub ArticleDeleteAttachment {    ## no critic;
+sub ArticleDeleteAttachment {    ## no critic qw(Subroutines::RequireArgUnpacking)
     my $Self = shift;
+
     return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticleDeleteAttachment(@_);
 }
 
@@ -1221,7 +1227,7 @@ Returns:
 
 =cut
 
-sub ArticleAttachmentIndex {    ## no critic
+sub ArticleAttachmentIndex {    ## no critic qw(Subroutines::RequireArgUnpacking)
     my $Self = shift;
     return $Kernel::OM->Get( $Self->{ArticleStorageModule} )->ArticleAttachmentIndex(@_);
 }
@@ -1466,7 +1472,7 @@ sub ArticleSearchableContentGet {
         $ArticleSearchData{$FieldKey} = {
             String     => $IndexString,
             Key        => $BackendSearchableFields{$FieldKey}->{Key},
-            Type       => $BackendSearchableFields{$FieldKey}->{Type} // 'Text',
+            Type       => $BackendSearchableFields{$FieldKey}->{Type}       // 'Text',
             Filterable => $BackendSearchableFields{$FieldKey}->{Filterable} // 0,
         };
     }

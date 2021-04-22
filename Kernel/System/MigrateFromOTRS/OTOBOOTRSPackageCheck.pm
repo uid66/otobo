@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::OTOBOOTRSPackageCheck;    ## no critic
+package Kernel::System::MigrateFromOTRS::OTOBOOTRSPackageCheck;
 
 use strict;
 use warnings;
@@ -130,21 +130,6 @@ sub Run {
         },
     );
 
-    if ( $Param{DBData}->{DBType} =~ /oracle/ ) {
-        for my $Key (qw(DBSID DBPort)) {
-            if ( !$Param{DBData}->{$Key} ) {
-                $Kernel::OM->Get('Kernel::System::Log')->Log(
-                    Priority => 'error',
-                    Message  => "Need DBData->$Key!"
-                );
-                $Result{Message}    = $Self->{LanguageObject}->Translate("Check if OTOBO version is correct.");
-                $Result{Comment}    = $Self->{LanguageObject}->Translate( 'Need %s for Oracle db!', $Key );
-                $Result{Successful} = 0;
-                return \%Result;
-            }
-        }
-    }
-
     # Set cache object with taskinfo and starttime to show current state in frontend
     $DateTimeObject = $Kernel::OM->Create('Kernel::System::DateTime');
     $Epoch          = $DateTimeObject->ToEpoch();
@@ -203,7 +188,7 @@ sub Run {
         $Result{Message} = $Self->{LanguageObject}->Translate("Check if all necessary packages are installed.");
         $Result{Comment} = $Self->{LanguageObject}->Translate("The following packages are only installed in OTRS:") . $MessageString
             . $Self->{LanguageObject}->Translate(
-            "Please install (or uninstall) the packages before migration. If a package doesn't exist for OTOBO so far, please contact the OTOBO Team at bugs\@otobo.org. We will find a solution."
+                "Please install (or uninstall) the packages before migration. If a package doesn't exist for OTOBO so far, please contact the OTOBO Team at bugs\@otobo.org. We will find a solution."
             );
         $Result{Successful} = 0;
         $Result{Content}    = \@OTRSPackages;

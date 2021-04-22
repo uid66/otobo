@@ -589,7 +589,7 @@ sub Verify {
         %Return = (
             SignatureFound => 1,
             Successful     => 0,
-            Message =>
+            Message        =>
                 'OpenSSL: self signed certificate, to use it send the \'Certificate\' parameter : '
                 . $Message,
             MessageLong =>
@@ -605,7 +605,7 @@ sub Verify {
         %Return = (
             SignatureFound => 1,
             Successful     => 0,
-            Message =>
+            Message        =>
                 'OpenSSL: The signature does not match the message content : ' . $Message,
             MessageLong =>
                 'OpenSSL: The signature does not match the message content : ' . $MessageLong,
@@ -891,7 +891,7 @@ sub ConvertCertFormat {
             Convert => "pkcs7 -in $TmpCertificate -print_certs -out $CertFile",
         },
         PFX => {
-            Read => "pkcs12 -in $TmpCertificate -noout -nomacver -passin pass:'$PassPhrase'",
+            Read    => "pkcs12 -in $TmpCertificate -noout -nomacver -passin pass:'$PassPhrase'",
             Convert =>
                 "pkcs12 -in $TmpCertificate -out $CertFile -nomacver -clcerts -nokeys -passin pass:'$PassPhrase'",
         },
@@ -1003,9 +1003,8 @@ sub CertificateAdd {
         }
 
         my $File = "$Self->{CertPath}/$Attributes{Hash}.$Count";
-        ## no critic
-        if ( open( my $OUT, '>', $File ) ) {
-            ## use critic
+
+        if ( open( my $OUT, '>', $File ) ) {    ## no critic qw(OTOBO::ProhibitOpen)
             print $OUT $Param{Certificate};
             close($OUT);
             %Result = (
@@ -1547,12 +1546,11 @@ sub PrivateAdd {
     );
     if ( $CertificateAttributes{Hash} ) {
         my $File = "$Self->{PrivatePath}/$Certificates[0]->{Filename}";
-        ## no critic
-        if ( open( my $PrivKeyFH, '>', "$File" ) ) {
-            ## use critic
+
+        if ( open( my $PrivKeyFH, '>', "$File" ) ) {    ## no critic qw(OTOBO::ProhibitOpen)
             print $PrivKeyFH $Param{Private};
             close $PrivKeyFH;
-            open( my $PassFH, '>', "$File.P" );    ## no critic
+            open( my $PassFH, '>', "$File.P" );         ## no critic qw(OTOBO::ProhibitOpen)
             print $PassFH $Param{Secret};
             close $PassFH;
             %Result = (
@@ -1701,7 +1699,7 @@ sub PrivateRemove {
     if ( !$SecretDelete ) {
         %Return = (
             Successful => 0,
-            Message =>
+            Message    =>
                 "Delete private aborted, not possible to delete Secret: $Self->{PrivatePath}/$Param{Filename}.P, $!!",
         );
         return %Return;
@@ -2332,7 +2330,7 @@ sub _Init {
     }
 
     # ensure that there is a random state file that we can write to (otherwise openssl will bail)
-    $ENV{RANDFILE} = $ConfigObject->Get('TempDir') . '/.rnd';    ## no critic
+    $ENV{RANDFILE} = $ConfigObject->Get('TempDir') . '/.rnd';    ## no critic qw(Variables::RequireLocalizedPunctuationVars)
 
     # prepend RANDFILE declaration to openssl cmd
     $Self->{Cmd} = "HOME=" . $ConfigObject->Get('Home') . " RANDFILE=$ENV{RANDFILE} $Self->{Cmd}";

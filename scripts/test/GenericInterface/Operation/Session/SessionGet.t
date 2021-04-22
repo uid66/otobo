@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -574,7 +573,4 @@ for my $SessionID ( $SessionID1, $SessionID2, $SessionID3, $SessionID4 ) {
 
 # Also delete any other added data during the this test, since RestoreDatabase must not be used.
 
-
 $Self->DoneTesting();
-
-

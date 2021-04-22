@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -26,7 +25,7 @@ use Test2::V0;
 
 # OTOBO modules
 use Kernel::System::UnitTest::MockTime qw(:all);
-use Kernel::System::UnitTest::RegisterDriver; # set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
 
 our $Self;
 

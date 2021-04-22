@@ -512,10 +512,10 @@ sub Run {
                 ? $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"}
                 :
                 (
-                $BackendObject->BuildSelectionDataGet(
-                    DynamicFieldConfig => $DynamicFieldConfig,
-                    PossibleValues     => $DynFieldStates{Fields}{$Index}{PossibleValues},
-                    Value              => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"},
+                    $BackendObject->BuildSelectionDataGet(
+                        DynamicFieldConfig => $DynamicFieldConfig,
+                        PossibleValues     => $DynFieldStates{Fields}{$Index}{PossibleValues},
+                        Value              => $GetParam{DynamicField}{"DynamicField_$DynamicFieldConfig->{Name}"},
                     )
                     || $DynFieldStates{Fields}{$Index}{PossibleValues}
                 );
@@ -747,12 +747,12 @@ sub Run {
             my $ValidationResult;
 
             # do not validate invisible fields
-            if ( $Visibility{ 'DynamicField_'.$DynamicFieldConfig->{Name} } ) {
+            if ( $Visibility{ 'DynamicField_' . $DynamicFieldConfig->{Name} } ) {
                 $ValidationResult = $BackendObject->EditFieldValueValidate(
                     DynamicFieldConfig   => $DynamicFieldConfig,
                     PossibleValuesFilter => $PossibleValuesFilter,
                     ParamObject          => $ParamObject,
-                    Mandatory =>
+                    Mandatory            =>
                         $Config->{FollowUpDynamicField}->{ $DynamicFieldConfig->{Name} }
                         == 2,
                 );
@@ -782,13 +782,13 @@ sub Run {
             $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } = $BackendObject->EditFieldRender(
                 DynamicFieldConfig   => $DynamicFieldConfig,
                 PossibleValuesFilter => $PossibleValuesFilter,
-                Mandatory =>
+                Mandatory            =>
                     $Config->{FollowUpDynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
-                ServerError  => $ValidationResult->{ServerError}  || '',
-                ErrorMessage => $ValidationResult->{ErrorMessage} || '',
-                LayoutObject => $LayoutObject,
-                ParamObject  => $ParamObject,
-                AJAXUpdate   => 1,
+                ServerError     => $ValidationResult->{ServerError}  || '',
+                ErrorMessage    => $ValidationResult->{ErrorMessage} || '',
+                LayoutObject    => $LayoutObject,
+                ParamObject     => $ParamObject,
+                AJAXUpdate      => 1,
                 UpdatableFields => $Self->_GetFieldsToUpdate(),
             );
         }
@@ -1061,7 +1061,23 @@ sub Run {
 
     # set priority from ticket as fallback
     $GetParam{PriorityID} ||= $Ticket{PriorityID};
-    $GetParam{NextStateID} = $GetParam{StateID} || $Ticket{StateID};
+
+    # set initial state
+    if ( $Config->{State} && $Config->{StatePreset} ) {
+        my %NextStates = reverse $Kernel::OM->Get('Kernel::System::Ticket')->TicketStateList(
+            %GetParam,
+            TicketID       => $Self->{TicketID},
+            Action         => $Self->{Action},
+            CustomerUserID => $Self->{UserID},
+            Type           => undef,
+        );
+
+        if ( $NextStates{ $Config->{StatePreset} } ) {
+            $GetParam{NextStateID} = $NextStates{ $Config->{StatePreset} };
+        }
+    }
+    $GetParam{NextStateID} ||= $GetParam{StateID} || $Ticket{StateID};
+
     my $CustomerUser = $Self->{UserID};
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{$FollowUpDynamicField} ) {

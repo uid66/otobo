@@ -25,11 +25,12 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
 
 our $Self;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -337,7 +338,7 @@ $Selenium->RunTest(
         # There might be relevant browsers where DragAndDrop() is not working via Selenium.
         my %BrowserIsExcluded = ();
         if ( $BrowserIsExcluded{ $Selenium->{browser_name} } ) {
-            note( "TODO: DragAndDrop is currently disabled in $Selenium->{browser_name}" );
+            note("TODO: DragAndDrop is currently disabled in $Selenium->{browser_name}");
         }
         else {
 
@@ -379,7 +380,7 @@ $Selenium->RunTest(
                 Target       => '#AssignedFields-linkobject-Ticket',
                 TargetOffset => {
                     X => 100,
-                    Y => 30, # offset determined by trial and error
+                    Y => 30,    # offset determined by trial and error
                 },
             );
 

@@ -26,7 +26,10 @@ use vars (qw($Self));
 use Kernel::Language;
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -96,7 +99,7 @@ $Selenium->RunTest(
                 "return typeof(\$) === 'function' && \$('body.cke_editable', \$('.cke_wysiwyg_frame').contents()).length == 1"
         );
 
-       # send some text to the CKE's textarea (we cant do it with Selenium directly because the textarea is not visible)
+        # send some text to the CKE's textarea (we cant do it with Selenium directly because the textarea is not visible)
         my $SetCKEContent = 1;
         eval {
             $SetCKEContent = $Selenium->execute_script(
@@ -155,7 +158,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

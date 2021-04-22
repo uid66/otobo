@@ -14,8 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
-## nofilter(TidyAll::Plugin::OTOBO::Perl::TestSubs)
 use strict;
 use warnings;
 use v5.24;
@@ -27,12 +25,13 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self and $Kernel::OM
 use Kernel::Language;
+use Kernel::System::UnitTest::Selenium;
 
 our $Self;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -60,21 +59,21 @@ $Selenium->RunTest(
         my $TestUserLogin1 = $HelperObject->TestUserCreate(
             Groups   => ['users'],
             Language => $Language,
-        ) || bail_out( "Could not create first test user" );
+        ) || bail_out("Could not create first test user");
         my $TestUserID1 = $UserObject->UserLookup(
             UserLogin => $TestUserLogin1,
         );
-        note( "Created test used $TestUserLogin1 with ID $TestUserID1" );
+        note("Created test used $TestUserLogin1 with ID $TestUserID1");
 
         # Create user two.
         my $TestUserLogin2 = $HelperObject->TestUserCreate(
             Groups   => ['users'],
             Language => $Language,
-        ) || bail_out( "Could not create second test user" );
+        ) || bail_out("Could not create second test user");
         my $TestUserID2 = $UserObject->UserLookup(
             UserLogin => $TestUserLogin2,
         );
-        note( "Created test used $TestUserLogin1 with ID $TestUserID1" );
+        note("Created test used $TestUserLogin1 with ID $TestUserID1");
 
         # Add a User setting file.
         my $UserFileContent = <<"EOF";
@@ -83,7 +82,7 @@ $Selenium->RunTest(
 package Kernel::Config::Files::User::$TestUserID1;
 use strict;
 use warnings;
-no warnings 'redefine';
+no warnings 'redefine'; ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 use utf8;
 sub Load {
     my (\$File, \$Self) = \@_;
@@ -126,7 +125,7 @@ EOF
         # Link to ivory skin file should be present.
         my $PageSource = $Selenium->get_page_source();
         {
-            my $ToDo = todo( 'skin ivory does not exist in OTOBO, issue #678' );
+            my $ToDo = todo('skin ivory does not exist in OTOBO, issue #678');
 
             like( $PageSource, $ExpectedLinkedFile, 'Ivory skin should be selected' );
         }

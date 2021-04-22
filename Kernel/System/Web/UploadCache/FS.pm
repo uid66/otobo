@@ -126,7 +126,7 @@ sub FormIDAddFile {
 
         # Create directory. This could fail if another process creates the
         #   same directory, so don't use the return value.
-        File::Path::mkpath( $Directory, 0, 0770 );    ## no critic
+        File::Path::mkpath( $Directory, 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
         if ( !-d $Directory ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -443,7 +443,7 @@ sub FormIDCleanUp {
         else {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message =>
+                Message  =>
                     "Won't delete upload cache directory $Subdir: timestamp in directory name not found! Please fix it manually.",
             );
             next SUBDIR;

@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -99,8 +98,7 @@ for my $FieldName ( sort keys %NeededDynamicfields ) {
         push @DynamicfieldIDs, $FieldID;
     }
     else {
-        my $DynamicField
-            = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldGet( ID => $DynamicFields->{$FieldName} );
+        my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldGet( ID => $DynamicFields->{$FieldName} );
 
         if ( $DynamicField->{ValidID} > 1 ) {
             push @DynamicFieldUpdate, $DynamicField;
@@ -1689,7 +1687,4 @@ $Self->Is(
 
 # cleanup is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

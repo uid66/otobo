@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -278,13 +277,13 @@ for my $Test (@Tests) {
         Data    => $Test->{Data},
         Message => {
             en => {
-                Subject => 'JobName',
-                Body    => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
+                Subject     => 'JobName',
+                Body        => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
                 ContentType => 'text/plain',
             },
             de => {
-                Subject => 'JobName',
-                Body    => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
+                Subject     => 'JobName',
+                Body        => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
                 ContentType => 'text/plain',
             },
         },
@@ -376,7 +375,4 @@ $Self->IsDeeply(
 
 # cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

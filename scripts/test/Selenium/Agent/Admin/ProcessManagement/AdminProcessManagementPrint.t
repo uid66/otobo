@@ -24,11 +24,12 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
 
 our $Self;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -80,8 +81,8 @@ $Selenium->RunTest(
 
         # Check process print screen.
         my $ProcessPrintSelector = q{//li[@class='HeaderPopupleft' and contains(text(),'Print process information')]};
-        $Selenium->WaitFor( ElementExists => $ProcessPrintSelector);
-        ok( $Selenium->find_element( $ProcessPrintSelector ), "Process print screen is loaded." );
+        $Selenium->WaitFor( ElementExists => $ProcessPrintSelector );
+        ok( $Selenium->find_element($ProcessPrintSelector), "Process print screen is loaded." );
 
         $Selenium->close();
         $Selenium->WaitFor( WindowCount => 1 );
@@ -109,7 +110,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

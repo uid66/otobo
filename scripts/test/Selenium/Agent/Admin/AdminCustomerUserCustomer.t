@@ -24,7 +24,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -193,8 +196,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Search", 'css' )->send_keys($CustomerName);
         $Selenium->find_element("//button[\@value='Search'][\@type='submit']")->VerifiedClick();
 
-        $Selenium->find_element("//ul[contains(\@id, \'Customers')]//li//a[contains(\@href, \'ID=$CustomerName' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//ul[contains(\@id, \'Customers')]//li//a[contains(\@href, \'ID=$CustomerName' )]")->VerifiedClick();
 
         # Check if customer user is displayed after customer search.
         $Self->Is(
@@ -238,7 +240,4 @@ $Selenium->RunTest(
     },
 );
 
-
 $Self->DoneTesting();
-
-

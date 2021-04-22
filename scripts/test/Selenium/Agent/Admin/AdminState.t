@@ -23,7 +23,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -149,11 +151,11 @@ $Selenium->RunTest(
 
         my $IndexNewState =
             $Selenium->execute_script(
-            "return \$('.DataTable tr:visible').index(\$('a[href=\"${StateLink}$StateIDNew\"]').closest('tr'))"
+                "return \$('.DataTable tr:visible').index(\$('a[href=\"${StateLink}$StateIDNew\"]').closest('tr'))"
             );
         my $IndexTestState =
             $Selenium->execute_script(
-            "return \$('.DataTable tr:visible').index(\$('a[href=\"${StateLink}$StateIDTest\"]').closest('tr'))"
+                "return \$('.DataTable tr:visible').index(\$('a[href=\"${StateLink}$StateIDTest\"]').closest('tr'))"
             );
 
         # Check sorting in state overview table..
@@ -264,7 +266,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

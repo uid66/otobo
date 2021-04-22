@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -130,8 +133,7 @@ $Selenium->RunTest(
         );
 
         $Self->True(
-            $Selenium->find_element("//a[contains(\@href, \'Subaction=Template;ID=$Templates[0]->{TemplateID}' )]")
-                ->is_displayed(),
+            $Selenium->find_element("//a[contains(\@href, \'Subaction=Template;ID=$Templates[0]->{TemplateID}' )]")->is_displayed(),
             "$Templates[0]->{Name} found on screen with filter on",
         );
 
@@ -141,8 +143,7 @@ $Selenium->RunTest(
         );
 
         # Change test Queue relation for the first Template.
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=Template;ID=$Templates[0]->{TemplateID}' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Template;ID=$Templates[0]->{TemplateID}' )]")->VerifiedClick();
 
         # Check breadcrumb on change screen.
         my $Count = 1;
@@ -261,7 +262,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

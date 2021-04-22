@@ -25,19 +25,12 @@ use utf8;
 use Test2::V0 qw(plan is note like);
 
 # OTOBO modules
-use Kernel::System::ObjectManager;
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
 
-$Kernel::OM = Kernel::System::ObjectManager->new(
-    'Kernel::System::Log' => {
-        LogPrefix => 'OTOBO-otobo.UnitTest',
-    },
-);
+plan(2);
 
-plan( 2 );
-
-my $Helper   = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $RandomID = $Helper->GetRandomID();
-
+my $Helper        = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $RandomID      = $Helper->GetRandomID();
 my $CommandObject = $Kernel::OM->Get('Kernel::System::Console::Command::Dev::UnitTest::Run');
 
 my @Tests = (
@@ -50,7 +43,7 @@ my @Tests = (
             Key   => 'UnitTest::Blacklist###1000-UnitTest' . $RandomID,
             Value => ['NutsAndBolts.t'],
         },
-        ResultPattern        => qr{Result: \s+ NOTESTS}x,
+        ResultPattern => qr{Result: \s+ NOTESTS}x,
     },
     {
         Name                 => "UnitTest 'NutsAndBolts.t' executed because not blacklisted",
@@ -61,7 +54,7 @@ my @Tests = (
             Key   => 'UnitTest::Blacklist###1000-UnitTest' . $RandomID,
             Value => [],
         },
-        ResultPattern        => qr{\QParse errors: No plan found in TAP output\E},
+        ResultPattern => qr{\QParse errors: No plan found in TAP output\E},
     },
 );
 
@@ -79,9 +72,9 @@ for my $Test (@Tests) {
     my ( $ResultStdout, $ResultStderr, $ExitCode );
     {
         local *STDOUT;
-        open STDOUT, '>:encoding(UTF-8)', \$ResultStdout;
+        open STDOUT, '>:encoding(UTF-8)', \$ResultStdout;    ## no critic qw(OTOBO::ProhibitOpen)
         local *STDERR;
-        open STDERR, '>:encoding(UTF-8)', \$ResultStderr;
+        open STDERR, '>:encoding(UTF-8)', \$ResultStderr;    ## no critic qw(OTOBO::ProhibitOpen)
 
         $ExitCode = $CommandObject->Execute( '--test', $Test->{Test}, '--quiet' );
     }
@@ -89,8 +82,8 @@ for my $Test (@Tests) {
     # some diagnostics
     $ResultStderr //= 'undef';
     $ResultStdout //= 'undef';
-    note( "err: '$ResultStderr'" );
-    note( "out: '$ResultStdout'" );
+    note("err: '$ResultStderr'");
+    note("out: '$ResultStdout'");
 
     # Check for executed tests message.
     like( $ResultStdout, $Test->{ResultPattern}, $Test->{Name} );

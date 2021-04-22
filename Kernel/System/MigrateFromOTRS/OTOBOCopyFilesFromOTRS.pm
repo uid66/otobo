@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::OTOBOCopyFilesFromOTRS;    ## no critic
+package Kernel::System::MigrateFromOTRS::OTOBOCopyFilesFromOTRS;
 
 use strict;
 use warnings;
@@ -90,7 +90,7 @@ sub Run {
     }
 
     # check needed parameters
-    for my $Key ( qw(OTRSData) ) {
+    for my $Key (qw(OTRSData)) {
         if ( !$Param{$Key} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
@@ -146,7 +146,7 @@ sub Run {
         );
 
         return {
-            Message    => $Self->{LanguageObject}->Translate( $Message ),
+            Message    => $Self->{LanguageObject}->Translate($Message),
             Comment    => $Self->{LanguageObject}->Translate( "Can't access OTRS Home: %s!", $Param{OTRSData}->{OTRSHome} ),
             Successful => 0,
         };
@@ -164,13 +164,13 @@ sub Run {
     my %OTOBOParams;
     {
         # remember the current DB-Settings
-        for my $Key ( qw( DatabaseHost Database DatabaseUser DatabasePw DatabaseDSN Home ) ) {
+        for my $Key (qw( DatabaseHost Database DatabaseUser DatabasePw DatabaseDSN Home )) {
             $OTOBOParams{$Key} = $ConfigObject->Get($Key);
         }
 
         # under Docker we also want to keep the log settings
         if ( $ENV{OTOBO_RUNS_UNDER_DOCKER} ) {
-            for my $Key ( qw( LogModule LogModule::LogFile ) ) {
+            for my $Key (qw( LogModule LogModule::LogFile )) {
                 $OTOBOParams{$Key} = $ConfigObject->Get($Key);
             }
         }
@@ -213,9 +213,9 @@ sub Run {
                 print STDERR "EXIT: $ExitCode \n OTRSPath: $OTRSPathFile\n OTOBO: $OTOBOPathFile\n ";
 
                 return {
-                    Message      => $Self->{LanguageObject}->Translate($Message),
-                    Comment      => $Self->{LanguageObject}->Translate(q{Can't copy or move files from OTRS!}),
-                    Successful   => 0,
+                    Message    => $Self->{LanguageObject}->Translate($Message),
+                    Comment    => $Self->{LanguageObject}->Translate(q{Can't copy or move files from OTRS!}),
+                    Successful => 0,
                 };
             }
         }
@@ -265,9 +265,9 @@ sub Run {
     $Self->DisableSecureMode();
 
     return {
-        Message      => $Self->{LanguageObject}->Translate($Message),
-        Comment      => $Self->{LanguageObject}->Translate("All needed files copied and migrated, perfect!"),
-        Successful   => 1,
+        Message    => $Self->{LanguageObject}->Translate($Message),
+        Comment    => $Self->{LanguageObject}->Translate("All needed files copied and migrated, perfect!"),
+        Successful => 1,
     };
 }
 
@@ -295,16 +295,14 @@ sub ReConfigure {
     # content of changed config file
     my $Config = '';
     {
-        ## no critic
-        open( my $In, '<:encoding(utf-8)', $ConfigFile )
-            or return "Can't open $ConfigFile: $!";
-        ## use critic
+        open my $In, '<:encoding(utf-8)', $ConfigFile    ## no critic qw(InputOutput::RequireBriefOpen)
+            or return "Can't open $ConfigFile: $!";      ## no critic qw(OTOBO::ProhibitLowPrecedenceOps)
 
         LINE:
         while ( my $Line = <$In> ) {
 
             # keep empty lines or comments.
-            if ( ! $Line || $Line =~ m/^\s*#/ || $Line =~ m/^\s*$/ ) {
+            if ( !$Line || $Line =~ m/^\s*#/ || $Line =~ m/^\s*$/ ) {
                 $Config .= $Line;
 
                 next LINE;
@@ -347,10 +345,8 @@ sub ReConfigure {
 
     # Write new config file, the file handle is autoclosed as it is lexical to the block
     {
-        # TODO: find out why the warning is still reported
-        ## no critic (InputOutput::RequireBriefOpen OTOBO::ProhibitLowPrecedenceOps)
-        open my $Out, '>:encoding(utf-8)', $ConfigFile
-            or return "Can't open $ConfigFile: $!";
+        open my $Out, '>:encoding(utf-8)', $ConfigFile    ## no critic qw(InputOutput::RequireBriefOpen)
+            or return "Can't open $ConfigFile: $!";       ## no critic qw(OTOBO::ProhibitLowPrecedenceOps)
         print $Out $Config;
     }
 

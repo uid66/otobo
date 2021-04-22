@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -59,9 +58,8 @@ $Self->True(
     'TicketCreate()',
 );
 
-my $ArticleBackendObject
-    = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForChannel( ChannelName => 'Phone' );
-my $ArticleID = $ArticleBackendObject->ArticleCreate(
+my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForChannel( ChannelName => 'Phone' );
+my $ArticleID            = $ArticleBackendObject->ArticleCreate(
     TicketID             => $TicketID,
     SenderType           => 'agent',
     IsVisibleForCustomer => 1,
@@ -156,5 +154,3 @@ for my $Test (@Tests) {
 # Cleanup is done by RestoreDatabase.
 
 $Self->DoneTesting();
-
-

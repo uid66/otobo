@@ -544,7 +544,7 @@ mailto-Link <a href="mailto:skywalker@otobo.org?body=From%3A%20test%40home.com">
     },
     {
         Name =>
-            'OTRS AGENT + CUSTOMER BODY',   # this is an special case, it sets the Body as it is since is the Data param
+            'OTRS AGENT + CUSTOMER BODY',    # this is an special case, it sets the Body as it is since is the Data param
         Data => {
             Body => "Line1\nLine2\nLine3",
         },
@@ -595,7 +595,7 @@ Line3",
         },
         RichText => 1,
         Template => 'Test &lt;OTOBO_AGENT_BODY[7]&gt; - &lt;OTOBO_CUSTOMER_BODY[7]&gt;',
-        Result =>
+        Result   =>
             'Test <div  type="cite" style="border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt">Line1<br/>
 Line2<br/>
 Line3<br/>
@@ -916,7 +916,4 @@ $RandomID",
 
 # Cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

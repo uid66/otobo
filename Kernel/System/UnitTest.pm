@@ -104,13 +104,13 @@ sub Run {
 
     # run tests in a subdir when requested
     my $Directory = "$Home/scripts/test";
-    if ( $DirectoryParam ) {
+    if ($DirectoryParam) {
         $Directory .= "/$DirectoryParam";
         $Directory =~ s/\.//g;
     }
 
     # Determine which tests should be skipped because of UnitTest::Blacklist
-    my (@SkippedTests, @ActualTests);
+    my ( @SkippedTests, @ActualTests );
     {
         # Get patterns for blacklisted tests
         my @BlacklistPatterns;
@@ -140,7 +140,7 @@ sub Run {
         for my $File (@Files) {
 
             # check if only some tests are requested
-            if ( @ExecuteTestPatterns ) {
+            if (@ExecuteTestPatterns) {
                 next FILE unless any { $File =~ /\/\Q$_\E\.t$/smx } @ExecuteTestPatterns;
             }
 
@@ -157,25 +157,30 @@ sub Run {
         }
     }
 
-    my $Harness = TAP::Harness->new({
-        timer     => 1,
-        verbosity => $Verbosity,
-        # try to color the output when we are in an ANSI terminal
-        color     => $Self->{ANSI},
-        # these libs are additional, $ENV{PERL5LIB} is still honored
-        lib       => [ $Home, "$Home/Kernel/cpan-lib", "$Home/Custom" ],
-    });
+    my $Harness = TAP::Harness->new(
+        {
+            timer     => 1,
+            verbosity => $Verbosity,
 
-    # Register a callback that triggered after a test script has run.
-    # E.g. bin/otobo.Console.pl Dev::UnitTest::Run  --verbose --directory ACL --post-test-script 'echo file: %File%' --post-test-script 'echo ok: %TestOk%'  --post-test-script 'echo nok: %TestNotOk%' >prove_acl.out 2>&1
-    # See also: https://metacpan.org/pod/distribution/Test-Harness/lib/TAP/Harness/Beyond.pod#Callbacks
+            # try to color the output when we are in an ANSI terminal
+            color => $Self->{ANSI},
+
+            # these libs are additional, $ENV{PERL5LIB} is still honored
+            lib => [ $Home, "$Home/Kernel/cpan-lib", "$Home/Custom" ],
+        }
+    );
+
+# Register a callback that triggered after a test script has run.
+# E.g. bin/otobo.Console.pl Dev::UnitTest::Run  --verbose --directory ACL --post-test-script 'echo file: %File%' --post-test-script 'echo ok: %TestOk%'  --post-test-script 'echo nok: %TestNotOk%' >prove_acl.out 2>&1
+# See also: https://metacpan.org/pod/distribution/Test-Harness/lib/TAP/Harness/Beyond.pod#Callbacks
     if ( $Param{PostTestScripts} && ref $Param{PostTestScripts} eq 'ARRAY' && $Param{PostTestScripts}->@* ) {
         my @PostTestScripts = $Param{PostTestScripts}->@*;
 
-        $Harness->callback( after_test => sub {
-                my ( $TestInfo, $Parser) = @_;
+        $Harness->callback(
+            after_test => sub {
+                my ( $TestInfo, $Parser ) = @_;
 
-                for my $PostTestScript ( @PostTestScripts ) {
+                for my $PostTestScript (@PostTestScripts) {
 
                     # command template as specified on the commant line
                     my $Cmd = $PostTestScript;
@@ -190,6 +195,7 @@ sub Run {
                     $Cmd =~ s{%TestOk%}{$TestOk}iesmxg;
                     my $TestNotOk = $Parser->actual_failed();
                     $Cmd =~ s{%TestNotOk%}{$TestNotOk}iesmxg;
+
                     #use Data::Dumper;
                     #warn Dumper( [ 'LLL', $Cmd, $TestScript, $TestInfo, $Parser ] );
 
@@ -200,7 +206,7 @@ sub Run {
         );
     }
 
-    my $Aggregate = $Harness->runtests( @ActualTests );
+    my $Aggregate = $Harness->runtests(@ActualTests);
 
     if (@SkippedTests) {
         print "Following blacklisted tests were skipped:\n";

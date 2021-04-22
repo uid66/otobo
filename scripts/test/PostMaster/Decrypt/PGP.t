@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -88,7 +87,7 @@ if ( !-e $ConfigObject->Get('PGP::Bin') ) {
 # Create local crypt object.
 my $PGPObject = $Kernel::OM->Get('Kernel::System::Crypt::PGP');
 
-skip_all( 'no PGP support' ) unless $PGPObject;
+skip_all('no PGP support') unless $PGPObject;
 
 # Make some preparations
 my %Search = (
@@ -404,7 +403,4 @@ for my $Count ( 1 .. 2 ) {
 
 # Cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -49,10 +51,9 @@ $Selenium->RunTest(
         );
 
         # create test company
-        my $TestCustomerID  = $Helper->GetRandomID() . "CID";
-        my $TestCompanyName = "Company" . $Helper->GetRandomID();
-        my @CustomerCompany
-            = ( 'Selenium Street', 'Selenium ZIP', 'Selenium City', 'Selenium Country', 'Selenium URL' );
+        my $TestCustomerID    = $Helper->GetRandomID() . "CID";
+        my $TestCompanyName   = "Company" . $Helper->GetRandomID();
+        my @CustomerCompany   = ( 'Selenium Street', 'Selenium ZIP', 'Selenium City', 'Selenium Country', 'Selenium URL' );
         my $CustomerCompanyID = $Kernel::OM->Get('Kernel::System::CustomerCompany')->CustomerCompanyAdd(
             CustomerID             => $TestCustomerID,
             CustomerCompanyName    => $TestCompanyName,
@@ -131,7 +132,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

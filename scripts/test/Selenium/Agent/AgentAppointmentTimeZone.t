@@ -18,12 +18,16 @@ use strict;
 use warnings;
 use utf8;
 
-# Set up the test driver $Self when we are running as a standalone script.
-use Kernel::System::UnitTest::RegisterDriver;
+# core modules
 
-use vars (qw($Self));
+# CPAN modules
+use Test2::V0;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self (unused) and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
+
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -91,6 +95,8 @@ $Selenium->RunTest(
         # Go to calendar overview page.
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentAppointmentCalendarOverview");
 
+        sleep 1;
+
         # Wait for AJAX to finish.
         $Selenium->WaitFor(
             JavaScript =>
@@ -98,12 +104,24 @@ $Selenium->RunTest(
         );
 
         # Hide indicator line if visible. This was causing issue in some of tests in specific execution time.
-        if ( $Selenium->execute_script("return \$('.fc-now-indicator.fc-now-indicator-line:visible').length;") ) {
-            $Selenium->execute_script("\$('.fc-now-indicator.fc-now-indicator-line').hide();");
-            $Selenium->WaitFor(
-                JavaScript =>
-                    'return typeof($) === "function" &&  $(".fc-now-indicator.fc-now-indicator-line:visible").length === 0;'
-            );
+        $Selenium->LogExecuteCommandActive(0);
+        my $LineElement = $Selenium->find_element_by_css( '.fc-now-indicator.fc-now-indicator-line', 'css' );
+        $Selenium->LogExecuteCommandActive(1);
+        if ($LineElement) {
+            $Selenium->WaitFor( JavaScript => 'return typeof($) === "function";' );
+            ok( $LineElement, 'now indicator line found' );
+            isa_ok( $LineElement, ['Kernel::System::UnitTest::Selenium::WebElement'], 'now indicator line is a web element' );
+
+            # the red line should be displayed in week view
+            # One might have to scroll right in the browser for actually seeing it,
+            # as only the first days of the week are visible at first.
+            $LineElement->is_displayed_ok('now indicator line is displayed');
+
+            # Note that the red triangle is still visisble.
+            $LineElement->execute_script(q{$(arguments[0]).hide();});
+            $Selenium->WaitFor( JavaScript => 'return typeof($) === "function";' );
+            my $HiddenLine = $Selenium->find_element( '.fc-now-indicator.fc-now-indicator-line', 'css' );
+            ok( !$HiddenLine->is_displayed(), 'now indicator line is no longer displayed' );
         }
 
         # Click on the timeline view for an appointment dialog.
@@ -142,7 +160,7 @@ $Selenium->RunTest(
         );
 
         # Verify appointment is visible.
-        $Self->Is(
+        is(
             $Selenium->execute_script(
                 "return \$('.fc-timeline-event .fc-title').text();"
             ),
@@ -156,10 +174,7 @@ $Selenium->RunTest(
         sleep 1;
 
         # Verify appointment is visible.
-        $Self->True(
-            index( $Selenium->get_page_source(), 'Time Zone Appointment' ) > -1,
-            'Appointment visible (Agenda Overview)'
-        );
+        $Selenium->content_contains( 'Time Zone Appointment', 'Appointment visible (Agenda Overview)' );
 
         # Get appointment ID.
         my $AppointmentID = $Selenium->execute_script(
@@ -167,16 +182,15 @@ $Selenium->RunTest(
         );
 
         # Get displayed start date.
-        my $StartDate
-            = $Selenium->find_element( "//*[\@id='AppointmentID_$AppointmentID']/td[4]", 'xpath' )->get_text();
+        my $StartDate = $Selenium->find_element( "//*[\@id='AppointmentID_$AppointmentID']/td[4]", 'xpath' )->get_text();
 
         # Check start time.
         $StartDate =~ /(\d{2}:\d{2}:\d{2})$/;
         my $StartTime = $1;
-        $Self->Is(
+        is(
             $StartTime,
             sprintf(
-                "%02d:%02d:00",
+                '%02d:%02d:00',
                 $DateTimeObject->Get()->{Hour},
                 $DateTimeObject->Get()->{Minute}
             ),
@@ -209,8 +223,7 @@ $Selenium->RunTest(
         sleep 1;
 
         # Get displayed start date.
-        my $StartDateTZ
-            = $Selenium->find_element( "//*[\@id='AppointmentID_$AppointmentID']/td[4]", 'xpath' )->get_text();
+        my $StartDateTZ = $Selenium->find_element( "//*[\@id='AppointmentID_$AppointmentID']/td[4]", 'xpath' )->get_text();
 
         # Convert date time object to user time zone.
         $DateTimeObject->ToTimeZone(
@@ -220,10 +233,10 @@ $Selenium->RunTest(
         # Check start time again.
         $StartDateTZ =~ /(\d{2}:\d{2}:\d{2}\s\(.*?\))$/;
         my $StartTimeTZ = $1;
-        $Self->Is(
+        is(
             $StartTimeTZ,
             sprintf(
-                "%02d:%02d:00 (%s)",
+                '%02d:%02d:00 (%s)',
                 $DateTimeObject->Get()->{Hour},
                 $DateTimeObject->Get()->{Minute},
                 $UserTimeZone
@@ -252,7 +265,7 @@ $Selenium->RunTest(
 
         # Check start hour.
         my $StartHourTZ = $Selenium->find_element( 'StartHour', 'name' )->get_value();
-        $Self->Is(
+        is(
             $StartHourTZ,
             $DateTimeObject->Get()->{Hour},
             "Start hour in user's time zone",
@@ -265,10 +278,7 @@ $Selenium->RunTest(
             AppointmentID => $AppointmentID,
             UserID        => $UserID,
         );
-        $Self->True(
-            $Success,
-            "Deleted test appointment - $AppointmentID",
-        );
+        ok( $Success, "Deleted test appointment - $AppointmentID" );
 
         # Delete test calendar.
         if ( $Calendar{CalendarID} ) {
@@ -276,10 +286,7 @@ $Selenium->RunTest(
                 SQL  => 'DELETE FROM calendar WHERE id = ?',
                 Bind => [ \$Calendar{CalendarID} ],
             );
-            $Self->True(
-                $Success,
-                "Deleted test calendar - $Calendar{CalendarID}",
-            );
+            ok( $Success, "Deleted test calendar - $Calendar{CalendarID}" );
         }
 
         my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
@@ -291,7 +298,4 @@ $Selenium->RunTest(
     },
 );
 
-
-$Self->DoneTesting();
-
-
+done_testing();

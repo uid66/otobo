@@ -24,12 +24,13 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
 
 our $Self;
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -65,7 +66,7 @@ $Selenium->RunTest(
             @NavigationCheck = (
                 'Általános ügyintéző',
                 'Dinamikus mezők',
-                'Dynamic Fields Screens', # from Znuny4OTRS-AdvancedDynamicFields, not yet translated to Hungarian
+                'Dynamic Fields Screens',    # from Znuny4OTRS-AdvancedDynamicFields, not yet translated to Hungarian
                 'Folyamatkezelés',
                 'Hozzáférés-vezérlési listák (ACL)',
                 'Webszolgáltatások',
@@ -74,7 +75,7 @@ $Selenium->RunTest(
         else {
             @NavigationCheck = (
                 'Dinamikus mezők',
-                'Dynamic Fields Screens', # from Znuny4OTRS-AdvancedDynamicFields, not yet translated to Hungarian
+                'Dynamic Fields Screens',    # from Znuny4OTRS-AdvancedDynamicFields, not yet translated to Hungarian
                 'Folyamatkezelés',
                 'Hozzáférés-vezérlési listák (ACL)',
                 'Webszolgáltatások',

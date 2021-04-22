@@ -25,7 +25,9 @@ use vars (qw($Self));
 
 use Kernel::Language;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -102,13 +104,13 @@ $Selenium->RunTest(
             SenderType           => 'customer',
             Subject              => 'some short description',
             Body                 => 'the message text',
-            From           => "\"$TestCustomerUserLogin $TestCustomerUserLogin\" <$TestCustomerUserData{UserEmail}>",
-            To             => 'Some Agent A <agent-a@example.com>',
-            Charset        => 'ISO-8859-15',
-            MimeType       => 'text/plain',
-            HistoryType    => 'EmailCustomer',
-            HistoryComment => 'Some free text!',
-            UserID         => 1,
+            From                 => "\"$TestCustomerUserLogin $TestCustomerUserLogin\" <$TestCustomerUserData{UserEmail}>",
+            To                   => 'Some Agent A <agent-a@example.com>',
+            Charset              => 'ISO-8859-15',
+            MimeType             => 'text/plain',
+            HistoryType          => 'EmailCustomer',
+            HistoryComment       => 'Some free text!',
+            UserID               => 1,
         );
         $Self->True(
             $ArticleID,
@@ -415,7 +417,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

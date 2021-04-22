@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # Get Selenium object.
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -201,8 +203,8 @@ $Selenium->RunTest(
         # Check appointment links - only the last appointment should not be in the table.
         for my $Appointment (@Appointments) {
             my $AppointmentID = $Appointment->{AppointmentID};
-            my $Length        = $AppointmentID != $LastChildAppointmentID ? 1 : 0;
-            my $IsFound       = $Length ? 'found' : 'not found';
+            my $Length        = $AppointmentID != $LastChildAppointmentID ? 1       : 0;
+            my $IsFound       = $Length                                   ? 'found' : 'not found';
 
             $Self->Is(
                 $Selenium->execute_script(
@@ -339,7 +341,4 @@ $Selenium->RunTest(
     },
 );
 
-
 $Self->DoneTesting();
-
-

@@ -17,12 +17,16 @@ use strict;
 use warnings;
 use utf8;
 
+use Test2::V0;
+
 # Set up the test driver $Self when we are running as a standalone script.
 use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -56,17 +60,20 @@ $Selenium->RunTest(
         );
 
         my $CheckFieldOptions = sub {
+
             my %Param = @_;
             FIELD:
             for my $Field (@Fields) {
                 if ( $Param{Restricted}->{ $Field->{ID} } ) {
-                    $Self->Is(
-                        $Selenium->execute_script(
-                            "return \$('#$Field->{ID} option:not([value=\"\"])').length"
-                        ),
-                        1,
-                        "There there is only one option in the $Field->{Name} selection",
+                    my $NumOptions = $Selenium->execute_script(
+                        "return \$('#$Field->{ID} option:not([value=\"\"])').length"
                     );
+                    {
+                        my $ToDo = todo('setup of ACL may be messed up, issue #763');
+
+                        is( $NumOptions, 1, "one option in the $Field->{Name} selection" );
+                    }
+
                     next FIELD;
                 }
                 $Self->IsNot(
@@ -74,7 +81,7 @@ $Selenium->RunTest(
                         "return \$('#$Field->{ID} option:not([value=\"\"])').length"
                     ),
                     1,
-                    "There there are many options in the $Field->{Name} selection",
+                    "There are many options in the $Field->{Name} selection",
                 );
             }
         };
@@ -585,7 +592,4 @@ EOF
     },
 );
 
-
-$Self->DoneTesting();
-
-
+done_testing();

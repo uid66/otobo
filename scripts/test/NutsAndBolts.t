@@ -1,7 +1,7 @@
 # --
 # OTOBO is a web-based ticketing system for service organisations.
 # --
-# Copyright (C) 2020 Rother OSS GmbH, https://otobo.de/
+# Copyright (C) 2019-2021 Rother OSS GmbH, https://otobo.de/
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -42,7 +42,7 @@ use warnings;
 use v5.24;
 use utf8;
 
-if (  $ENV{SKIP_NUTSANDBOLTS_TEST} ) {
+if ( $ENV{SKIP_NUTSANDBOLTS_TEST} ) {
     say 'NutsAndBolts.t: skip all tests as SKIP_NUTSANDBOLTS_TEST is set';
 
     exit 0;

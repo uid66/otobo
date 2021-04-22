@@ -25,7 +25,7 @@ use utf8;
 
 # OTOBO modules
 use Kernel::System::UnitTest::MockTime qw(:all);
-use Kernel::System::UnitTest::RegisterDriver; # set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
 use Kernel::System::VariableCheck qw(:all);
 
 our $Self;
@@ -333,7 +333,7 @@ for my $Test (@Tests) {
             Comment      => 'Comment',
             ValidID      => 1,
             ConfigMatch  => { 'Properties' => {} },
-            ConfigChange => { 'Possible' => {} },
+            ConfigChange => { 'Possible'   => {} },
             UserID       => $UserID,
         },
         Success => 0,
@@ -346,7 +346,7 @@ for my $Test (@Tests) {
             Comment      => 'Comment',
             ValidID      => 1,
             ConfigMatch  => { 'Properties' => {} },
-            ConfigChange => { 'Possible' => {} },
+            ConfigChange => { 'Possible'   => {} },
             UserID       => $UserID,
         },
         Success => 0,
@@ -388,7 +388,7 @@ for my $Test (@Tests) {
             Description    => '',
             ValidID        => 2,
             ConfigMatch    => { 'Properties' => {} },
-            ConfigChange   => { 'Possible' => {} },
+            ConfigChange   => { 'Possible'   => {} },
             UserID         => $UserID,
             CreateBy       => 'root@localhost',
             ChangeBy       => 'root@localhost',
@@ -739,7 +739,4 @@ $Self->IsDeeply(
 
 # cleanup done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

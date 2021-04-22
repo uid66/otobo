@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -89,18 +88,18 @@ my @Tests = (
     --",
     },
     {
-        Name      => 'Test unsupported tags',
-        Signature => 'Test: <OTOBO_AGENT_SUBJECT> <OTOBO_AGENT_BODY> <OTOBO_CUSTOMER_BODY> <OTOBO_CUSTOMER_SUBJECT>',
+        Name           => 'Test unsupported tags',
+        Signature      => 'Test: <OTOBO_AGENT_SUBJECT> <OTOBO_AGENT_BODY> <OTOBO_CUSTOMER_BODY> <OTOBO_CUSTOMER_SUBJECT>',
         ExpectedResult => 'Test: - - - -',
     },
     {
-        Name => 'Test supported tags - <OTOBO_TICKET_*> without TicketID',
+        Name      => 'Test supported tags - <OTOBO_TICKET_*> without TicketID',
         Signature =>
             'Options of the ticket data (e. g. <OTOBO_TICKET_TicketNumber>, <OTOBO_TICKET_TicketID>, <OTOBO_TICKET_State>)',
         ExpectedResult => 'Options of the ticket data (e. g. -, -, -)',
     },
     {
-        Name => 'Test supported tags - <OTOBO_TICKET_*>  with TicketID',
+        Name      => 'Test supported tags - <OTOBO_TICKET_*>  with TicketID',
         Signature =>
             'Options of the ticket data (e. g. <OTOBO_TICKET_TicketNumber>, <OTOBO_TICKET_TicketID>, <OTOBO_TICKET_State>)',
     },
@@ -219,7 +218,4 @@ for my $Test (@Tests) {
 
 # Cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

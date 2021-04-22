@@ -105,7 +105,7 @@ for my $Backend (qw(DB FS)) {
 
         for my $FileName (
             'SimpleFile',
-            'ÄÖÜカスタマ-',          # Unicode NFC
+            'ÄÖÜカスタマ-',         # Unicode NFC
             'Второй_файл',    # Unicode NFD
             )
         {
@@ -296,7 +296,4 @@ for my $Backend (qw(DB FS)) {
 
 # cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

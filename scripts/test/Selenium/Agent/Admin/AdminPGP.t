@@ -25,7 +25,10 @@ use vars (qw($Self));
 
 use File::Path qw(mkpath rmtree);
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -54,7 +57,7 @@ $Selenium->RunTest(
 
         # Create test PGP path and set it in sysConfig.
         my $PGPPath = $ConfigObject->Get('Home') . "/var/tmp/pgp" . $Helper->GetRandomID();
-        mkpath( [$PGPPath], 0, 0770 );    ## no critic
+        mkpath( [$PGPPath], 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
@@ -217,7 +220,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

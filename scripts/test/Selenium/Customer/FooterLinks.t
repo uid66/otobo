@@ -25,17 +25,11 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::ObjectManager;
-
-# because OTOBO modules expect $Kernel::OM
-$Kernel::OM = Kernel::System::ObjectManager->new(
-    'Kernel::System::Log' => {
-        LogPrefix => 'OTOBO-otobo.UnitTest',
-    },
-);
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -50,16 +44,16 @@ $Selenium->RunTest(
 
         my @ExpectedLinks = (
             q{https://www.sanmiguel-brand-partner.com},
-            q{https://otobo.de},   # powered by Rother OSS © 2019-2020
-            q{https://otobo.de},   # OTOBO logo
+            q{https://otobo.de},    # powered by Rother OSS © 2019-2020
+            q{https://otobo.de},    # OTOBO logo
         );
 
         # look for the footer links in the customer and in the public interface
-        for my $Page ( qw(customer.pl  public.pl) ) {
+        for my $Page (qw(customer.pl  public.pl)) {
 
             # login page for the customer.pl
             # stub page for public.pl
-            $Selenium->VerifiedGet( "${ScriptAlias}${Page}" );
+            $Selenium->VerifiedGet("${ScriptAlias}${Page}");
 
             # Get the list of links in the footer.
             # Looks like execute_script() can't return data structure, so join the links for now.
@@ -74,7 +68,7 @@ $Selenium->RunTest(
 END_JS
 
             # expect exactly three links
-            note( $LinksStr );
+            note($LinksStr);
             like(
                 $LinksStr,
                 qr{^ [^🎋]+ 🎋 [^🎋]+ 🎋 [^🎋].+ $}x,

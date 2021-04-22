@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -179,8 +181,7 @@ $Selenium->RunTest(
             $Count++;
         }
 
-        $Selenium->find_element("//input[\@value='$CustomerRandomID'][\@name='${PermissionContextDirect}_rw']")
-            ->click();
+        $Selenium->find_element("//input[\@value='$CustomerRandomID'][\@name='${PermissionContextDirect}_rw']")->click();
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
         # check test Group relation for test CustomerUser
@@ -188,14 +189,12 @@ $Selenium->RunTest(
         $Selenium->find_element( $CustomerLink, 'link_text' )->VerifiedClick();
 
         $Self->Is(
-            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextDirect}_rw']")
-                ->is_selected(),
+            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextDirect}_rw']")->is_selected(),
             1,
             "Full read and write permission for $GroupRandomID is enabled",
         );
         $Self->Is(
-            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextDirect}_ro']")
-                ->is_selected(),
+            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextDirect}_ro']")->is_selected(),
             1,
             "Read only permission for $GroupRandomID is enabled",
         );
@@ -208,31 +207,26 @@ $Selenium->RunTest(
         # change test Customer external relations for test Group
         $Selenium->find_element( $GroupRandomID, 'link_text' )->VerifiedClick();
 
-        $Selenium->find_element("//input[\@value='$CustomerRandomID'][\@name='${PermissionContextOtherCustomerID}_rw']")
-            ->click();
+        $Selenium->find_element("//input[\@value='$CustomerRandomID'][\@name='${PermissionContextOtherCustomerID}_rw']")->click();
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
         # check test Group relation for test Customer
         $Selenium->find_element( $CustomerLink, 'link_text' )->VerifiedClick();
 
         $Self->Is(
-            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_rw']")
-                ->is_selected(),
+            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_rw']")->is_selected(),
             1,
             "Full external read and write permission for $GroupRandomID is enabled",
         );
         $Self->Is(
-            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_ro']")
-                ->is_selected(),
+            $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_ro']")->is_selected(),
             1,
             "External read only permission for $GroupRandomID is enabled",
         );
 
         # remove test Group relation for test CustomerUser
-        $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_rw']")
-            ->click();
-        $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_ro']")
-            ->click();
+        $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_rw']")->click();
+        $Selenium->find_element("//input[\@value='$GroupID'][\@name='${PermissionContextOtherCustomerID}_ro']")->click();
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
         # get DB object
@@ -271,7 +265,4 @@ $Selenium->RunTest(
     },
 );
 
-
 $Self->DoneTesting();
-
-

@@ -67,14 +67,11 @@ Don't use the constructor directly, use the ObjectManager instead:
 
 =cut
 
-## no critic (StringyEval)
-
 sub new {
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object
-    my $Self = {};
-    bless( $Self, $Type );
+    my $Self = bless {}, $Type;
 
     $Self->{ConfigObject} = $Kernel::OM->Get('Kernel::Config');
 
@@ -97,7 +94,8 @@ sub new {
     FILENAME:
     for my $Filename (qw(Framework.pm OTOBOCommunity.pm)) {
         my $BaseFile = $BaseDir . $Filename;
-        next FILENAME if !-e $BaseFile;
+
+        next FILENAME unless -e $BaseFile;
 
         $BaseFile =~ s{\A.*\/(.+?).pm\z}{$1}xms;
         my $BaseClassName = "Kernel::System::SysConfig::Base::$BaseFile";
@@ -106,7 +104,6 @@ sub new {
                 Message => "Could not load class $BaseClassName.",
             );
         }
-
     }
 
     return $Self;
@@ -1008,8 +1005,7 @@ sub SettingEffectiveValueGet {
                     && $Param{Value}->[0]->{Hash}->[0]->{DefaultItem}->[0]->{$Attribute}->[0]->{DefaultItem}
                     )
                 {
-                    $Attributes{DefaultItem}
-                        = $Param{Value}->[0]->{Hash}->[0]->{DefaultItem}->[0]->{$Attribute}->[0]->{DefaultItem};
+                    $Attributes{DefaultItem} = $Param{Value}->[0]->{Hash}->[0]->{DefaultItem}->[0]->{$Attribute}->[0]->{DefaultItem};
                 }
                 next ATTRIBUTE if grep { $Attribute eq $_ } ( qw (Array Hash), @ValueAttributeList );
 
@@ -1020,8 +1016,7 @@ sub SettingEffectiveValueGet {
                 {
                     my $DefaultItemValueType = $Param{Value}->[0]->{Hash}->[0]->{DefaultItem}->[0]->{ValueType};
                     if ( $ForbiddenValueTypes{$DefaultItemValueType} ) {
-                        my $SubValueType
-                            = $Param{Value}->[0]->{Hash}->[0]->{DefaultItem}->[0]->{Item}->[0]->{ValueType};
+                        my $SubValueType = $Param{Value}->[0]->{Hash}->[0]->{DefaultItem}->[0]->{Item}->[0]->{ValueType};
 
                         if ( !grep { $_ eq $SubValueType } @{ $ForbiddenValueTypes{$DefaultItemValueType} } ) {
                             next ATTRIBUTE;
@@ -1119,8 +1114,7 @@ sub SettingEffectiveValueGet {
                     && $Param{Value}->[0]->{Array}->[0]->{DefaultItem}->[0]->{$Attribute}->[0]->{DefaultItem}
                     )
                 {
-                    $Attributes{DefaultItem}
-                        = $Param{Value}->[0]->{Array}->[0]->{DefaultItem}->[0]->{$Attribute}->[0]->{DefaultItem};
+                    $Attributes{DefaultItem} = $Param{Value}->[0]->{Array}->[0]->{DefaultItem}->[0]->{$Attribute}->[0]->{DefaultItem};
                 }
                 next ATTRIBUTE if grep { $Attribute eq $_ } qw (Array Hash Content SelectedID);
 
@@ -2458,7 +2452,7 @@ sub ConfigurationXML2DB {
 
     my $Directory = $Param{Directory} || "$Self->{Home}/Kernel/Config/Files/XML/";
 
-    if ( ! -e $Directory ) {
+    if ( !-e $Directory ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message  => "Directory '$Directory' does not exists",
@@ -2514,8 +2508,7 @@ sub ConfigurationXML2DB {
             && ref $Cache->{Settings} eq 'ARRAY'
             )
         {
-            @{ $SettingsByInit{ $Cache->{Init} } }
-                = ( @{ $SettingsByInit{ $Cache->{Init} } }, @{ $Cache->{Settings} } );
+            @{ $SettingsByInit{ $Cache->{Init} } } = ( @{ $SettingsByInit{ $Cache->{Init} } }, @{ $Cache->{Settings} } );
 
             next FILE;
         }
@@ -2542,7 +2535,7 @@ sub ConfigurationXML2DB {
         if ( !defined $SettingsByInit{$InitValue} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message =>
+                Message  =>
                     "Invalid otobo_config Init value ($InitValue)! Allowed values: Framework, Application, Config, Changes.",
             );
 
@@ -2653,15 +2646,15 @@ sub ConfigurationXML2DB {
 
                 # Update default setting.
                 my $Success = $SysConfigDBObject->DefaultSettingUpdate(
-                    DefaultID      => $DefaultSetting->{DefaultID},
-                    Name           => $Settings{$SettingName}->{XMLContentParsed}->{Name},
-                    Description    => $Settings{$SettingName}->{XMLContentParsed}->{Description}->[0]->{Content} || '',
-                    Navigation     => $Settings{$SettingName}->{XMLContentParsed}->{Navigation}->[0]->{Content} || '',
-                    IsInvisible    => $Settings{$SettingName}->{XMLContentParsed}->{Invisible} || 0,
-                    IsReadonly     => $Settings{$SettingName}->{XMLContentParsed}->{ReadOnly} || 0,
-                    IsRequired     => $Settings{$SettingName}->{XMLContentParsed}->{Required} || 0,
-                    IsValid        => $Settings{$SettingName}->{XMLContentParsed}->{Valid} || 0,
-                    HasConfigLevel => $Settings{$SettingName}->{XMLContentParsed}->{ConfigLevel} || 100,
+                    DefaultID                => $DefaultSetting->{DefaultID},
+                    Name                     => $Settings{$SettingName}->{XMLContentParsed}->{Name},
+                    Description              => $Settings{$SettingName}->{XMLContentParsed}->{Description}->[0]->{Content} || '',
+                    Navigation               => $Settings{$SettingName}->{XMLContentParsed}->{Navigation}->[0]->{Content}  || '',
+                    IsInvisible              => $Settings{$SettingName}->{XMLContentParsed}->{Invisible}                   || 0,
+                    IsReadonly               => $Settings{$SettingName}->{XMLContentParsed}->{ReadOnly}                    || 0,
+                    IsRequired               => $Settings{$SettingName}->{XMLContentParsed}->{Required}                    || 0,
+                    IsValid                  => $Settings{$SettingName}->{XMLContentParsed}->{Valid}                       || 0,
+                    HasConfigLevel           => $Settings{$SettingName}->{XMLContentParsed}->{ConfigLevel}                 || 100,
                     UserModificationPossible => $Settings{$SettingName}->{XMLContentParsed}->{UserModificationPossible}
                         || 0,
                     UserModificationActive => $Settings{$SettingName}->{XMLContentParsed}->{UserModificationActive}
@@ -2677,7 +2670,7 @@ sub ConfigurationXML2DB {
                 if ( !$Success ) {
                     $Kernel::OM->Get('Kernel::System::Log')->Log(
                         Priority => 'error',
-                        Message =>
+                        Message  =>
                             "DefaultSettingUpdate failed for Config Item: $SettingName!",
                     );
                 }
@@ -2723,14 +2716,14 @@ sub ConfigurationXML2DB {
                 );
 
                 $DefaultSettingsAdd{ $Settings{$SettingName}->{XMLContentParsed}->{Name} } = {
-                    Name           => $Settings{$SettingName}->{XMLContentParsed}->{Name},
-                    Description    => $Settings{$SettingName}->{XMLContentParsed}->{Description}->[0]->{Content} || '',
-                    Navigation     => $Settings{$SettingName}->{XMLContentParsed}->{Navigation}->[0]->{Content} || '',
-                    IsInvisible    => $Settings{$SettingName}->{XMLContentParsed}->{Invisible} || 0,
-                    IsReadonly     => $Settings{$SettingName}->{XMLContentParsed}->{ReadOnly} || 0,
-                    IsRequired     => $Settings{$SettingName}->{XMLContentParsed}->{Required} || 0,
-                    IsValid        => $Settings{$SettingName}->{XMLContentParsed}->{Valid} || 0,
-                    HasConfigLevel => $Settings{$SettingName}->{XMLContentParsed}->{ConfigLevel} || 100,
+                    Name                     => $Settings{$SettingName}->{XMLContentParsed}->{Name},
+                    Description              => $Settings{$SettingName}->{XMLContentParsed}->{Description}->[0]->{Content} || '',
+                    Navigation               => $Settings{$SettingName}->{XMLContentParsed}->{Navigation}->[0]->{Content}  || '',
+                    IsInvisible              => $Settings{$SettingName}->{XMLContentParsed}->{Invisible}                   || 0,
+                    IsReadonly               => $Settings{$SettingName}->{XMLContentParsed}->{ReadOnly}                    || 0,
+                    IsRequired               => $Settings{$SettingName}->{XMLContentParsed}->{Required}                    || 0,
+                    IsValid                  => $Settings{$SettingName}->{XMLContentParsed}->{Valid}                       || 0,
+                    HasConfigLevel           => $Settings{$SettingName}->{XMLContentParsed}->{ConfigLevel}                 || 100,
                     UserModificationPossible => $Settings{$SettingName}->{XMLContentParsed}->{UserModificationPossible}
                         || 0,
                     UserModificationActive => $Settings{$SettingName}->{XMLContentParsed}->{UserModificationActive}
@@ -2954,9 +2947,9 @@ sub ConfigurationNavigationTree {
         );
     }
 
- # Until now we have structure of the Navigation tree without sub-node count. We need this number to disable
- # click on empty nodes. We could implement that in the _NavigationTree, but it's not efficient(loop of 1800+ settings).
- # Instead, we extend result in the _NavigationTreeNodeCount.
+    # Until now we have structure of the Navigation tree without sub-node count. We need this number to disable
+    # click on empty nodes. We could implement that in the _NavigationTree, but it's not efficient(loop of 1800+ settings).
+    # Instead, we extend result in the _NavigationTreeNodeCount.
     %Result = $Self->_NavigationTreeNodeCount(
         Tree     => \%Result,
         Settings => \@Settings,
@@ -4154,7 +4147,7 @@ sub ConfigurationDump {
                 SettingList => \@SettingsList,
                 OnlyValues  => $Param{OnlyValues},
             );
-            if ( %UserSettings ) {
+            if (%UserSettings) {
                 %Result = ( %Result, %UserSettings );
             }
         }
@@ -4191,8 +4184,7 @@ sub ConfigurationLoad {
         }
     }
 
-    my %ConfigurationRaw
-        = %{ $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => $Param{ConfigurationYAML} ) || {} };
+    my %ConfigurationRaw = %{ $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => $Param{ConfigurationYAML} ) || {} };
 
     if ( !%ConfigurationRaw ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -4375,8 +4367,7 @@ sub ConfigurationLockedSettingsList {
     return if !IsArrayRefWithData( \@DefaultSettingsList );
 
     if ( $Param{ExclusiveLockUserID} ) {
-        @DefaultSettingsList
-            = map { $_->{Name} } grep { $_->{ExclusiveLockUserID} eq $Param{ExclusiveLockUserID} } @DefaultSettingsList;
+        @DefaultSettingsList = map { $_->{Name} } grep { $_->{ExclusiveLockUserID} eq $Param{ExclusiveLockUserID} } @DefaultSettingsList;
     }
     else {
         @DefaultSettingsList = map { $_->{Name} } @DefaultSettingsList;
@@ -4518,7 +4509,7 @@ sub ConfigurationCategoriesGet {
         OTOBO => {
             DisplayName => 'OTOBO',
             Files       => [
-                'Calendar.xml', 'CloudServices.xml', 'Daemon.xml', 'Framework.xml',
+                'Calendar.xml',         'CloudServices.xml',     'Daemon.xml', 'Framework.xml',
                 'GenericInterface.xml', 'ProcessManagement.xml', 'Ticket.xml',
             ],
         },
@@ -4891,7 +4882,7 @@ sub OverriddenFileNameGet {
         return if !$LastDeployment{EffectiveValueStrg};
 
         {
-            eval $LastDeployment{EffectiveValueStrg};
+            eval $LastDeployment{EffectiveValueStrg};    ## no critic qw(BuiltinFunctions::ProhibitStringyEval)
             Kernel::Config::Files::ZZZAAuto->Load($ConfigFromDB);
         }
 
@@ -5128,12 +5119,11 @@ sub _FileWriteAtomic {
     }
 
     # write to a temp file
-    my $TempFilename = $Param{Filename} . '.' . $$; # append the processs id
+    my $TempFilename = $Param{Filename} . '.' . $$;    # append the processs id
     {
-        ## no critic
-        my $Success = open( my $FH, ">$Self->{FileMode}", $TempFilename );
-        ## use critic
-        if ( ! $Success ) {
+
+        my $Success = open( my $FH, ">$Self->{FileMode}", $TempFilename );    ## no critic qw(InputOutput::RequireBriefOpen OTOBO::ProhibitOpen)
+        if ( !$Success ) {
 
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
@@ -5662,6 +5652,7 @@ sub _EffectiveValues2PerlFile {
             $EffectiveValue =~ s/\$VAR1 =//;
             $PerlHashStrg .= "\$Self->{'$Name'} = $EffectiveValue";
         }
+        ## no critic qw(BuiltinFunctions::ProhibitStringyEval)
         elsif ( eval( '$Self->{ConfigDefaultObject}->{\'' . $Name . '\'}' ) ) {
             $PerlHashStrg .= "delete \$Self->{'$Name'};\n";
         }
@@ -5691,7 +5682,7 @@ sub _EffectiveValues2PerlFile {
 package $TargetPath;
 use strict;
 use warnings;
-no warnings 'redefine'; ## no critic
+no warnings 'redefine'; ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 EOF
 
     if ( $Self->{utf8} ) {
@@ -6067,7 +6058,7 @@ sub _HandleSettingsToDeploy {
         if ( !$ModifiedDelete ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message =>
+                Message  =>
                     "Could not delete the modified setting for $Setting->{Name} on reset action! Rolling back.",
             );
             $Error = 1;

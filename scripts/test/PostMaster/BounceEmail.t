@@ -191,7 +191,7 @@ my $CheckArticleTransmissionError = sub {
 
     my $ArticleBackendObject =
         $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForChannel(
-        ChannelName => 'Email'
+            ChannelName => 'Email'
         );
 
     my $SendError = $ArticleBackendObject->ArticleGetTransmissionError(
@@ -537,7 +537,4 @@ $TestOriginalEmailAsAttachmentShouldNotBounce->();
 
 # cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

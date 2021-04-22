@@ -79,7 +79,7 @@ $Self->True(
 # provide minimum options (invalid group)
 $ExitCode = $CommandObject->Execute(
     '--customer-user-login', $CustomerUserLogin, '--group-name', $RandomName,
-    '--permission', 'ro'
+    '--permission',          'ro'
 );
 $Self->Is(
     $ExitCode,
@@ -111,7 +111,4 @@ $Self->Is(
 
 # cleanup is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

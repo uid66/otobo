@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -103,8 +102,7 @@ my $ValidSettingXML = <<EOF,
 </otobo_config>
 EOF
 
-    my $ConfigFileLocation
-    = $ConfigObject->Get('Home') . '/Kernel/Config/Files/XML/UnitTest' . $HelperObject->GetRandomNumber() . '.xml';
+    my $ConfigFileLocation = $ConfigObject->Get('Home') . '/Kernel/Config/Files/XML/UnitTest' . $HelperObject->GetRandomNumber() . '.xml';
 my $ConfigFileWriteOk = $MainObject->FileWrite(
     Location => $ConfigFileLocation,
     Content  => \$ValidSettingXML,
@@ -169,7 +167,4 @@ $Self->True(
 
 $ConfigurationDeploy->( Success => 1 );
 
-
 $Self->DoneTesting();
-
-

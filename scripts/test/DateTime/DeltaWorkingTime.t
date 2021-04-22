@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -673,7 +672,4 @@ $Self->False(
     'Delta working time calculation with invalid DateTime object must fail.',
 );
 
-
 $Self->DoneTesting();
-
-

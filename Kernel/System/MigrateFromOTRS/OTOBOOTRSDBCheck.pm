@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::OTOBOOTRSDBCheck;    ## no critic
+package Kernel::System::MigrateFromOTRS::OTOBOOTRSDBCheck;
 
 use strict;
 use warnings;
@@ -97,9 +97,9 @@ sub Run {
     }
 
     # create OTRS DB connection
-    my $Message =  $Self->{LanguageObject}->Translate("Try database connect and sanity checks.");
+    my $Message              = $Self->{LanguageObject}->Translate('Try database connect and sanity checks.');
     my $CloneDBBackendObject = $Kernel::OM->Get('Kernel::System::MigrateFromOTRS::CloneDB::Backend');
-    my $SourceDBObject = $CloneDBBackendObject->CreateOTRSDBConnection(
+    my $SourceDBObject       = $CloneDBBackendObject->CreateOTRSDBConnection(
         OTRSDBSettings => $Param{DBData},
     );
 
@@ -107,7 +107,6 @@ sub Run {
         Message    => $Message,
         Comment    => $Self->{LanguageObject}->Translate("Could not create database object."),
         Successful => 0,
-
     } unless $SourceDBObject;
 
     # check whether the relevant tables exist

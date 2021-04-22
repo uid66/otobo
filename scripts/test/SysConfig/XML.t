@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 
@@ -603,5 +602,3 @@ for my $Test (@Tests) {
 }
 
 $Self->DoneTesting();
-
-

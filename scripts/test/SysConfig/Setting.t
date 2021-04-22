@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -1303,15 +1302,15 @@ my @SettingUpdateTests = (
             %{ $DefaultSettingAddParams[1] },
             DefaultID                => $DefaultID2,
             Name                     => "Test2$RandomID",
-            EffectiveValue           => 'Global value',     # It's deployed, user don't have own settings
+            EffectiveValue           => 'Global value',                                  # It's deployed, user don't have own settings
             UserModificationPossible => 1,
             UserModificationActive   => 1,
             UserPreferencesGroup     => '',
-            DefaultValue => $DefaultSettingAddParams[1]->{EffectiveValue},
-            IsModified   => 1,
-            IsValid      => 1,
-            CreateBy     => 1,
-            ChangeBy     => 1,
+            DefaultValue             => $DefaultSettingAddParams[1]->{EffectiveValue},
+            IsModified               => 1,
+            IsValid                  => 1,
+            CreateBy                 => 1,
+            ChangeBy                 => 1,
         },
     },
 );
@@ -1437,7 +1436,4 @@ for my $IsDirty (@SettingDirtyNames) {
     );
 }
 
-
 $Self->DoneTesting();
-
-

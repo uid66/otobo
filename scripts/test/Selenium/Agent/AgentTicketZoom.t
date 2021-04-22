@@ -25,7 +25,8 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # set up $Self and $Kernel::PL
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::PL
+use Kernel::System::UnitTest::Selenium;
 
 our $Self;
 
@@ -60,7 +61,7 @@ sub Hex2RGB {
     return sprintf( 'rgb(%s, %s, %s)', @Channels );
 }
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -263,9 +264,9 @@ $Selenium->RunTest(
 
             my $Color = $Element->get_css_attribute('color');
             {
-                my $ToDo = todo( 'skin highcontrast does not exist in OTOBO, issue #678' );
+                my $ToDo = todo('skin highcontrast does not exist in OTOBO, issue #678');
 
-                is( $Color, $ExpectedRGBColor, "$Item->{Name} is correct - $Item->{Color}");
+                is( $Color, $ExpectedRGBColor, "$Item->{Name} is correct - $Item->{Color}" );
             }
         }
 

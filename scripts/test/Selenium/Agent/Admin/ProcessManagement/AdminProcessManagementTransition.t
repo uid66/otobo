@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -266,11 +269,9 @@ $Selenium->RunTest(
             Value   => 'and',
         );
         $Selenium->find_element(".//*[\@id='ConditionFieldName[1][$TransitionFieldName]']")->clear();
-        $Selenium->find_element(".//*[\@id='ConditionFieldName[1][$TransitionFieldName]']")
-            ->send_keys($TransitionFieldNameEdit);
+        $Selenium->find_element(".//*[\@id='ConditionFieldName[1][$TransitionFieldName]']")->send_keys($TransitionFieldNameEdit);
         $Selenium->find_element(".//*[\@id='ConditionFieldValue[1][$TransitionFieldName]']")->clear();
-        $Selenium->find_element(".//*[\@id='ConditionFieldValue[1][$TransitionFieldName]']")
-            ->send_keys($TransitionValueNameEdit);
+        $Selenium->find_element(".//*[\@id='ConditionFieldValue[1][$TransitionFieldName]']")->send_keys($TransitionValueNameEdit);
 
         # Remove Conditions, expecting JS error on last Condition removal.
         $Selenium->find_element("//a[\@name='ConditionRemove[2]']")->click();
@@ -422,7 +423,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

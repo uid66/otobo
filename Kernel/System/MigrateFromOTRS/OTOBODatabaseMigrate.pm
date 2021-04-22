@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package Kernel::System::MigrateFromOTRS::OTOBODatabaseMigrate;    ## no critic
+package Kernel::System::MigrateFromOTRS::OTOBODatabaseMigrate;
 
 use strict;
 use warnings;
@@ -82,7 +82,7 @@ sub Run {
                 Message    => $Self->{LanguageObject}->Translate("Check if OTOBO version is correct."),
                 Comment    => $Self->{LanguageObject}->Translate( 'Need %s!', $Key ),
                 Successful => 0,
-            }
+            };
         }
     }
 
@@ -92,41 +92,27 @@ sub Run {
             Successful => 1,
             Message    => $Self->{LanguageObject}->Translate("Copy database."),
             Comment    => $Self->{LanguageObject}->Translate("Skipped..."),
-        }
+        };
     }
 
     # check needed stuff
+    # TODO: why not simple work with the DSN only?
+    KEY:
     for my $Key (qw(DBDSN DBType DBHost DBUser DBPassword DBName)) {
-        if ( !$Param{DBData}->{$Key} ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need DBData->$Key!"
-            );
 
-            return {
-                Message    => $Self->{LanguageObject}->Translate("Check if OTOBO version is correct."),
-                Comment    => $Self->{LanguageObject}->Translate( 'Need %s!', $Key ),
-                Successful => 0,
-            }
-        }
-    }
+        # no complaints when the key has a value
+        next KEY if $Param{DBData}->{$Key};
 
-    # TODO: why no ports for MySQL and PostgreSQL ?
-    if ( $Param{DBData}->{DBType} =~ m/oracle/ ) {
-        for my $Key (qw(DBSID DBPort)) {
-            if ( !$Param{DBData}->{$Key} ) {
-                $Kernel::OM->Get('Kernel::System::Log')->Log(
-                    Priority => 'error',
-                    Message  => "Need DBData->$Key!"
-                );
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need DBData->$Key!"
+        );
 
-                return {
-                    Message    => $Self->{LanguageObject}->Translate("Check if OTOBO version is correct."),
-                    Comment    => $Self->{LanguageObject}->Translate( 'Need %s for Oracle db!', $Key ),
-                    Successful => 0,
-                }
-            }
-        }
+        return {
+            Message    => $Self->{LanguageObject}->Translate("Check if OTOBO version is correct."),
+            Comment    => $Self->{LanguageObject}->Translate( 'Need %s!', $Key ),
+            Successful => 0,
+        };
     }
 
     # Set cache object with taskinfo and starttime to show current state in frontend
@@ -180,7 +166,7 @@ sub Run {
         Message    => $Self->{LanguageObject}->Translate("Copy database."),
         Comment    => $Self->{LanguageObject}->Translate("Data transfer completed."),
         Successful => 1,
-    }
+    };
 }
 
 1;

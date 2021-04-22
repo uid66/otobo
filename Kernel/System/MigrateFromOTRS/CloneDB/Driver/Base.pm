@@ -24,7 +24,7 @@ use namespace::autoclean;
 # core modules
 use Encode;
 use MIME::Base64;
-use List::Util qw(any);
+use List::Util qw(any none);
 use Fcntl qw(:flock);
 
 # CPAN modules
@@ -34,12 +34,14 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::Language',
+    'Kernel::System::Cache',
     'Kernel::System::DB',
+    'Kernel::System::DateTime',
     'Kernel::System::Encode',
     'Kernel::System::Log',
-    'Kernel::System::DateTime',
+    'Kernel::System::Main',
     'Kernel::System::MigrateFromOTRS::Base',
-    'Kernel::System::Cache',
 );
 
 =head1 NAME
@@ -77,7 +79,7 @@ sub new {
     return bless {}, $Class;
 }
 
-=head2 SanityChecks
+=head2 SanityChecks()
 
 check several sanity conditions of the source database.
 
@@ -85,7 +87,7 @@ check several sanity conditions of the source database.
 
 =item check whether the passed database object is supported
 
-=item check whether the required M<DBD::*> module can be loaded
+=item check whether the required L<DBD::*> module can be loaded
 
 =item check whether a connection is possible
 
@@ -115,7 +117,7 @@ sub SanityChecks {
 
     my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
-    $Param{Message} ||= $Self->{LanguageObject}->Translate( 'Sanity checks for database.' );
+    $Param{Message} ||= $Self->{LanguageObject}->Translate('Sanity checks for database.');
 
     # check needed stuff
     if ( !$Param{OTRSDBObject} ) {
@@ -134,9 +136,6 @@ sub SanityChecks {
 
     my $SourceDBObject = $Param{OTRSDBObject};
 
-    # get setup
-    my %TableIsSkipped = $Kernel::OM->Get('Kernel::System::MigrateFromOTRS::Base')->DBSkipTables()->%*;
-
     # check whether the source database type is supported and whether the DBD module can be loaded
     my %DBDModule = (
         mysql      => 'DBD::mysql',
@@ -144,9 +143,9 @@ sub SanityChecks {
         oracle     => 'DBD::Oracle',
     );
 
-    my $DBType = $SourceDBObject->GetDatabaseFunction( 'Type' ) // '';
+    my $DBType = $SourceDBObject->GetDatabaseFunction('Type') // '';
     my $Module = $DBDModule{$DBType};
-    if ( ! $Module ) {
+    if ( !$Module ) {
         my $Comment = "The source database type $DBType is not supported";
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -161,9 +160,9 @@ sub SanityChecks {
         };
     }
 
-    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
-    my $ModuleIsInstalled = $MainObject->Require( $Module );
-    if ( ! $ModuleIsInstalled ) {
+    my $MainObject        = $Kernel::OM->Get('Kernel::System::Main');
+    my $ModuleIsInstalled = $MainObject->Require($Module);
+    if ( !$ModuleIsInstalled ) {
         my $Comment = "The module $Module is not installed.";
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -180,7 +179,7 @@ sub SanityChecks {
 
     # check connection
     my $DbHandle = $SourceDBObject->Connect();
-    if ( ! $DbHandle ) {
+    if ( !$DbHandle ) {
         my $Comment = 'Could not connect to the source database!';
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -198,7 +197,7 @@ sub SanityChecks {
     my @SourceTables = $SourceDBObject->ListTables();
 
     # no need to migrate when the source has no tables
-    if ( ! @SourceTables ) {
+    if ( !@SourceTables ) {
         my $Comment = 'No tables available in the  source database!';
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -212,10 +211,15 @@ sub SanityChecks {
         };
     }
 
+    # some table should not be migrated
+    my %TableIsSkipped =
+        map { $_ => 1 }
+        $Kernel::OM->Get('Kernel::System::MigrateFromOTRS::Base')->DBSkipTables;
+
     SOURCE_TABLE:
     for my $SourceTable (@SourceTables) {
 
-        if ( $TableIsSkipped{ $SourceTable } ) {
+        if ( $TableIsSkipped{$SourceTable} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'info',
                 Message  => "Skipping table $SourceTable on SanityChecks.",
@@ -255,7 +259,7 @@ sub SanityChecks {
     };
 }
 
-=head2 RowCount
+=head2 RowCount()
 
 Get the number of rows in a table.
 
@@ -278,8 +282,17 @@ sub RowCount {
         }
     }
 
+    # This is a workaround for a very special case.
+    # There can be OTRS 6 running on MySQL 8, where groups is a reserverd word.
+    # See https://github.com/RotherOSS/otobo/issues/639
+    my $Table = ( $Param{DBObject}->{'DB::Type'} eq 'mysql' && $Param{Table} eq 'groups' )
+        ?
+        q{`groups`}
+        :
+        $Param{Table};
+
     # execute counting statement, only a single row is returned
-    my $RowCountSQL = sprintf q{SELECT COUNT(*) FROM %s}, $Param{DBObject}->QuoteIdentifier( Table => $Param{Table} );
+    my $RowCountSQL = sprintf qq{SELECT COUNT(*) FROM $Table};
 
     return unless $Param{DBObject}->Prepare(
         SQL => $RowCountSQL,
@@ -296,14 +309,14 @@ sub RowCount {
     return $NumRows;
 }
 
-=head2 DataTransfer
+=head2 DataTransfer()
 
 Transfer the actual table data
 
 =cut
 
 sub DataTransfer {
-    my ( $Self, %Param ) = @_; # $Self is  the source db backend
+    my ( $Self, %Param ) = @_;    # $Self is  the source db backend
 
     # check needed parameters
     for my $Needed (qw(OTRSDBObject OTOBODBObject OTOBODBBackend DBInfo)) {
@@ -328,22 +341,24 @@ sub DataTransfer {
     my $MigrationBaseObject = $Kernel::OM->Get('Kernel::System::MigrateFromOTRS::Base');
 
     # get setup
-    my %TableIsSkipped = $MigrationBaseObject->DBSkipTables()->%*;
-    my %RenameTables   = $MigrationBaseObject->DBRenameTables()->%*;
+    my %TableIsSkipped =
+        map { $_ => 1 }
+        $Kernel::OM->Get('Kernel::System::MigrateFromOTRS::Base')->DBSkipTables;
+    my %RenameTables = $MigrationBaseObject->DBRenameTables->%*;
 
     # Conversion of BLOBs is only relevant when DirectBlob settings are different.
     my %BlobConversionNeeded;
 
     # Because of InnodB max key size in MySQL 5.6 or earlier
-    my $MaxMb4CharsInIndexKey     = 191; # int( 767 / 4 )
-    my $MaxLenghtShortenedColumns = 190; # 191 - 1
+    my $MaxLenghtShortenedColumns = 190;    # int( 767 / 4 ) - 1
 
     # Use a locking table for avoiding concurrent migrations.
     # Open for writing as the file usually does not exist yet.
     # This approach assumes that the the webserver processes are running on a single machine.
     my $LockFile = join '/', $ConfigObject->Get('Home'), 'var/tmp/migrate_from_otrs.lock';
-    # TODO: why still warnings from Perl::Critic ??
+
     ## no critic qw(OTOBO::ProhibitLowPrecedenceOps OTOBO::ProhibitOpen InputOutput::RequireBriefOpen)
+
     open my $LockFh, '>', $LockFile or do {
         $MigrationBaseObject->MigrationLog(
             String   => "Could not open lockfile $LockFile; $!",
@@ -372,34 +387,15 @@ sub DataTransfer {
     # get a list of tables on OTOBO DB
     my %TargetTableExists = map { $_ => 1 } $TargetDBObject->ListTables();
 
-    # TODO: put this into Driver/mysql.pm
-    my ( $SourceSchema, $TargetSchema );
-    {
-        if ( $SourceDBObject->{'DB::Type'} eq 'mysql' ) {
-            $SourceSchema = ( $SourceDBObject->SelectAll(
-                SQL   => 'SELECT DATABASE()',
-                Limit => 1,
-            ) // [ [ 'unknown source database' ] ] )->[0]->[0];
-        }
-
-        if ( $TargetDBObject->{'DB::Type'} eq 'mysql' ) {
-            $TargetSchema = ( $TargetDBObject->SelectAll(
-                SQL   => 'SELECT DATABASE()',
-                Limit => 1,
-            ) // [ [ 'unknown target database' ] ] )->[0]->[0];
-        }
-    }
-
     # Collect information about the OTRS tables.
     # Decide whether batch insert, or destructive table renaming, is possible for a table.
     # Trunkate the target OTOBO tables.
     # In the case of destructive table renaming, keep track of the foreign keys.
-    # TODO: also keep track of the indexes, they are copied, but indexes might have been added
-    my ( @SourceTablesToBeCopied, %TargetAddForeignKeysClauses, %AlterSourceSQLs, %DoBatchInsert, %SourceColumnsString );
+    my ( @SourceTablesToBeCopied, %SourceColumnsString );
     SOURCE_TABLE:
     for my $SourceTable (@SourceTables) {
 
-        if ( $TableIsSkipped{ lc $SourceTable } ) {
+        if ( $TableIsSkipped{$SourceTable} ) {
 
             # Log info to apache error log and OTOBO log (syslog or file)
             $MigrationBaseObject->MigrationLog(
@@ -412,8 +408,8 @@ sub DataTransfer {
 
         my $TargetTable = $RenameTables{$SourceTable} // $SourceTable;
 
-        # Do not migrate tables that not needed on the target
-        if ( ! $TargetTableExists{$TargetTable} ) {
+        # Do not migrate tables that are not needed on the target
+        if ( !$TargetTableExists{$TargetTable} ) {
 
             # Log info to apache error log and OTOBO log (syslog or file)
             $MigrationBaseObject->MigrationLog(
@@ -430,7 +426,7 @@ sub DataTransfer {
         # For destructive table copying drop the table but keep Track of foreign keys first.
 
         # In the target database schema some varchar columns have been shortened
-        # to $MaxMb4CharsInIndexKey, that is 191, characters.
+        # to int( 767 / 4 ) = 191 characters
         # The reason was that in MySQL 5.6 or earlier the max key size was limited per default
         # to 767 characters. This max key size is relevant for the columns that make up the PRIMARY key
         # and for all columns with an UNIQUE index. With switching to the utf8mb4 character set.
@@ -450,21 +446,19 @@ sub DataTransfer {
             DBObject => $SourceDBObject,
         );
 
-        if ( ! $SourceColumnsRef || ! $SourceColumnsRef->@* ) {
+        if ( !$SourceColumnsRef || !$SourceColumnsRef->@* ) {
             $MigrationBaseObject->MigrationLog(
                 String   => "Could not get columns of source table '$SourceTable'",
                 Priority => "error",
             );
 
-            return; # bail out
+            return;    # bail out
         }
 
-        $AlterSourceSQLs{$SourceTable} //= [];
-
-        if ( $TargetDBObject->{'DB::Type'} eq 'mysql' ) {
-
+        # Columns might be shortened for any database type.
+        {
             my @MaybeShortenedColumns;
-            my $DoShorten; # flag used for assembly of $SourceColumnsString
+            my $DoShorten;    # flag used for assembly of $SourceColumnsString
             SOURCE_COLUMN:
             for my $SourceColumn ( $SourceColumnsRef->@* ) {
 
@@ -478,9 +472,11 @@ sub DataTransfer {
                     Column   => $SourceColumn,
                 );
 
-                # shortening only for varchar
+                # shortening only for varchar (and the corresponding data types varchar2 and 'character varying')
                 next SOURCE_COLUMN unless IsHashRefWithData($SourceColumnInfos);
-                next SOURCE_COLUMN unless $SourceColumnInfos->{DATA_TYPE} eq 'varchar';
+                if ( none { $_ eq lc($SourceColumnInfos->{DATA_TYPE}) } ( 'varchar', 'character varying', 'varchar2' ) ) {
+                    next SOURCE_COLUMN;
+                }
 
                 # Get target (OTOBO) column infos
                 my $TargetColumnInfos = $TargetDBBackend->GetColumnInfos(
@@ -497,10 +493,6 @@ sub DataTransfer {
 
                 # We need to shorten that column in that table to 191 chars.
                 $DoShorten = 1;
-                my $QuotedSourceTable = $Param{OTRSDBObject}->QuoteIdentifier( Table => $SourceTable );
-                push $AlterSourceSQLs{$SourceTable}->@*,
-                    "UPDATE $QuotedSourceTable SET $SourceColumn = SUBSTRING( $SourceColumn, 1, $MaxLenghtShortenedColumns )",
-                    "ALTER TABLE $QuotedSourceTable MODIFY COLUMN $SourceColumn VARCHAR($MaxMb4CharsInIndexKey)";
 
                 # Log info to apache error log and OTOBO log (syslog or file)
                 $MigrationBaseObject->MigrationLog(
@@ -512,19 +504,15 @@ sub DataTransfer {
                 # The source column might have to be shortened.
                 # In that case add the SUBSTRING() function.
                 push @MaybeShortenedColumns,
-                    $DoShorten ?
-                        "SUBSTRING( $SourceColumn, 1, $MaxLenghtShortenedColumns )"
-                        :
-                        $SourceColumn;
+                    $DoShorten
+                    ?
+                    "SUBSTRING( $SourceColumn, 1, $MaxLenghtShortenedColumns )"
+                    :
+                    $SourceColumn;
             }
 
             # This string might contain some MySQL SUBSTRING() calls
             $SourceColumnsString{$SourceTable} = join ', ', @MaybeShortenedColumns;
-        }
-        else {
-
-            # There is no shortening. This means that source and target columns are identical.
-            $SourceColumnsString{$SourceTable} = join ', ', $SourceColumnsRef->@*;
         }
 
         # get a list of blob columns from OTRS DB
@@ -532,7 +520,7 @@ sub DataTransfer {
         if (
             $TargetDBObject->GetDatabaseFunction('DirectBlob')
             != $SourceDBObject->GetDatabaseFunction('DirectBlob')
-        )
+            )
         {
             $BlobConversionNeeded{$SourceTable} = $Self->BlobColumnsList(
                 Table    => $SourceTable,
@@ -541,106 +529,22 @@ sub DataTransfer {
             ) || {};
         }
 
-        # We can speed up the copying of the rows when Source and Target databases are on the same database server.
-        # The most important criterium is whether the database host are equal.
-        # This is done by comparing 'mysql_hostinfo'
-        # Beware that there can be false negatives, e.g. when alternative IPs or hostnames are used.
-        # Or when only one of the connections is via socket.
-        # Be careful and also make some sanity additional sanity checks.
-        # For now only 'mysql' is supported.
-        # TODO: move parts of the check into the specific driver object
-        my $BatchInsertIsPossible = eval {
-
-            # source and target must be the same database type
-            return 0 unless $TargetDBObject->{'DB::Type'} eq $SourceDBObject->{'DB::Type'};
-
-            my $DBType = $TargetDBObject->{'DB::Type'};
-
-            # check whether it's the same host
-            if ( $DBType eq 'mysql' ) {
-                return 0 unless $TargetDBObject->{dbh}->{mysql_hostinfo} eq $SourceDBObject->{dbh}->{mysql_hostinfo};
-            }
-            else {
-                return 0;
-            }
-
-            # no batch insert when BLOBs must be encoded or decoded
-            # This check is basically redundant because the DB::Types have already been checked.
-            return 0 if $BlobConversionNeeded{$SourceTable}->%*;
-
-            # Let's try batch inserts, or moving of the table
-            return 1;
-        };
-
-        # TODO: batch insert atm fails at line 864, where a select on the otrs-db is done as the otobo-mysql-user
-        # $DoBatchInsert{$SourceTable} = $BatchInsertIsPossible;
-        $DoBatchInsert{$SourceTable} = 0;
-
-        if ( $BatchInsertIsPossible ) {
-
-            # drop foreign keys in the source
-            my $SourceForeignKeySth = $TargetDBObject->{dbh}->foreign_key_info(
-                undef, undef, undef,
-                undef, $SourceSchema, $SourceTable
-            );
-
-            ROW:
-            while ( my @Row = $SourceForeignKeySth->fetchrow_array() ) {
-                my ($FKName) = $Row[11];
-
-                # skip cruft
-                next ROW unless $FKName;
-
-                # The OTOBO convention is that foreign key names start with 'FK_'.
-                # The check is relevant because primary keys have 'PRIMARY' as $FKName
-                next ROW unless $FKName =~ m/^FK_/;
-
-                # explicitly try to drop the index too,
-                # otherwise the foreign key can't be added. Strange.
-                my $QuotedSourceTable = $Param{OTRSDBObject}->QuoteIdentifier( Table => $SourceTable );
-                unshift $AlterSourceSQLs{$SourceTable}->@*,
-                    "ALTER TABLE $QuotedSourceTable DROP FOREIGN KEY $FKName";
-            }
-
-            # readd foreign keys in the target
-            $TargetAddForeignKeysClauses{$TargetTable} //= [];
-            my $TargetForeignKeySth = $TargetDBObject->{dbh}->foreign_key_info(
-                undef, undef, undef,
-                undef, $TargetSchema, $TargetTable
-            );
-
-            ROW:
-            while ( my @Row = $TargetForeignKeySth->fetchrow_array() ) {
-                my ($PKTableName, $PKColumnName, $FKColumnName, $FKName) = @Row[2, 3, 7, 11];
-
-                # skip cruft
-                next ROW unless $PKTableName;
-                next ROW unless $PKColumnName;
-                next ROW unless $FKColumnName;
-                next ROW unless $FKName;
-
-                # The OTOBO convention is that foreign key names start with 'FK_'.
-                # The check is relevant because primary keys have 'PRIMARY' as $FKName
-                next ROW unless $FKName =~ m/^FK_/;
-
-                push $TargetAddForeignKeysClauses{$TargetTable}->@*,
-                    "ADD CONSTRAINT FOREIGN KEY $FKName ($FKColumnName) REFERENCES $PKTableName($PKColumnName)";
-            }
-        }
-
         # Truncate the target table in all cases.
-        # In the RENAME case the table will eventually be dropped,
-        # but until then the truncated table provides info about columns and
-        # foreign keys.
-        my $TrunkateSuccess = $TargetDBObject->Do( SQL => "TRUNCATE TABLE $TargetTable" );
+        # The truncated table provides info about columns and foreign keys.
+        # The SQL is driver dependent because PostgreSQL 11 does not honor
+        # the deactivation of foreign key check with 'TRUNCATE TABLE'.
+        {
+            my $PurgeSQL = sprintf $TargetDBObject->GetDatabaseFunction('PurgeTable'), $TargetTable;
+            my $Success  = $TargetDBObject->Do( SQL => $PurgeSQL );
 
-        if ( ! $TrunkateSuccess ) {
-            $MigrationBaseObject->MigrationLog(
-                String   => "Could not truncate target table '$TargetTable'",
-                Priority => "error",
-            );
+            if ( !$Success ) {
+                $MigrationBaseObject->MigrationLog(
+                    String   => "Could not truncate target table '$TargetTable'",
+                    Priority => 'error',
+                );
 
-            return; # bail out
+                return;    # bail out
+            }
         }
     }
 
@@ -700,7 +604,7 @@ sub DataTransfer {
 
             my %AlreadyExists = map { $_ => 1 } $TargetColumnRef->@*;
 
-            for my $SourceColumn ( grep { ! $AlreadyExists{$_} } @SourceColumns ) {
+            for my $SourceColumn ( grep { !$AlreadyExists{$_} } @SourceColumns ) {
 
                 my $SourceColumnInfos = $Self->GetColumnInfos(
                     Table    => $SourceTable,
@@ -723,36 +627,23 @@ sub DataTransfer {
             }
         }
 
-        my $QuotedSourceTable = $Param{OTRSDBObject}->QuoteIdentifier( Table => $SourceTable );
-
-        if ( $DoBatchInsert{$SourceTable} ) {
-
-            my $BatchInsertSQL = <<"END_SQL";
-INSERT INTO $TargetSchema.$TargetTable ($TargetColumnsString)
-  SELECT $SourceColumnsString{$SourceTable}
-    FROM $SourceSchema.$QuotedSourceTable
-END_SQL
-            my $Success = $TargetDBObject->Do( SQL  => $BatchInsertSQL );
-            if ( !$Success ) {
-
-                # Log info to apache error log and OTOBO log (syslog or file)
-                $MigrationBaseObject->MigrationLog(
-                    String   => "Could not batch insert data: Table: $QuotedSourceTable",
-                    Priority => "notice",
-                );
-
-                return;
-            }
-        }
-        else {
-            # no batch insert
-
+        {
             # assemble the relevant SQL
             my ( $SelectSQL, $InsertSQL );
             {
-                my $BindString = join ', ', map {'?'} @SourceColumns;
-                $InsertSQL     = "INSERT INTO $TargetTable ($TargetColumnsString) VALUES ($BindString)";
-                $SelectSQL     = "SELECT $SourceColumnsString{$SourceTable} FROM $QuotedSourceTable",
+                my $BindString        = join ', ', map {'?'} @SourceColumns;
+                $InsertSQL = "INSERT INTO $TargetTable ($TargetColumnsString) VALUES ($BindString)";
+
+                # This is a workaround for a very special case.
+                # There can be OTRS 6 running on MySQL 8, where groups is a reserved word.
+                # See https://github.com/RotherOSS/otobo/issues/639
+                my $Table = ( $Param{OTRSDBObject}->{'DB::Type'} eq 'mysql' && $SourceTable eq 'groups' )
+                    ?
+                    q{`groups`}
+                    :
+                    $SourceTable;
+
+                $SelectSQL = "SELECT $SourceColumnsString{$SourceTable} FROM $Table";
             }
 
             # Now fetch all the data and insert it to the target DB.
@@ -791,7 +682,7 @@ END_SQL
 
                 my $Success = $TargetDBObject->Do(
                     SQL  => $InsertSQL,
-                    Bind => [ \( @Row ) ], # reference to an array of references
+                    Bind => [ \(@Row) ],    # reference to an array of references
                 );
 
                 if ( !$Success ) {
@@ -813,7 +704,7 @@ END_SQL
         if (
             $TargetDBObject->can('ResetAutoIncrementField')
             && any { lc($_) eq 'id' } @SourceColumns
-        )
+            )
         {
 
             $TargetDBObject->ResetAutoIncrementField(

@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -532,9 +531,8 @@ for my $Test (@Tests) {
                 "$Test->{Name} | Activity ActivityDialogs structure is HASH",
             );
 
-            my $ActivityDialog = $AddedActivities{ $Activity->{ID} }->{Config}->{ActivityDialog};
-            my %ExpectedActivityDialogs
-                = map { $ActivityDialog->{$_} => $ActivityDialogLookup{ $ActivityDialog->{$_} } }
+            my $ActivityDialog          = $AddedActivities{ $Activity->{ID} }->{Config}->{ActivityDialog};
+            my %ExpectedActivityDialogs = map { $ActivityDialog->{$_} => $ActivityDialogLookup{ $ActivityDialog->{$_} } }
                 sort keys %{$ActivityDialog};
 
             $Self->IsDeeply(
@@ -1051,6 +1049,5 @@ $Self->IsDeeply(
 );
 
 # cleanup is done by RestoreDatabase
-
 
 $Self->DoneTesting();

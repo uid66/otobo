@@ -179,7 +179,7 @@ my @Tests = (
                 # history entry for a dynamic field update of OTRS 3.3
                 HistoryAdd => {
                     HistoryType => 'TicketDynamicFieldUpdate',
-                    Name =>
+                    Name        =>
                         "\%\%FieldName\%\%DynamicFieldBug10856"
                         . "\%\%Value\%\%TestValue",
                     CreateUserID => 1,
@@ -208,7 +208,7 @@ my @Tests = (
                 # history entry for a dynamic field update of OTRS 4
                 HistoryAdd => {
                     HistoryType => 'TicketDynamicFieldUpdate',
-                    Name =>
+                    Name        =>
                         "\%\%FieldName\%\%DynamicFieldBug10856"
                         . "\%\%Value\%\%TestValue"
                         . "\%\%OldValue",
@@ -410,7 +410,4 @@ for my $Test (@Tests) {
 
 # cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

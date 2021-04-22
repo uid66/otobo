@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -36,7 +35,7 @@ my $PreviousDaemonStatus = `$Daemon status`;
 
 # Check if there is permissions for daemon commands.
 if ( !defined $PreviousDaemonStatus ) {
-    skip_all( 'Permission denied for deamon commands, skipping test' );
+    skip_all('Permission denied for deamon commands, skipping test');
 }
 
 # Stop daemon if it was already running before this test.
@@ -237,7 +236,4 @@ for my $Task (@List) {
     );
 }
 
-
 $Self->DoneTesting();
-
-

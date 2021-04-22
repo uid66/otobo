@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -424,7 +423,7 @@ my @Tests = (
     {
         Name => 'Multiple valid with OTOBO-tags in RecipientEmail - Text type DynamicField',
         Data => {
-            Events => [ 'TicketDynamicFieldUpdate_DFT1' . $RandomID . 'Update' ],
+            Events         => [ 'TicketDynamicFieldUpdate_DFT1' . $RandomID . 'Update' ],
             RecipientEmail =>
                 ["zz1test\@otoboexample.com, <OTOBO_TICKET_DynamicField_$FieldName[0]>, zz2test\@otoboexample.com;"],
         },
@@ -446,7 +445,7 @@ my @Tests = (
     {
         Name => 'Multiple valid with OTOBO-tags in RecipientEmail - Dropdown type DynamicField',
         Data => {
-            Events => [ 'TicketDynamicFieldUpdate_DFT1' . $RandomID . 'Update' ],
+            Events         => [ 'TicketDynamicFieldUpdate_DFT1' . $RandomID . 'Update' ],
             RecipientEmail =>
                 ["zz1test\@otoboexample.com, <OTOBO_TICKET_DynamicField_$FieldName[1]>, zz2test\@otoboexample.com;"],
         },
@@ -468,7 +467,7 @@ my @Tests = (
     {
         Name => 'Valid with OTOBO-tag in RecipientEmail - Multiselect type DynamicField',
         Data => {
-            Events => [ 'TicketDynamicFieldUpdate_DFT1' . $RandomID . 'Update' ],
+            Events         => [ 'TicketDynamicFieldUpdate_DFT1' . $RandomID . 'Update' ],
             RecipientEmail =>
                 ["<OTOBO_TICKET_DynamicField_$FieldName[2]>"],
         },
@@ -515,8 +514,8 @@ for my $Test (@Tests) {
         Data    => $Test->{Data},
         Message => {
             en => {
-                Subject => 'JobName',
-                Body    => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
+                Subject     => 'JobName',
+                Body        => 'JobName <OTOBO_TICKET_TicketID> <OTOBO_CONFIG_SendmailModule> <OTOBO_OWNER_UserFirstname>',
                 ContentType => 'text/plain',
             },
         },
@@ -607,7 +606,4 @@ for my $Test (@Tests) {
 
 # Cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -50,12 +49,12 @@ my $RandomID = $HelperObject->GetRandomID();
 FixedTimeSet();
 
 # clear some tables
-for my $Table ( qw(sysconfig_modified_version sysconfig_modified sysconfig_default_version sysconfig_default) ) {
+for my $Table (qw(sysconfig_modified_version sysconfig_modified sysconfig_default_version sysconfig_default)) {
     my $DoSuccess = $Kernel::OM->Get('Kernel::System::DB')->Do(
         SQL => "DELETE FROM $Table",
     );
 
-    skip_all( "cannot delete from $Table" ) unless $DoSuccess;
+    skip_all("cannot delete from $Table") unless $DoSuccess;
 }
 
 my $LoadSuccess = $SysConfigObject->ConfigurationXML2DB(
@@ -1036,7 +1035,4 @@ for my $Test (@Tests) {
     );
 }
 
-
 $Self->DoneTesting();
-
-

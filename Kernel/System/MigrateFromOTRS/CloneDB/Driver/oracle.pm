@@ -19,6 +19,7 @@ package Kernel::System::MigrateFromOTRS::CloneDB::Driver::oracle;
 use strict;
 use warnings;
 use v5.24;
+use utf8;
 use namespace::autoclean;
 
 use parent qw(Kernel::System::MigrateFromOTRS::CloneDB::Driver::Base);
@@ -51,15 +52,12 @@ Please look there for a detailed reference of the functions.
 
 =cut
 
-# create external db connection.
+# create external db connection. For oracle the connection is based on the DSN.
 sub CreateOTRSDBConnection {
     my ( $Self, %Param ) = @_;
 
     # check OTRSDBSettings
-    for my $Needed (
-        qw(DBHost DBName DBUser DBPassword DBType)
-        )
-    {
+    for my $Needed (qw(DBDSN DBUser DBPassword DBType)) {
         if ( !$Param{$Needed} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
@@ -70,23 +68,9 @@ sub CreateOTRSDBConnection {
         }
     }
 
-    # set default sid
-    if ( !defined $Param{DBSID} ) {
-        $Param{DBSID} = 'XE';
-    }
-
-    # set default sid
-    if ( !defined $Param{DBPort} ) {
-        $Param{DBPort} = '1521';
-    }
-
-    # include DSN for target DB
-    $Param{OTRSDatabaseDSN} =
-        "DBI:Oracle:sid=$Param{DBSID};host=$Param{DBHost};port=$Param{DBPort};";
-
     # create target DB object
     my $OTRSDBObject = Kernel::System::DB->new(
-        DatabaseDSN  => $Param{OTRSDatabaseDSN},
+        DatabaseDSN  => $Param{DBDSN},
         DatabaseUser => $Param{DBUser},
         DatabasePw   => $Param{DBPassword},
         Type         => $Param{DBType},
@@ -120,21 +104,16 @@ sub ColumnsList {
         }
     }
 
-    $Param{DBObject}->Prepare(
-        SQL => "SELECT column_name
-                FROM all_tab_columns
-                WHERE table_name = ?",
-        Bind => [
-            \$Param{Table},
-        ],
+    # Internally OTOBO is using lower case table names.
+    # But Oracle has upper case names.
+    my $UcTable = uc $Param{Table};
+    my $Rows    = $Param{DBObject}->SelectAll(
+        SQL  => 'SELECT column_name FROM all_tab_columns WHERE table_name = ?',
+        Bind => [ \$UcTable ],
     ) || return [];
 
-    my @Result;
-    while ( my @Row = $Param{DBObject}->FetchrowArray() ) {
-        push @Result, $Row[0];
-    }
-
-    return \@Result;
+    # only the first element of each row is needed
+    return [ map { $_->[0] } $Rows->@* ];
 }
 
 #
@@ -155,22 +134,11 @@ sub ResetAutoIncrementField {
         }
     }
 
-    my $QuotedTable = $Param{DBObject}->QuoteIdentifier( Table => $Param{Table} );
     $Param{DBObject}->Prepare(
-        SQL => "
-            SELECT id
-            FROM $QuotedTable
-            ORDER BY id DESC",
-        Limit => 1,
+        SQL => "SELECT max(id)+1 FROM $Param{Table}"
     ) || return;
 
-    my $LastID;
-    while ( my @Row = $Param{DBObject}->FetchrowArray() ) {
-        $LastID = $Row[0];
-    }
-
-    # add one more to the last ID
-    $LastID++;
+    my ($NextID) = $Param{DBObject}->FetchrowArray();
 
     # assume that sequences do not have to be quoted
     my $SequenceName = 'SE_' . uc $Param{Table};
@@ -199,7 +167,7 @@ sub ResetAutoIncrementField {
     if ($SequenceCount) {
 
         # set increment as last number on the id field, plus one
-        my $SQL = "ALTER SEQUENCE $SequenceName INCREMENT BY $LastID";
+        my $SQL = "ALTER SEQUENCE $SequenceName INCREMENT BY $NextID";
 
         $Param{DBObject}->Do(
             SQL => $SQL,
@@ -255,8 +223,8 @@ END_SQL
     ) || return {};
 
     my %Result;
-    while ( my ($Column, $Type) = $Param{DBObject}->FetchrowArray() ) {
-        $Result{ $Column } = $Type;
+    while ( my ( $Column, $Type ) = $Param{DBObject}->FetchrowArray() ) {
+        $Result{$Column} = $Type;
     }
 
     return \%Result;
@@ -326,30 +294,50 @@ sub TranslateColumnInfos {
     my %Result;
 
     if ( $Param{DBType} =~ /mysql/ ) {
-        $Result{varchar}    = 'VARCHAR';
-        $Result{int}        = 'INTEGER';
-        $Result{datetime}   = 'DATETIME';
-        $Result{smallint}   = 'SMALLINT';
-        $Result{longblob}   = 'LONGBLOB';
-        $Result{mediumtext} = 'MEDIUMTEXT';
+        $Result{VARCHAR} = 'VARCHAR2';
+        $Result{TEXT}    = 'TEXT';
+
+        $Result{DATE}      = 'DATE';
+        $Result{DATETIME}  = 'DATETIME';
+        $Result{TIMESTAMP} = 'DATETIME';
+
+        $Result{TINYINT}            = 'SHORTINTEGER';
+        $Result{SMALLINT}           = 'SHORTINTEGER';
+        $Result{MEDIUMINT}          = 'INTEGER';
+        $Result{INTEGER}            = 'INTEGER';
+        $Result{INT}                = 'INTEGER';
+        $Result{BIGINT}             = 'LONGINTEGER';
+        $Result{DECIMAL}            = 'NUMBER';
+        $Result{FLOAT}              = 'FLOAT';
+        $Result{REAL}               = 'FLOAT';
+        $Result{DOUBLE}             = 'FLOAT';
+        $Result{'DOUBLE PRECISION'} = 'FLOAT';
+
+        $ColumnInfos{DATA_TYPE} = $Result{ $Param{ColumnInfos}->{DATA_TYPE} };
     }
     elsif ( $Param{DBType} =~ /postgresql/ ) {
-        $Result{VARCHAR}    = 'VARCHAR';
-        $Result{INTEGER}    = 'INTEGER';
-        $Result{DATETIME}   = 'timestamp';
-        $Result{SMALLINT}   = 'SMALLINT';
-        $Result{LONGBLOB}   = 'TEXT';
-        $Result{mediumtext} = 'VARCHAR';
+        $Result{VARCHAR}             = 'VARCHAR2';
+        $Result{'CHARACTER VARYING'} = 'VARCHAR2';
+        $Result{TEXT}                = 'TEXT';
+
+        $Result{DATE}      = 'DATE';
+        $Result{TIMESTAMP} = 'DATETIME';
+
+        $Result{SMALLINT}           = 'SHORTINTEGER';
+        $Result{INTEGER}            = 'INTEGER';
+        $Result{BIGINT}             = 'LONGINTEGER';
+        $Result{NUMERIC}            = 'NUMBER';
+        $Result{DECIMAL}            = 'NUMBER';
+        $Result{REAL}               = 'FLOAT';
+        $Result{'DOUBLE PRECISION'} = 'FLOAT';
+
+        $ColumnInfos{DATA_TYPE} = $Result{ $Param{ColumnInfos}->{DATA_TYPE} };
     }
     elsif ( $Param{DBType} =~ /oracle/ ) {
-        $Result{VARCHAR}    = 'VARCHAR2';
-        $Result{INTEGER}    = 'NUMBER';
-        $Result{DATETIME}   = 'DATE';
-        $Result{SMALLINT}   = 'NUMBER';
-        $Result{LONGBLOB}   = 'CLOB';
-        $Result{mediumtext} = 'CLOB';
+
+        # no translation necessary
+        $ColumnInfos{DATA_TYPE} = $Param{ColumnInfos}->{DATA_TYPE};
     }
-    $ColumnInfos{DATA_TYPE} = $Result{ $Param{ColumnInfos}->{DATA_TYPE} };
 
     return \%ColumnInfos;
 }
@@ -373,8 +361,7 @@ sub AlterTableAddColumn {
     }
 
     my %ColumnInfos = %{ $Param{ColumnInfos} };
-    my $QuotedTable = $Param{DBObject}->QuoteIdentifier( Table => $Param{Table} );
-    my $SQL = "ALTER TABLE $QuotedTable ADD $Param{Column} $ColumnInfos{DATA_TYPE}";
+    my $SQL         = "ALTER TABLE $Param{Table} ADD $Param{Column} $ColumnInfos{DATA_TYPE}";
 
     if ( $ColumnInfos{LENGTH} ) {
         $SQL .= " \($ColumnInfos{LENGTH}\)";

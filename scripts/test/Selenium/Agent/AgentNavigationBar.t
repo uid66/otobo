@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -68,8 +71,8 @@ $Selenium->RunTest(
             # Try to drag the admin item to the front of the nav bar.
             # Specifying offsets is a bit tricky. So simply drag Admin on top of Dashboard.
             $Selenium->DragAndDrop(
-                Element      => 'li#nav-Admin',
-                Target       => 'li#nav-Dashboard',
+                Element => 'li#nav-Admin',
+                Target  => 'li#nav-Dashboard',
             );
 
             # Wait for the success arrow to show up.
@@ -100,7 +103,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

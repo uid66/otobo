@@ -32,18 +32,16 @@ our @ObjectDependencies = (
     'Kernel::System::MailAccount',
 );
 
-package MyIMAP {    ## no critic
+package MyIMAP {    ## no critic qw(Modules::ProhibitMultiplePackages)
     our $AUTOLOAD;
 
     sub new {
-        my $Class = shift;
-        my %Param = (
-            @_,
-            TotalProcessed => 0,
-            Processed      => {},
-        );
+        my ( $Class, %Param ) = @_;
 
-        my $Self = bless( \%Param, $Class, );
+        $Param{TotalProcessed} = 0;
+        $Param{Processed}      = {};
+
+        my $Self = bless \%Param, $Class;
 
         $Self->{Email} = 'Return-Path: test@dummy.com
 Received: from mail.dummy.com (LHLO mail.dummy.com) (62.146.52.73) by
@@ -107,18 +105,20 @@ test %s';
 
         my ( $Seconds, $MSeconds ) = Time::HiRes::gettimeofday();
         my $Email = sprintf $Self->{Email}, $Seconds, $MSeconds, "$Seconds-$MSeconds";
-        my @Lines = split "\n",             $Email;
+        my @Lines = split "\n", $Email;
 
         return wantarray ? @Lines : \@Lines;
     }
 
-    sub select {
+    sub select {    ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
         my $Self = shift;
 
         return $Self->{Total} - $Self->{TotalProcessed};
     }
 
-    sub nbr_of_processed { shift->{TotalProcessed}; }
+    sub nbr_of_processed {
+        return shift->{TotalProcessed};
+    }
 };
 
 sub Configure {
@@ -220,8 +220,8 @@ sub _CreatePMAccounts {
 
         push @Accounts,
             {
-            %Account,
-            ID => $ID,
+                %Account,
+                ID => $ID,
             };
     }
 
@@ -249,7 +249,7 @@ sub _ImportEmails {
 
     # Redefine PostMaster::Run so we can fail some messages
     #   and keep this change local to the current scope
-    no strict 'refs';    ## no critic
+    no strict 'refs';    ## no critic (TestingAndDebugging::ProhibitNoStrict)
 
     local *{'Kernel::System::MailAccount::IMAP::Connect'} = sub {
         my ( $Self, %Param ) = @_;

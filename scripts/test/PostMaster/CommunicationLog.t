@@ -16,19 +16,24 @@
 
 use strict;
 use warnings;
+use v5.24;
 use utf8;
 
-# Set up the test driver $Self when we are running as a standalone script.
-use Kernel::System::UnitTest::RegisterDriver;
-
-use vars (qw($Self));
-
+# core modules
 use IO::File;
 use File::stat;
 
+# CPAN modules
+
+# OTOBO modules
+use Kernel::System::UnitTest::RegisterDriver;    # Set $Self and $Kernel::OM
 use Kernel::System::MailAccount::POP3;
 use Kernel::System::MailAccount::IMAP;
 use Kernel::System::PostMaster;
+
+our $Self;
+
+## no critic qw(OTOBO::RequireCamelCase Subroutines::ProhibitBuiltinHomonyms)
 
 # The tests presented here try to ensure that the communication-log entries
 #   keep the correct status after some predefined situations.
@@ -53,7 +58,7 @@ my %FakeClientEnv = (
 #   that happen, it'll check if the FakeClientEnv has an attribute with the same
 #   name and returns it, otherwise always returns True to ensure that the code
 #   that will use this object continues as everything is ok.
-package FakeClient {    ## no critic
+package FakeClient {
     our $AUTOLOAD;
 
     sub new {
@@ -98,14 +103,14 @@ package FakeClient {    ## no critic
     }
 }
 
-no strict 'refs';    ## no critic
+no strict 'refs';    ## no critic (TestingAndDebugging::ProhibitNoStrict)
 
 # Overwrite the OTOBO MailAccount::IMAP connect method to use our fake imap client,
 #   but make this change local to the unit test scope, as you can see, it also
 #   makes use of the %FakeClientEnv.
 local *{'Kernel::System::MailAccount::IMAP::Connect'} = sub {
 
-    package FakeIMAPClient {    ## no critic
+    package FakeIMAPClient {    ## no critic qw(Modules::ProhibitMultiplePackages)
                                 # Make this object extend the 'FakeClient' object,
                                 #   we aren't using 'use parent' because the 'FakeClient' is also a
                                 #   package defined in this test file, there's no pm file.
@@ -138,7 +143,7 @@ local *{'Kernel::System::MailAccount::IMAP::Connect'} = sub {
 #   makes use of the %FakeClientEnv.
 local *{'Kernel::System::MailAccount::POP3::Connect'} = sub {
 
-    package FakePOPClient {    ## no critic
+    package FakePOPClient {    ## no critic qw(Modules::ProhibitMultiplePackages)
                                # Make this object extend the 'FakeClient' object,
                                #   we aren't using 'use parent' because the 'FakeClient' is also a
                                #   package defined in this test file, there's no pm file.
@@ -149,7 +154,7 @@ local *{'Kernel::System::MailAccount::POP3::Connect'} = sub {
             my $Self = shift;
 
             return {
-                map { $_ => 1, } keys( %{ $FakeClientEnv{'emails'} } )
+                map { $_ => 1 } keys $FakeClientEnv{'emails'}->%*
             };
         }
     }
@@ -206,8 +211,7 @@ my $GetMailAcountLastCommunicationLog = sub {
             || []
     };
 
-    @MailAccountCommunicationLog
-        = sort { $b->{CommunicationID} <=> $a->{CommunicationID} } @MailAccountCommunicationLog;
+    @MailAccountCommunicationLog = sort { $b->{CommunicationID} <=> $a->{CommunicationID} } @MailAccountCommunicationLog;
 
     # Get all communication related objects.
     my $Objects = $CommunicationLogDBObj->ObjectLogList(
@@ -415,7 +419,7 @@ for my $MailAccount (@MailAccounts) {
         local $FakeClientEnv{'fail_fetch'}      = $TestFakeClientEnv{'fail_fetch'};
         local $FakeClientEnv{'fail_postmaster'} = $TestFakeClientEnv{'fail_postmaster'};
 
-        no strict 'refs';    ## no critic
+        no strict 'refs';    ## no critic (TestingAndDebugging::ProhibitNoStrict)
 
         # Postfix if is required in next line to ensure right scope of function override.
         local *{'Kernel::System::PostMaster::Run'} = sub {
@@ -506,7 +510,4 @@ else {
 
 # restore to the previous state is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

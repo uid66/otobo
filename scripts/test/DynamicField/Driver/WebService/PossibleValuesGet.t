@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -601,10 +600,8 @@ my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::
 for my $Test (@Tests) {
 
     my $WebserviceConfigTest = $WebserviceConfig;
-    $WebserviceConfigTest->{Requester}->{Invoker}->{TicketGet}->{MappingInbound}->{Config}->{Template}
-        = $Test->{MappingInbound};
-    $WebserviceConfigTest->{Requester}->{Invoker}->{TicketGet}->{MappingOutbound}->{Config}->{Template}
-        = $Test->{MappingOutbound};
+    $WebserviceConfigTest->{Requester}->{Invoker}->{TicketGet}->{MappingInbound}->{Config}->{Template}  = $Test->{MappingInbound};
+    $WebserviceConfigTest->{Requester}->{Invoker}->{TicketGet}->{MappingOutbound}->{Config}->{Template} = $Test->{MappingOutbound};
 
     my $WebserviceUpdate = $WebserviceObject->WebserviceUpdate(
         ID      => $WebserviceID,
@@ -682,7 +679,4 @@ for my $Cache (
     );
 }
 
-
 $Self->DoneTesting();
-
-

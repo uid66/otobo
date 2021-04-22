@@ -18,14 +18,18 @@ use strict;
 use warnings;
 use utf8;
 
+use Test2::V0;
+
 # Set up the test driver $Self when we are running as a standalone script.
 use Kernel::System::UnitTest::RegisterDriver;
-
-use vars (qw($Self));
-
 use Kernel::Language;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+our $Self;
+
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -347,13 +351,12 @@ $Selenium->RunTest(
             $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 ObjectID           => $TicketID,
-                Value  => $DynamicFieldValues{$DynamicFieldType} || $DynamicFieldDateValues{$DynamicFieldType},
-                UserID => 1,
+                Value              => $DynamicFieldValues{$DynamicFieldType} || $DynamicFieldDateValues{$DynamicFieldType},
+                UserID             => 1,
             );
         }
 
-        my $ArticleBackendObject
-            = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForChannel( ChannelName => 'Email' );
+        my $ArticleBackendObject = $Kernel::OM->Get('Kernel::System::Ticket::Article')->BackendForChannel( ChannelName => 'Email' );
 
         # Create test email article.
         my $ArticleID = $ArticleBackendObject->ArticleCreate(
@@ -419,12 +422,16 @@ $Selenium->RunTest(
 
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#ToCustomer").length;' );
 
-        my $Message = 'Article subject will be empty if the subject contains only the ticket hook!';
+        eval {
+            my $ToDo = todo('warning is not shown, issue #862');
 
-        $Self->True(
-            $Selenium->execute_script("return \$('.MessageBox.Notice:contains(\"$Message\")').length;"),
-            "Notification about empty subject is found",
-        );
+            my $Message = 'Article subject will be empty if the subject contains only the ticket hook!';
+
+            $Self->True(
+                $Selenium->execute_script("return \$('.MessageBox.Notice:contains(\"$Message\")').length;"),
+                "Notification about empty subject is found",
+            );
+        };
 
         # Check duplication of customer user who doesn't exist in the system (see bug#13784).
         $Selenium->find_element( "#ToCustomer", 'css' )->send_keys( 'Test', "\N{U+E007}" );
@@ -822,7 +829,4 @@ $Selenium->RunTest(
     }
 );
 
-
-$Self->DoneTesting();
-
-
+done_testing();

@@ -1,9 +1,55 @@
 # This is the build file for the OTOBO nginx docker image including Kerberos Single Sign On tools.
+
+# I have found no better way than to first compile NGINX in a BUILDER container and then copy the 
+# finished ngx_http_auth_spnego_module.so into the NGINX container. 
+# If anyone knows a nicer way, please share.
+
 # See also README_DOCKER.md.
+
+# builder used to create a dynamic spnego auth module
+# https://gist.github.com/hermanbanken/96f0ff298c162a522ddbba44cad31081
+
+FROM nginx:mainline AS builder
+
+ENV SPNEGO_AUTH_COMMIT_ID=v1.1.1
+ENV SPNEGO_AUTH_COMMIT_ID_FILE=1.1.1
+
+RUN apt-get update\
+ && DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install\
+        gcc \
+        libc-dev \
+        make \
+        libpcre3-dev \
+	libpcre++-dev \
+        zlib1g-dev \
+        libkrb5-dev \
+	wget
+
+RUN set -x && \
+    cd /usr/src \
+    NGINX_VERSION="$( nginx -v 2>&1 | awk -F/ '{print $2}' )" && \
+    NGINX_CONFIG="$( nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p' )" && \
+    wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -O nginx.tar.gz && \
+    wget https://github.com/stnoonan/spnego-http-auth-nginx-module/archive/${SPNEGO_AUTH_COMMIT_ID}.tar.gz -O spnego-http-auth.tar.gz
+
+RUN cd /usr/src && \
+    NGINX_CONFIG="$( nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p' )" && \
+    tar -xzC /usr/src -f nginx.tar.gz && \
+    tar -xzvf spnego-http-auth.tar.gz && \
+    SPNEGO_AUTH_DIR="$( pwd )/spnego-http-auth-nginx-module-${SPNEGO_AUTH_COMMIT_ID_FILE}" && \
+    cd "/usr/src/nginx-${NGINX_VERSION}" && \
+    ./configure --with-compat "${NGINX_CONFIG}" --add-dynamic-module="${SPNEGO_AUTH_DIR}" && \
+    make modules && \
+    cp objs/ngx_*_module.so /usr/lib/nginx/modules/
+
+
 
 # Use the latest nginx.
 # This image is based on Debian 10 (Buster). The User is root.
 FROM nginx:mainline
+
+# Copy the nginx module ngx_http_auth_spnego_module.so to the official nginx container
+COPY --from=builder /usr/lib/nginx/modules/ngx_http_auth_spnego_module.so /usr/lib/nginx/modules
 
 # install some required and optional Debian packages
 # hadolint ignore=DL3008

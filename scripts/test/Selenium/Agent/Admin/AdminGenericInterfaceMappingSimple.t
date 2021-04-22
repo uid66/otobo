@@ -25,7 +25,10 @@ use vars (qw($Self));
 
 use Kernel::GenericInterface::Debugger;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -304,7 +307,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

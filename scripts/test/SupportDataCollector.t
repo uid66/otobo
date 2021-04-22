@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -51,10 +50,9 @@ $Helper->ConfigSettingChange(
     ],
 );
 
-
 $Self->Note( Note => 'testing CollectAsynchronous' );
 {
-    my $TimeStart = [ Time::HiRes::gettimeofday() ];
+    my $TimeStart   = [ Time::HiRes::gettimeofday() ];
     my %ResultAsync = $SupportDataCollectorObject->CollectAsynchronous();
 
     $Self->Is(
@@ -80,7 +78,7 @@ $Self->Note( Note => 'testing CollectAsynchronous' );
         # Convert file name => package name
         $PluginFile =~ s{^.*(Kernel/System.*)[.]pm$}{$1}xmsg;
         $PluginFile =~ s{/+}{::}xmsg;
-    
+
         if ( !$MainObject->Require($PluginFile) ) {
             $Self->Note( Note => "Could not load $PluginFile!" );
 
@@ -218,7 +216,4 @@ $Self->True(
 # cleanup cache
 $CacheObject->CleanUp();
 
-
 $Self->DoneTesting();
-
-

@@ -25,7 +25,9 @@ use vars (qw($Self));
 
 use Kernel::Language;
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 my $CheckBredcrumb = sub {
 
@@ -105,8 +107,8 @@ $Selenium->RunTest(
         my $IDText;
 
         # Check page.
-        for my $Type ( qw(Ticket Article)) {
-            for my $ID ( qw(Checkbox Date DateTime Dropdown Multiselect Text TextArea)) {
+        for my $Type (qw(Ticket Article)) {
+            for my $ID (qw(Checkbox Date DateTime Dropdown Multiselect Text TextArea)) {
                 my $ObjectType = $Type . "DynamicField";
                 my $Element    = $Selenium->find_element( "#$ObjectType option[value=$ID]", 'css' );
                 $Element->is_enabled();
@@ -404,7 +406,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

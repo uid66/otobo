@@ -21,13 +21,13 @@ use utf8;
 # Set up the test driver $Self when we are running as a standalone script.
 use Kernel::System::UnitTest::RegisterDriver;
 
-use vars (qw($Self));
+our $Self;
 
 use List::Util qw();
 
 use Kernel::System::Email::Sendmail;
 
-no strict 'refs';    ## no critic
+no strict 'refs';    ## no critic (TestingAndDebugging::ProhibitProlongedStrictureOverride TestingAndDebugging::ProhibitNoStrict)
 
 my $Home           = $Kernel::OM->Get('Kernel::Config')->Get('Home');
 my %SendmailAction = (
@@ -223,7 +223,4 @@ for my $Test (@Tests) {
 
 # restore to the previous state is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

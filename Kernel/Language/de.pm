@@ -32,7 +32,7 @@ sub Data {
     $Self->{DateFormatShort}     = '%D.%M.%Y';
     $Self->{DateInputFormat}     = '%D.%M.%Y';
     $Self->{DateInputFormatLong} = '%D.%M.%Y - %T';
-    $Self->{Completeness}        = 0.99789029535865;
+    $Self->{Completeness}        = 0.999026606099935;
 
     # csv separator
     $Self->{Separator}         = ';';
@@ -784,7 +784,7 @@ sub Data {
         'Additionally or alternatively to a periodic execution, you can define ticket events that will trigger this job.' =>
             'Zusätzlich oder alternativ zur periodischen Ausführung können Sie Ticket-Ereignisse angeben, bei denen dieser Auftrag ausgeführt werden soll.',
         'If a ticket event is fired, the ticket filter will be applied to check if the ticket matches. Only then the job is run on that ticket.' =>
-            'Wenn ein Ticket-Ereignis ausgelöst wird, wird zunächst der Ticket-Filter angewendet um zu prüfen, ob das Ticket betroffen ist. Erst danach wird der Auftrag ggf. für dieses Ticket ausgeführt.',
+            'Wird ein Ticket-Ereignis ausgelöst, prüft zunächst der Ticket-Filter, ob das jeweilige Ticket betroffen ist. Erst dann wird der Auftrag ggf. für dieses Ticket ausgeführt.',
         'Do you really want to delete this event trigger?' => 'Wollen Sie diesen Ereignis-Auslöser wirklich löschen?',
         'Add Event Trigger' => 'Ereignis-Auslöser hinzufügen',
         'To add a new event select the event object and event name' => 'Wählen Sie Ereignisobjekt und -Name, um ein neues Ereignis hinzuzufügen',
@@ -1767,7 +1767,7 @@ sub Data {
         'If there is not added a customer contact, either email-external or phone, to a new ticket before the time defined here expires, the ticket is escalated.' =>
             'Wenn vor der definierten Zeit keine Kundenreaktion erfolgt (externe E-Mail oder Telefon), eskaliert das Ticket.',
         'If there is an article added, such as a follow-up via email or the customer portal, the escalation update time is reset. If there is no customer contact, either email-external or phone, added to a ticket before the time defined here expires, the ticket is escalated.' =>
-            'Wenn ein Artikel vom Kunden hinzugefügt wird, wird die Eskalationszeit zurückgesetzt. Wenn vor der definierten Zeit keine Kundenreaktion erfolgt, eskaliert das Ticket.',
+            'Immer wenn vom Kunden ein Artikel hinzugefügt wird – z. B. per E-Mail oder im Kundenbereich – wird die Eskalationszeit zurückgesetzt. Wird der Kunde bis zum definierten Zeitpunkt nicht erneut kontaktiert, eskaliert das Ticket.',
         'If the ticket is not set to closed before the time defined here expires, the ticket is escalated.' =>
             'Wenn ein Ticket nicht vor der definierten Zeit geschlossen wird, eskaliert es.',
         'Follow up Option' => 'Nachfrage-Option',
@@ -3101,7 +3101,6 @@ sub Data {
         'Welcome to %s' => 'Willkommen bei %s',
         'Germany' => 'Deutschland',
         'Phone' => 'Telefon',
-        'Switzerland' => 'Schweiz',
         'Web site' => 'Website',
 
         # Template: InstallerConfigureMail
@@ -3191,7 +3190,7 @@ sub Data {
         'Default language.' => 'Standardsprache.',
         'CheckMXRecord' => 'MX-Records prüfen',
         'Email addresses that are manually entered are checked against the MX records found in DNS. Don\'t use this option if your DNS is slow or does not resolve public addresses.' =>
-            'E-Mail-Adressen, die vom Benutzer angegeben werden, werden gegen die MX-Einträge im DNS geprüft. Verwenden Sie diese Option nicht, wenn Ihr DNS langsam ist oder öffentliche Adressen nicht auflösen kann.',
+            'Vom Benutzer angegebene E-Mail-Adressen werden gegen die MX-Einträge im DNS geprüft. Nutzen Sie diese Option nicht, wenn Ihr DNS langsam ist oder öffentliche Adressen nicht auflösen kann.',
         'Elasticsearch' => 'Elasticsearch',
         'Initialize Elasticsearch' => 'Initialisiert Elasticsearch',
         'Elasticsearch server was found, and it has been activated automatically for OTOBO.' =>
@@ -3223,7 +3222,7 @@ sub Data {
         'Last successful task:' => 'Zuletzt erfolgreich ausgeführt:',
         'Migration will restart from the last successfully finished task. Please do a complete rerun if you changed your system in the meantime.' =>
             'Die Migration wird nach dem letzten erfolgreich durchgeführten Schritt wiederaufgenommen. Bitte gehen Sie zurück zum Anfang, wenn es inzwischen Änderungen an Ihrem System gegeben hat.',
-        'Clean up and finish' => 'System wird bereinigt und fertiggestellt',
+        'Clean up and finish' => 'Bereinigen und Abschließen',
 
         # Template: Finish
         'The migration is complete, thank you for trying out OTOBO - we hope you will like it.' =>
@@ -3257,10 +3256,11 @@ sub Data {
         ' Continue anyways :(' => ' Dennoch fortfahren :(',
 
         # Template: OTRSDBSettings
-        'Skip DB migration' => '',
+        'DSN' => '',
+        'Skip DB migration' => 'Datenbankmigration überspringen',
         'Expert option! Only works if the migration has already been done by hand.' =>
-            '',
-        'Skipped.' => '',
+            'Achtung – Expertenoption! Nur ausführen, wenn die Migration bereits von Hand vorgenommen wurde.',
+        'Skipped.' => 'Übersprungen.',
 
         # Template: OTRSFileSettings
         'OTRS server' => 'OTRS Server',
@@ -5073,8 +5073,7 @@ sub Data {
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBODatabaseMigrate.pm
         'Check if OTOBO version is correct.' => 'Überprüft, ob die OTOBO Version korrekt ist.',
         'Copy database.' => 'Kopiert die Datenbank.',
-        'Skipped...' => '',
-        'Need %s for Oracle db!' => '%s für Oracle DB erforderlich!',
+        'Skipped...' => 'Übersprungen ...',
         'System was unable to connect to OTRS database.' => 'System konnte keine Verbindung zur OTRS-Datenbank herstellen.',
         'System was unable to complete data transfer.' => 'System konnte den Datentransfer nicht abschließen.',
         'Data transfer completed.' => 'Datentransfer abgeschlossen.',
@@ -5106,11 +5105,7 @@ sub Data {
 
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBOMigrateWebServiceConfiguration.pm
         'Migrate web service configuration.' => 'Migration der Webservice-Konfiguration.',
-        'Can\'t add web service for Elasticsearch. File %s not found!' =>
-            'Kann Webservice für Elasticsearch nicht hinzufügen. Datei %s nicht gefunden!',
-        'Failed - see the log!' => '',
-        'Migration completed. Please activate the web service in Admin -> Web Service when ElasticSearch installation is completed.' =>
-            'Migration abgeschlossen. Bitte aktivieren Sie den Webservice unter Admin -> Webservice, sobald die Elasticsearch-Installation abgeschlossen ist.',
+        'Failed - see the log!' => 'Fehlgeschlagen – bitte Protokoll prüfen!',
 
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBONotificationMigrate.pm
         'Migrate database table notification.' => 'Migrieren der Datenbanktabelle "notification".',
@@ -5136,9 +5131,9 @@ sub Data {
         'The same packages are installed on both systems, perfect!' => 'Auf beiden Systemen sind die gleichen Pakete installiert, sehr gut!',
 
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBOPackageSpecifics.pm
-        'Package specific tasks' => '',
-        'Done -' => '',
-        'Failed at -' => '',
+        'Package specific tasks' => 'Paketsbezogene Aufgaben',
+        'Done -' => 'Erledigt -',
+        'Failed at -' => 'Gescheitert an -',
 
         # Perl Module: Kernel/System/MigrateFromOTRS/OTOBOPerlModulesCheck.pm
         'Check if all needed Perl modules have been installed.' => 'Prüft, ob alle erforderlichen Perl-Module installiert wurden.',
@@ -5183,8 +5178,9 @@ sub Data {
         '<p>Additional packages can enhance OTOBO with plenty of useful features. Ensure, however, that the origin of this package is trustworthy, as it can modify OTOBO in any possible way.</p>' =>
             '<p>Zusatzpakete können OTOBO um viele nützliche Features erweitern. Stellen Sie jedoch unbedingt sicher, dass dieses Paket aus einer vertrauenswürdigen Quelle stammt, da es OTOBO uneingeschränkt modifizieren kann.</p>',
         'Package not verified by the OTOBO community!' => 'Paket wurde nicht von der OTOBO Community verifiziert!',
-        '<p>The installation of packages which are not verified is disabled. You can activate the installation of not verified packages via the "AllowNotVerifiedPackages" system configuration setting.</p>' =>
-            '<p>Die Installation von nicht verifizierten Paketen ist deaktiviert. Sie können die Installation nicht-verfizierter Pakete in der Systemkonfiguration über die Einstellung "AllowNotVerifiedPackages" aktivieren.</p>',
+        '<p>The installation of packages which are not verified is disabled. You can activate the installation of not verified packages via the "Package::AllowNotVerifiedPackages" system configuration setting.</p>' =>
+            '<p>Die Installation nicht verifizierter Pakete ist standardmäßig deaktiviert. Sie können diese über die Einstellung "Package::AllowNotVerifiedPackages" in der Systemkonfiguration aktivieren.</p>',
+        'Verification not possible (e.g. no internet connection)!' => 'Verifizierung nicht möglich (z. B. keine Internetverbindung)!',
 
         # Perl Module: Kernel/System/ProcessManagement/DB/Process.pm
         'The process "%s" and all of its data has been imported successfully.' =>
@@ -5321,8 +5317,7 @@ sub Data {
 
         # Perl Module: Kernel/System/SupportDataCollector/Plugin/Database/mysql/MaxAllowedPacket.pm
         'Maximum Query Size' => 'Maximale Anfragegröße',
-        'The setting \'max_allowed_packet\' must be higher than 64 MB.' =>
-            'Die Einstellung \'max_allowed_packet\' muss größer als 64 MB sein.',
+        'The setting \'max_allowed_packet\' must be 64 MB or higher.' => '',
 
         # Perl Module: Kernel/System/SupportDataCollector/Plugin/Database/mysql/Performance.pm
         'Query Cache Size' => 'Größe Abfrage-Cache',
@@ -5690,12 +5685,12 @@ sub Data {
 
         # Perl Module: Kernel/System/Web/InterfaceInstaller.pm
         'If you want to re-run installer.pl, then disable the SecureMode in the SysConfig.' =>
-            '',
+            'Deaktivieren Sie in der SysConfig den SecureMode, bevor Sie installer.pl erneut ausführen.',
         'Action "%s" not found!' => 'Aktion "%s" nicht gefunden!',
 
         # Perl Module: Kernel/System/Web/InterfaceMigrateFromOTRS.pm
         'If you want to re-run migration.pl, then disable the SecureMode in the SysConfig.' =>
-            '',
+            'Wenn Sie migration.pl erneut ausführen möchten, deaktivieren Sie vorher den SecureMode in der SysConfig.',
 
         # Database XML / SOPM Definition: scripts/database/otobo-initial_insert.xml
         'invalid-temporarily' => 'ungültig-temporär',
@@ -6227,7 +6222,7 @@ Thanks for your help!
 ' => '
 Sehr geehrter Kunde,
 
-leider enthält der von Ihnen verwendete Betreff keine gültige Ticketnummer,
+leider enthält der von Ihnen verwendete Betreff keine gültige Ticketnummer, 
 so dass diese E-Mail nicht automatisch verarbeitet werden kann.
 
 Bitte erstellen Sie ein neues Ticket im Kundenbereich.
@@ -6334,7 +6329,7 @@ Ihr Helpdesk-Team
         'Agent User Search.' => 'Nutzersuche Agentenbereich.',
         'Agent contact with data search.' => 'Suche Kontaktdaten Agentenbereich.',
         'Agent dynamic field database detailed search.' => 'Detailsuche dynamisches Feld Datenbank im Agentenbereich.',
-        'Agent dynamic field database details.' => 'Details dynamisches Feld Datenbank Agentenbereich',
+        'Agent dynamic field database details.' => 'Agent dynamic field database details.',
         'Agent dynamic field database search.' => 'Suche dynamisches Feld Datenbank im Agentenbereich.',
         'Agent frontend module registration (disable \'Edit contacts with data\' link if if there is no source field configured).' =>
             'Frontend-Modulregistrierung im Agent-Interface (deaktivieren Sie den Link \'Kontaktdaten bearbeiten\', wenn kein entsprechendes Quellfeld konfiguriert wurde).',
@@ -6519,7 +6514,7 @@ Ihr Helpdesk-Team
             'In der Ticketdarstellung genutzte Kategorien. Ist keine Standard-Farbe vorgegeben, wird das Element nicht angezeigt, wenn im Farb-Hash kein entsprechender Wert definiert ist.',
         'Categories used in ticket presentation. Order is only used to determine the starting position before size arrangement. If no default color is given, item will not be shown if selection is not defined in the color hash.' =>
             'In der Ticketdarstellung genutzte Kategorien. Die Reihenfolge wird nur verwendet, um die Ausgangspositionierung vor dem Größenarrangement zu bestimmen. Ist keine Standard-Farbe vorgegeben, wird das Element nicht angezeigt, wenn im Farb-Hash kein entsprechender Wert definiert ist.',
-        'Change Ticket' => 'Change-Ticket',
+        'Change Ticket' => 'Ticket kategorisieren',
         'Change Ticket information' => 'Ticketinformationen ändern',
         'Change queue!' => 'Queue ändern!',
         'Change the customer for this ticket' => 'Ticket-Kunden ändern',
@@ -6614,8 +6609,8 @@ Ihr Helpdesk-Team
         'Configure which screen should be shown after a new ticket has been created.' =>
             'Konfigurieren Sie, welche Oberfläche angezeigt werden soll, nachdem ein neues Ticket erstellt wurde.',
         'Configure your own log text for PGP.' => 'Konfigurieren Sie Ihren eigenen Log-Text für PGP.',
-        'Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/doc/), chapter "Ticket Event Module".' =>
-            'Konfiguriert eine Standardeinstellung für TicketDynamicField. "Name" definiert das Dynamische Feld, das verwendet werden soll, "Wert" sind die Daten, die gesetzt werden sollen, und "Ereignis" definiert das Auslöseereignis. Bitte beachten Sie das Entwicklerhandbuch (https://doc.otobo.com/doc/), Kapitel "Ticket Event Module".',
+        'Configures a default TicketDynamicField setting. "Name" defines the dynamic field which should be used, "Value" is the data that will be set, and "Event" defines the trigger event. Please check the developer manual (https://doc.otobo.org/), chapter "Ticket Event Module".' =>
+            '',
         'Controls how to display the ticket history entries as readable values.' =>
             'Kontrolliert wie die Ticket-Historie in lesbaren Werten dargestellt wird.',
         'Controls if CustomerID is automatically copied from the sender address for unknown customers.' =>
@@ -6680,7 +6675,7 @@ Ihr Helpdesk-Team
         'Customer Dashboard' => 'Kunden-Dashboard',
         'Customer Dynamic Field Database Detailed Search' => 'Customer Dynamic Field Database Detailed Search',
         'Customer Dynamic Field Database Details' => 'Customer Dynamic Field Database Details',
-        'Customer Dynamic Field Database Search' => '',
+        'Customer Dynamic Field Database Search' => 'Customer Dynamic Field Database Search',
         'Customer IDs' => 'Kundennummern',
         'Customer Information Center Search.' => 'Kunden-Informationszentrum-Suche.',
         'Customer Information Center search.' => 'Kunden-Informationszentrum-Suche.',
@@ -6842,7 +6837,7 @@ Ihr Helpdesk-Team
             'Definiert ob in der Queue-Ansicht eine Vorsortierung anhand der Priorität vorgenommen werden soll.',
         'Defines if a pre-sorting by priority should be done in the service view.' =>
             'Bestimmt, ob in der Service-Ansicht eine Vorsortierung anhand der Priorität vorgenommen werden soll.',
-        'Defines if a ticket lock is required for the quick close.' => '',
+        'Defines if a ticket lock is required for the quick close.' => 'Definiert, ob ein Ticket gesperrt werden muss, um sofort geschlossen werden zu können.',
         'Defines if a ticket lock is required in the close ticket screen of the agent interface (if the ticket isn\'t locked yet, the ticket gets locked and the current agent will be set automatically as its owner).' =>
             'Bestimmt, ob dieser Screen im Agenten-Interface das Sperren des Tickets voraussetzt. Das Ticket wird (falls nötig) gesperrt und der aktuelle Agent wird als Besitzer gesetzt.',
         'Defines if a ticket lock is required in the email outbound screen of the agent interface (if the ticket isn\'t locked yet, the ticket gets locked and the current agent will be set automatically as its owner).' =>
@@ -6964,6 +6959,8 @@ Ihr Helpdesk-Team
         'Defines the config options for the autocompletion feature.' => 'Definiert die Konfigurationsoptionen für die Autovervollständigung.',
         'Defines the config parameters of this item, to be shown in the preferences view.' =>
             'Definiert die Konfigurationsparamenter des Eintrages, der in der Benutzereinstellung angezeigt wird.',
+        'Defines the config parameters of this item, to be shown in the preferences view. \'PasswordRegExp\' allows to match passwords against a regular expression. Define the minimum number of characters using \'PasswordMinSize\'. Define if at least 2 lowercase and 2 uppercase letter characters are needed by setting the appropriate option to \'1\'. \'PasswordMin2Characters\' defines if the password needs to contain at least 2 letter characters (set to 0 or 1). \'PasswordNeedDigit\' controls the need of at least 1 digit (set to 0 or 1 to control). \'PasswordMaxLoginFailed\' allows to set an agent to invalid-temporarily if max failed logins reached. Please note: setting \'Active\' to 0 will only prevent agents from editing settings of this group in their personal preferences, but will still allow administrators to edit the settings of another user\'s behalf. Use \'PreferenceGroup\' to control in which area these settings should be shown in the user interface.' =>
+            'Definiert die Konfigurationsparamenter des Items, die in der Benutzereinstellung angezeigt wird. PasswordRegExp\' erlaubt das Prüfen von Passwörtern gegen einen regulären Ausdruck. Legen Sie die Mindestlänge für Passwörter mit \'PasswordMinSize\' fest. Legen Sie fest, ob das Passwort mindestens zwei Kleinbuchstaben und zwei Großbuchstaben enthalten muss, indem Sie die entsprechende Option auf \'1\' setzen. \'PasswordMin2Characters\' legt fest, dass mindestens zwei Buchstaben-Zeichen erforderlich sind (mögliche Werte sind \'0\' oder \'1\'). \'PasswordNeedDigit\' legt fest, ob das Passwort mindestens eine Zahl enthalten muss (mögliche Werte sind \'0\' oder \'1\'). \'PasswordMaxLoginFailed\' erlaubt es einen Agenten auf temporär ungültig wenn die maximale Anzahl fehlerhafter Logins erreicht ist. Bitte beachte: Wenn \'Active\' auf 0 eingestellt ist, so verhindert dies nur, dass Agenten die Einstellung dieser Gruppe in ihren persönlichen Einstellungen verändern können. Der Administrator kann weiterhin diese Einstellungen im Name von Benutzern verändern. Benutze \'PreferenceGroup\', um zu steuern, in welchem Bereich diese Einstellungen in der Benutzer-Oberfläche angezeigt werden.',
         'Defines the config parameters of this item, to be shown in the preferences view. Please note: setting \'Active\' to 0 will only prevent agents from editing settings of this group in their personal preferences, but will still allow administrators to edit the settings of another user\'s behalf. Use \'PreferenceGroup\' to control in which area these settings should be shown in the user interface.' =>
             'Definiert die Konfigurationsparamenter des Items, die in der Benutzereinstellung angezeigt wird. Bitte beachte: Wenn \'Active\' auf 0 eingestellt ist, so verhindert dies nur, dass Agenten die Einstellung dieser Gruppe in ihren persönlichen Einstellungen verändern können. Der Administrator kann weiterhin diese Einstellungen im Name von Benutzern verändern. Benutze \'PreferenceGroup\', um zu steuern, in welchem Bereich diese Einstellungen in der Benutzer-Oberfläche angezeigt werden.',
         'Defines the connections for http/ftp, via a proxy.' => 'Definiert Verbindungen für HTTP/FTP über einen Proxy.',
@@ -6980,8 +6977,8 @@ Ihr Helpdesk-Team
             'Definiert den Standard-Inhalt einer Notiz in der TicketFreeText-Oberfläche im Agenten-Interface.',
         'Defines the default filter fields in the customer user address book search (CustomerUser or CustomerCompany). For the CustomerCompany fields a prefix \'CustomerCompany_\' must be added.' =>
             'Definiert die Standard-Filterfelder in der Kundenbenutzer-Adressbuch-Suche (Kundenbenutzer oder Kundenunternehmen). Für Kundenunternehmen-Felder muss ein Präfix \'CustomerCompany_\' hinzugefügt werden.',
-        'Defines the default front-end (HTML) theme to be used by the agents and customers. If you like, you can add your own theme. Please refer the administrator manual located at https://doc.otobo.org/doc/.' =>
-            'Definiert das von Agenten und Kunden zu nutzende Standard (HTML-)Theme. Auf Wunsch können Sie hier ein eigenes Theme hinzufügen. Details dazu entnehmen Sie bitte dem Admin-Handbuch auf https://doc.otobo.org/doc/.',
+        'Defines the default front-end (HTML) theme to be used by the agents and customers. If you like, you can add your own theme. Please refer the administrator manual located at https://doc.otobo.org/.' =>
+            '',
         'Defines the default front-end language. All the possible values are determined by the available language files on the system (see the next setting).' =>
             'Definiert die Standard-Frontend-Sprache. Die möglichen Werte werden durch die verfügbaren Sprachdateien auf dem System bestimmt (siehe nächste Einstellung).',
         'Defines the default history type in the customer interface.' => 'Definiert den Standard-Historientyp im Kunden-Interface.',
@@ -7909,6 +7906,8 @@ Ihr Helpdesk-Team
             'Wenn einer der SMTP-Mechanismen als SendmailModule ausgewählt wurde, muss hier der Port, auf dem Ihr Mailserver auf eingehende Verbindungen lauscht, angegeben werden.',
         'If enabled debugging information for ACLs is logged.' => 'Wenn aktiviert, werden Debugging-Informationen für ACLs geloggt.',
         'If enabled debugging information for transitions is logged.' => 'Wenn aktiviert, werden Debugging-Informationen für Übergänge in Prozesstickets geloggt.',
+        'If enabled defines the preselected state for customer follow-up in the customer interface.' =>
+            '',
         'If enabled the daemon will redirect the standard error stream to a log file.' =>
             'Aktivieren, um die Fehler-Ausgabe des Daemons in eine Log-Datei umzuleiten.',
         'If enabled the daemon will redirect the standard output stream to a log file.' =>
@@ -8207,6 +8206,7 @@ Ihr Helpdesk-Team
         'Objects to search for, how many entries and which attributs to show. Ticket attributes, except queue, have to explicitely be stored via Elasticsearch.' =>
             'Definiert, nach welchen Objekten gesucht wird, wie viele Einträge und welche Attribute angezeigt werden sollen. Alle Ticket-Attribute außer der Queue müssen explizit in Elasticsearch gespeichert werden.',
         'Open an external link!' => 'Externen Link öffnen!',
+        'Open the OTOBO home page in a new window' => '',
         'Open tickets (customer user)' => 'Offene Tickets (Kundenbenutzer)',
         'Open tickets (customer)' => 'Offene Tickets (Kunde)',
         'Option' => 'Option',
@@ -8383,39 +8383,39 @@ Ihr Helpdesk-Team
         'Reprocess mails from spool directory that could not be imported in the first place.' =>
             'Wiederhole die Verarbeitung von E-Mails aus dem Spool-Verzeichnis, die im ersten Durchlauf nicht importiert werden konnten.',
         'Required permissions to change the customer of a ticket in the agent interface.' =>
-            'Benötigte Rechte um den Kunden eines Tickets im Agenten-Interface zu ändern.',
+            'Zum Ändern des Kunden eines Tickets im Agentenbereich erforderliche Rechte.',
         'Required permissions to use quick close in the agent interface.' =>
-            '',
+            'Zum Aufrufen des "Sofort schließen"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the close ticket screen in the agent interface.' =>
-            'Benötigte Rechte um den "Schließen"-Dialog im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Schließen"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the email outbound screen in the agent interface.' =>
-            'Benötigte Rechte, um den Dialog für ausgehende Emails im Agenten-Interface aufzurufen.',
+            'Zum Anlegen eines neuen E-Mail-Tickets im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the email resend screen in the agent interface.' =>
-            'Benötigte Rechte, um den Dialog zum erneuten Senden von E-Mails im Agenten-Interface aufzurufen.',
+            'Zum erneuten Senden von E-Mails im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket bounce screen in the agent interface.' =>
-            'Benötigte Rechte um den "Umleiten"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Umleiten"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket compose screen in the agent interface.' =>
-            'Benötigte Rechte um den "Verfassen"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Verfassen von Tickets im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket forward screen in the agent interface.' =>
-            'Benötigte Rechte um den "Weiterleiten"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Weiterleiten"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket free text screen in the agent interface.' =>
-            'Benötigte Rechte um den "Freitext"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Freitext"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket merge screen of a zoomed ticket in the agent interface.' =>
-            'Benötigte Rechte um den "Zusammenfassen"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Zusammenfassen"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket note screen in the agent interface.' =>
-            'Benötigte Rechte um den "Notiz"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Notiz"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket owner screen of a zoomed ticket in the agent interface.' =>
-            'Benötigte Rechte um den "Besitzer"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Besitzer"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket pending screen of a zoomed ticket in the agent interface.' =>
-            'Benötigte Rechte um den "Warten"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Warten"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket phone inbound screen in the agent interface.' =>
-            'Benötigte Rechte um den "Eingehender Telefonanruf"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Neues Telefonticket (eingehend)"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket phone outbound screen in the agent interface.' =>
-            'Benötigte Rechte um den "Ausgehender Telefonanruf"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Neues Telefonticket (ausgehend)"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket priority screen of a zoomed ticket in the agent interface.' =>
-            'Benötigte Rechte um den "Priorität"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Priorität"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Required permissions to use the ticket responsible screen in the agent interface.' =>
-            'Benötigte Rechte um den "Verantwortlicher"-Dialog eines Tickets im Agenten-Interface aufzurufen.',
+            'Zum Aufrufen des "Verantwortlicher"-Dialogs im Agentenbereich erforderliche Rechte.',
         'Resend Ticket Email.' => 'Ticket-E-Mail erneut senden.',
         'Resent email to "%s".' => 'E-Mail erneut senden an "%s".',
         'Resets and unlocks the owner of a ticket if it was moved to another queue.' =>
@@ -8464,7 +8464,6 @@ Ihr Helpdesk-Team
         'Select the main interface language.' => 'Wählen Sie die Sprache der Hauptoberfläche.',
         'Select the separator character used in CSV files (stats and searches). If you don\'t select a separator here, the default separator for your language will be used.' =>
             'Wählen Sie das Trennzeichen, dass in CSV-Dateien (Statistiken und Suchenergebnisse) benutzt werden soll. Wenn Sie hier kein Zeichen wählen, dann wird das Standard-Trennzeichen gemäß der eingestellten Sprache benutzt.',
-        'Select your frontend Theme.' => 'Wählen Sie Ihr Anzeigeschema aus.',
         'Select your personal time zone. All times will be displayed relative to this time zone.' =>
             'Wählen Sie Ihre persönliche Zeitzone aus. Alle Zeiten werden relativ zur eingestellten Zeitzone angezeigt.',
         'Select your preferred layout for the software.' => 'Wählen Sie Ihr bevorzugtes Layout aus.',
@@ -8499,6 +8498,8 @@ Ihr Helpdesk-Team
         'Service Level Agreements' => 'Service-Level-Vereinbarungen',
         'Service view' => 'Ansicht nach Services',
         'ServiceView' => 'DienstAnsicht',
+        'Set a new password by filling in your current password and a new one.' =>
+            'Setzen Sie ein neues Passwort, indem Sie Ihr derzeitiges und ein neues Passwort eintragen.',
         'Set sender email addresses for this system.' => 'Absendeadressen für dieses System verwalten.',
         'Set the default height (in pixels) of inline HTML articles in AgentTicketZoom.' =>
             'Definiert Standardhöhe (in Pixel) für Inline_HTML-Feldern in AgentTicketZoom.',
@@ -9213,6 +9214,8 @@ Ihr Helpdesk-Team
             'Wenn Tickets zusammengefasst werden, wird automatisch zu dem Ticket, das nicht länger aktiv ist, eine Notiz hinzugefügt. Hier können Sie den Gegenstand dieser Notiz definieren (dieser Text kann nicht durch den Agent verändert werden).',
         'When tickets are merged, the customer can be informed per email by setting the check box "Inform Sender". In this text area, you can define a pre-formatted text which can later be modified by the agents.' =>
             'Wenn Tickets zusammengefasst werden, kann der Kunde durch Setzen des Kontrollkästchens "Sender informieren" per E-Mail informiert werden. In diesem Bereich können Sie einen vorformatierten Text definieren, der später durch die Agents modifiziert werden kann.',
+        'Whether extended customer information is shown in the ticket print screen of the customer interface.' =>
+            'Definiert, ob in der Ticket-Druckansicht im Kundenbereich erweiterte Kundendaten angezeigt werden.',
         'Whether fields should be automatically filled (1), and in that case also be hidden from ticket formulars (2).' =>
             'Definiert, ob Felder automatisch befüllt (1), und ob automatisch befüllte Felder in den Ticketformularen ausgeblendet werden sollen (2).',
         'Whether or not to collect meta information from articles using filters configured in Ticket::Frontend::ZoomCollectMetaFilters.' =>

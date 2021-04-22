@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -36,7 +35,6 @@ settings and cause unexpected test failures.
 
 =cut
 
-
 my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
 my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
@@ -50,7 +48,9 @@ my $ChecksumFileArrayRef = $MainObject->FileRead(
     DisableWarnings => 1,
 );
 
-skip_all( 'Default configuration unit test requires the checksum file (ARCHIVE) to be present and valid. Please first call the following command to create it: bin/otobo.CheckSum.pl -a create' ) if !$ChecksumFileArrayRef || !@{$ChecksumFileArrayRef};
+skip_all(
+    'Default configuration unit test requires the checksum file (ARCHIVE) to be present and valid. Please first call the following command to create it: bin/otobo.CheckSum.pl -a create'
+) if !$ChecksumFileArrayRef || !@{$ChecksumFileArrayRef};
 
 # Get list of present config XML files.
 my $Directory   = "$Home/Kernel/Config/Files/XML";
@@ -64,7 +64,7 @@ for my $ConfigFile (@ConfigFiles) {
     $ConfigFile =~ s{^${Home}/(.*/[^/]+.xml)$}{$1}xmsg;
 
     if ( !grep { $_ =~ $ConfigFile } @{$ChecksumFileArrayRef} ) {
-        skip_all( "Custom configuration file found ($ConfigFile), skipping test..." );
+        skip_all("Custom configuration file found ($ConfigFile), skipping test...");
     }
 }
 
@@ -196,5 +196,3 @@ for my $DefaultConfigEntry ( sort keys %{$DefaultConfig} ) {
 }
 
 $Self->DoneTesting();
-
-

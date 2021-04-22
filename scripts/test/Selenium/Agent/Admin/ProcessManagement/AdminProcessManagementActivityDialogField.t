@@ -25,7 +25,10 @@ use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(IsHashRefWithData);
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -163,8 +166,7 @@ $Selenium->RunTest(
             $Selenium->WaitFor(
                 JavaScript => "return !\$('#OverwriteExistingEntitiesImport:checked').length;"
             );
-            $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")
-                ->VerifiedClick();
+            $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")->VerifiedClick();
             sleep 1;
             $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
@@ -211,8 +213,7 @@ $Selenium->RunTest(
         );
 
         # Go to edit test ActivityDialog screen.
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=ActivityDialogEdit;ID=$ActivityDialogData->{ID}' )]")
-            ->click();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ActivityDialogEdit;ID=$ActivityDialogData->{ID}' )]")->click();
         $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
@@ -360,7 +361,4 @@ $Selenium->RunTest(
     },
 );
 
-
 $Self->DoneTesting();
-
-

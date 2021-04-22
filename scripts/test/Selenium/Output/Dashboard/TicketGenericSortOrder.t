@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # Get selenium object.
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -222,8 +224,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ColumnFilterQueue0120-TicketNew option[value='$QueueID']", 'css' )->click();
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$(".Loading").length' );
 
-     # Verify ticket with different priority is present on screen with filter, it's still on the first page.
-     # See bug#11422 ( http://bugs.otrs.org/show_bug.cgi?id=11422 ), there is no change in order when activating filter.
+        # Verify ticket with different priority is present on screen with filter, it's still on the first page.
+        # See bug#11422 ( http://bugs.otrs.org/show_bug.cgi?id=11422 ), there is no change in order when activating filter.
         $Self->True(
             $Selenium->find_element("//a[contains(\@title, \'Queue, filter active' )]"),
             "Filter for queue column is active",
@@ -341,7 +343,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

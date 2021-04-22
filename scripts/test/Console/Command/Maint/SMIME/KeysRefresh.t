@@ -48,8 +48,8 @@ $CertPath    =~ s{/{2,}}{/}smxg;
 $PrivatePath =~ s{/{2,}}{/}smxg;
 File::Path::rmtree($CertPath);
 File::Path::rmtree($PrivatePath);
-File::Path::make_path( $CertPath,    { chmod => 0770 } );    ## no critic
-File::Path::make_path( $PrivatePath, { chmod => 0770 } );    ## no critic
+File::Path::make_path( $CertPath,    { chmod => 0770 } );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
+File::Path::make_path( $PrivatePath, { chmod => 0770 } );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 $ConfigObject->Set(
     Key   => 'SMIME::CertPath',
     Value => $CertPath
@@ -86,11 +86,11 @@ my $CryptObject = eval {
     Kernel::System::Crypt::SMIME->new();
 };
 
-skip_all( 'The system with current configuration does not support SMIME, this test can not continue!' ) unless $CryptObject;
+skip_all('The system with current configuration does not support SMIME, this test can not continue!') unless $CryptObject;
 
 # get current configuration settings
 my $OpenSSLBin = $ConfigObject->Get('SMIME::Bin');
-my $CertDir    = $ConfigObject->Get('SMIME::CertPath') || '/etc/ssl/certs';
+my $CertDir    = $ConfigObject->Get('SMIME::CertPath')    || '/etc/ssl/certs';
 my $PrivateDir = $ConfigObject->Get('SMIME::PrivatePath') || '/etc/ssl/private';
 
 # helper function to create a directory
@@ -98,7 +98,7 @@ my $CreateDir = sub {
     my $Directory = $_[0];
 
     if ( !-d $Directory ) {
-        File::Path::mkpath( $Directory, 0, 0770 );    ## no critic
+        File::Path::mkpath( $Directory, 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
         if ( !-d $Directory ) {
             $Self->True(
@@ -156,7 +156,6 @@ if ( !$Success ) {
 
     exit 0;
 }
-
 
 # set a new certificate private key and secret files
 for my $Type (qw(Certificate PrivateKey PrivateKeyPass)) {
@@ -462,7 +461,4 @@ File::Path::rmtree($PrivatePath);
 
 # cleanup cache is done by RestoreDatabase
 
-
 $Self->DoneTesting();
-
-

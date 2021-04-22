@@ -42,50 +42,46 @@ use Kernel::Config;
 use Kernel::System::User;
 use Kernel::System::VariableCheck qw(IsArrayRefWithData);
 
-our @ObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::AuthSession',
-    'Kernel::System::Log',
-    'Kernel::System::Main',
-    'Kernel::System::UnitTest::Helper',
-);
+our $ObjectManagerDisabled = 1;
 
 # Extend Selenium::Remote::Driver only when Selenium testing is activated.
 # Otherwise Selenium::Remote::Driver::BUILD would be called with missing paramters.
 # Extending with 'around' is only done when the the class is actually extended.
 {
-    # check whether Selenium testing is activated.
+    # Check whether Selenium testing is activated.
+    # Note that $Kernel::OM must exist before this module is loaded.
     my $SeleniumTestsConfig = $Kernel::OM->Get('Kernel::Config')->Get('SeleniumTestsConfig') // {};
 
     if ( $SeleniumTestsConfig->%* ) {
 
-        extends 'Selenium::Remote::Driver';
+        extends 'Test::Selenium::Remote::Driver';
 
         # Override internal command of base class.
         # We use it to output successful command runs to the UnitTest object.
-        # Errors will cause an exeption. The exception will be passed to SeleniumErrorHandler().
+        # No special error handler is set up.
         around _execute_command => sub {
-            my $Orig  = shift;
-            my $Self  = shift;
-            my ($Res, $Params) = @_;
+            my $Orig = shift;
+            my $Self = shift;
+            my ( $Res, $Params ) = @_;
 
             # an exception is thrown in case of an error
             my $Result = $Self->$Orig( $Res, $Params );
 
-            # TODO: maybe write notes instead of skipping altogether
-            return $Result if $Self->_SuppressTestingEvents();
+            # decide whether to emit extra testing events for logging calls of _execute_command()
+            return $Result unless $Self->LogExecuteCommandActive;
 
-            my $TestName = 'Selenium command success: ';
-            $TestName .= $Kernel::OM->Get('Kernel::System::Main')->Dump(
-                {
-                    Res    => $Res,
-                    Params => $Params,
-                }
-            );
+            # do emit extra testing events for logging calls of _execute_command()
+            my $Description = 'Selenium command success: ' .
+                $Kernel::OM->Get('Kernel::System::Main')->Dump(
+                    {
+                        Res    => $Res,
+                        Params => $Params,
+                    }
+                );
 
             my $Context = context();
 
-            $Context->pass_and_release( $TestName );
+            $Context->pass_and_release($Description);
 
             return $Result;
         };
@@ -100,23 +96,18 @@ has SeleniumTestsActive => (
 
 # for cleaning up Sessions started by the unit tests
 has _TestStartSystemTime => (
-    is      => 'ro',
+    is => 'ro',
 );
 
 # keep a copy of the config
 has _SeleniumTestsConfig => (
-    is      => 'ro',
-);
-
-# If a test throws an exception, we'll record it here in an attribute so that we can
-# take screenshots.
-has _TestException => (
-    is      => 'rw',
+    is => 'ro',
 );
 
 # suppress testing events
-has _SuppressTestingEvents => (
+has LogExecuteCommandActive => (
     is      => 'rw',
+    default => 0,
 );
 
 =head1 NAME
@@ -169,7 +160,7 @@ a failing test result including a stack trace and generate a screen shot for ana
 =cut
 
 around BUILDARGS => sub {
-    my ( $Orig, $Class ) = @_;
+    my ( $Orig, $Class, @Args ) = @_;
 
     # check whether Selenium testing is configured.
     my $SeleniumTestsConfig = $Kernel::OM->Get('Kernel::Config')->Get('SeleniumTestsConfig') // {};
@@ -195,8 +186,8 @@ around BUILDARGS => sub {
         $Resolver->tcp_timeout(1);
         $Resolver->udp_timeout(1);
 
-        my $Host = $SeleniumTestsConfig->{remote_server_addr};
-        my $Packet = $Resolver->search( $Host );
+        my $Host   = $SeleniumTestsConfig->{remote_server_addr};
+        my $Packet = $Resolver->search($Host);
 
         # no Selenium testing when the remote server can't be resolved
         return {
@@ -222,12 +213,9 @@ around BUILDARGS => sub {
         _TestStartSystemTime => $TestStartSystemTime,
         base_url             => $BaseURL,
         webelement_class     => 'Kernel::System::UnitTest::Selenium::WebElement',
-        error_handler        => sub {
-            my $Self = shift;
-
-            return $Self->SeleniumErrorHandler(@_);
-        },
+        javascript           => 1,                                                  # must be explicitly set, as the default is 0 in Test::Selenium::Remove::Driver
         $SeleniumTestsConfig->%*,
+        @Args,
     );
 };
 
@@ -237,34 +225,37 @@ sub BUILD {
     return unless $Self->SeleniumTestsActive();
 
     # Set screen size from config or use defauls.
-    my $Height = $Self->_SeleniumTestsConfig()->{window_height}  || 1200;
+    my $Height = $Self->_SeleniumTestsConfig()->{window_height} || 1200;
     my $Width  = $Self->_SeleniumTestsConfig()->{window_width}  || 1400;
 
-    $Self->_SuppressTestingEvents(1);
+    my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+    $Self->LogExecuteCommandActive(0);
 
     # This works only because we have extended Selenium::Remove::Driver.
     $Self->set_window_size( $Height, $Width );
 
-    $Self->_SuppressTestingEvents(0);
+    $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
 
     return;
 }
 
-=head2 button_up
+=head2 button_up()
 
-In Selenium::Remote::Driver 1.39 there seems to be a bug in button_up().
-There the type of the action is pointerDown.
-pointerUp makes more sense and fixes DragAndDrop test failures.
+In L<Selenium::Remote::Driver> 1.39 there seems to be a bug in the method C<button_up()>.
+In the original version the the type of the action is I<Pointer Down>.
+But the action I<Pointer Up> makes more sense and fixes DragAndDrop test failures.
 Therefore override that subroutine.
 
 =cut
 
-# TODO: where to put 'no critic qw(OTOBO::RequireCamelCase)'
 sub button_up {
+
     my ($Self) = @_;
 
-    if ( $Self->{is_wd3}
-        && !( grep { $Self->browser_name() eq $_ } qw{MicrosoftEdge} ) )
+    if (
+        $Self->{is_wd3}
+        && !( grep { $Self->browser_name() eq $_ } qw{MicrosoftEdge} )
+        )
     {
         my $Params = {
             actions => [
@@ -290,26 +281,9 @@ sub button_up {
     return $Self->_execute_command( { 'command' => 'buttonUp' } );
 }
 
-=head2 SeleniumErrorHandler
-
-Selenium::Remove::Driver uses this callback in case of errors.
-Errors should not be discarded, they should be thrown as exceptions.
-Selenium methods like find_element() will catch the exception.
-Most other methods won't.
-
-=cut
-
-sub SeleniumErrorHandler {
-    my ( $Self, $Error ) = @_;
-
-    my $Context = context();
-    ## TODO: configure Subroutines::RequireFinalReturn, so that '->throw' is considered like a 'die'
-    $Context->throw($Error);
-}
-
 =head2 RunTest()
 
-runs a selenium test if Selenium testing is configured.
+runs a selenium test only if Selenium testing is activated.
 
     $SeleniumObject->RunTest( sub { ... } );
 
@@ -318,8 +292,8 @@ runs a selenium test if Selenium testing is configured.
 sub RunTest {
     my ( $Self, $Code ) = @_;
 
-    if ( ! $Self->SeleniumTestsActive() ) {
-        skip_all( 'Selenium testing is not active, skipping tests.' );
+    if ( !$Self->SeleniumTestsActive() ) {
+        skip_all('Selenium testing is not active, skipping tests.');
 
         return;
     }
@@ -327,17 +301,20 @@ sub RunTest {
     # This emits a passing event when there is no exception.
     # In case of an exception, the exception will be return as a diagnostic
     # and a failing event will be emitted. $@ will hold the exception.
-    try_ok {
+    my $Context = context();
+
+    my $CodeSuccess = try_ok {
         $Code->();
-    } 'RunTest: no exception should be thrown';
-
-    if ( $@ ) {
-        note( "RunTest: $@" );
-
-        # Indicate that during DEMOLISH() the subroutine HandleError() should be called.
-        # HandleError() will create screenshots.
-        $Self->_TestException($@);
     }
+    'RunTest: no exception';
+
+    if ( !$CodeSuccess ) {
+
+        # HandleError() will create screenshots of the open windows
+        $Self->HandleError($@);
+    }
+
+    $Context->release();
 
     return;
 }
@@ -366,13 +343,20 @@ sub VerifiedGet {
         $Self->WaitFor(
             JavaScript =>
                 'return typeof(Core) == "object" && typeof(Core.App) == "object" && Core.App.PageLoadComplete'
-        ) || $Context->throw( "OTOBO API verification failed after page load." );
+        ) || $Context->throw("OTOBO API verification failed after page load.");
     };
 
-    my $Pass = run_subtest( 'VerifiedGet', $Code, { buffered => 1, inherit_trace => 1 } );
+    my $Pass = run_subtest(
+        'VerifiedGet',
+        $Code,
+        {
+            buffered      => 1,
+            inherit_trace => 1
+        }
+    );
 
     # run_subtest() does an implicit eval(), but we want do bail out on the first error
-    $Context->throw( 'VerifiedGet() failed' ) unless $Pass;
+    $Context->throw('VerifiedGet() failed') unless $Pass;
 
     $Context->release();
 
@@ -399,13 +383,20 @@ sub VerifiedRefresh {
         $Self->WaitFor(
             JavaScript =>
                 'return typeof(Core) == "object" && typeof(Core.App) == "object" && Core.App.PageLoadComplete'
-        ) || $Context->throw( "OTOBO API verification failed after page load." );
+        ) || $Context->throw("OTOBO API verification failed after page load.");
     };
 
-    my $Pass = run_subtest( 'VerifiedRefresh', $Code, { buffered => 1, inherit_trace => 1 } );
+    my $Pass = run_subtest(
+        'VerifiedRefresh',
+        $Code,
+        {
+            buffered      => 1,
+            inherit_trace => 1
+        }
+    );
 
     # run_subtest() does an implicit eval(), but we want do bail out on the first error
-    $Context->throw( 'VerifiedRefresh() failed' ) unless $Pass;
+    $Context->throw('VerifiedRefresh() failed') unless $Pass;
 
     $Context->release();
 
@@ -442,6 +433,7 @@ sub Login {
     my $Context = context();
 
     my $Code = sub {
+
         # we will try several times to log in
         my $MaxTries = 5;
 
@@ -449,27 +441,29 @@ sub Login {
         for my $Try ( 1 .. $MaxTries ) {
 
             eval {
-                my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-                my $LogoutXPath;       # Logout link differs between Agent and Customer interface.
-                my $CheckForGDPRBlurb;  # whether GDPR needs to be accepted during login
+
+                # handle some differences between agent and customer interface
+                my $LoginPage = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+                my $LogoutXPath;          # Logout link differs between Agent and Customer interface.
+                my $CheckForGDPRBlurb;    # only customers need to accept GDPR during login
                 if ( $Param{Type} eq 'Agent' ) {
-                    $ScriptAlias .= 'index.pl';
-                    $LogoutXPath = q{//a[@id='LogoutButton']};
-                    $CheckForGDPRBlurb  = 0;
+                    $LoginPage .= 'index.pl';
+                    $LogoutXPath       = q{//a[@id='LogoutButton']};
+                    $CheckForGDPRBlurb = 0;
                 }
                 else {
-                    $ScriptAlias       .= 'customer.pl';
-                    $LogoutXPath       = q{//a[@id='oooUser']};
+                    $LoginPage .= 'customer.pl';
+                    $LogoutXPath       = q{//a[@id='oooAvatar']};
                     $CheckForGDPRBlurb = 1;
                 }
 
-                $Self->get($ScriptAlias);
+                $Self->get($LoginPage);
 
                 $Self->delete_all_cookies();
 
                 # Actually log in, making sure that the params are URL encoded.
                 # Keep the URL relative, so that the configured base URL applies.
-                my $LoginURL = URI->new( $ScriptAlias );
+                my $LoginURL = URI->new($LoginPage);
                 $LoginURL->query_form(
                     {
                         Action   => 'Login',
@@ -483,9 +477,9 @@ sub Login {
                 # In the customer interface there is a data privacy blurb that must be accepted.
                 # Note that find_element_by_xpath() does not throw exceptions.
                 # The method returns 0 when the element is not found.
-                if ( $CheckForGDPRBlurb ) {
-                    my $AcceptGDPRLink = $Self->find_element_by_xpath( q{//a[@id="AcceptGDPR"]} );
-                    if ( $AcceptGDPRLink ) {
+                if ($CheckForGDPRBlurb) {
+                    my $AcceptGDPRLink = $Self->find_element_by_xpath(q{//a[@id="AcceptGDPR"]});
+                    if ($AcceptGDPRLink) {
                         $AcceptGDPRLink->click();
                     }
                 }
@@ -493,18 +487,19 @@ sub Login {
                 # login successful?
                 $Self->find_element( $LogoutXPath, 'xpath' );    # throws exception if not found
 
-                pass( 'Login sequence ended...' );
+                pass('Login sequence ended...');
             };
 
             # an error happend
             if ($@) {
 
-                note( "Login attempt $Try of $MaxTries not successful." );
+                note("Login attempt $Try of $MaxTries not successful.");
 
                 # try again
                 next TRY if $Try < $MaxTries;
 
-                $Context->throw( "Login() not successfull after $MaxTries attempts!" );
+                # giving up
+                $Context->throw("Login() not successfull after $MaxTries attempts!");
             }
 
             # login was sucessful
@@ -514,10 +509,16 @@ sub Login {
         }
     };
 
-    my $Pass = run_subtest( 'Login', $Code, { buffered => 1, inherit_trace => 1 } );
+    my $Pass = run_subtest(
+        'Login', $Code,
+        {
+            buffered      => 1,
+            inherit_trace => 1
+        }
+    );
 
     # run_subtest() does an implicit eval(), but we want do bail out on the first error
-    $Context->throw( 'Login() failed' ) unless $Pass;
+    $Context->throw('Login() failed') unless $Pass;
 
     $Context->release();
 
@@ -557,18 +558,18 @@ sub WaitFor {
         && !$Param{ElementMissing}
         )
     {
-        $Context->throw( "Need JavaScript, WindowCount, ElementExists, ElementMissing, Callback or AlertPresent." );
+        $Context->throw("Need JavaScript, WindowCount, ElementExists, ElementMissing, Callback or AlertPresent.");
     }
 
-    my $TimeOut                 = $Param{Time} // 20; # time span after which WaitFor() gives up
-    my $WaitedSeconds           = 0;                  # counting up to $TimeOut
-    # Apparently some WaitFor() call fail because some elements show up only briefly.
-    # This might cause heisenbugs.
-    # Therefore fine tune the initial sleep times.
+    my $TimeOut                 = $Param{Time} // 20;             # time span after which WaitFor() gives up
+    my $WaitedSeconds           = 0;                              # counting up to $TimeOut
+                                                                  # Apparently some WaitFor() call fail because some elements show up only briefly.
+                                                                  # This might cause heisenbugs.
+                                                                  # Therefore fine tune the initial sleep times.
     my @Intervals               = ( 0.025, 0.050, 0.075, 0.1 );
     my $DefaultInterval         = 0.1;
     my $Interval                = $DefaultInterval;
-    my $FindElementSleepSeconds = 0.5; # sleep after a successful find_element(), no idea why this is useful
+    my $FindElementSleepSeconds = 0.5;                            # sleep after a successful find_element(), no idea why this is useful
 
     my $Success = 0;
 
@@ -576,20 +577,26 @@ sub WaitFor {
     while ( $WaitedSeconds <= $TimeOut ) {
 
         if ( $Param{JavaScript} ) {
-            $Self->_SuppressTestingEvents(1);
-            my $Ret = $Self->execute_script( $Param{JavaScript} );
-            $Self->_SuppressTestingEvents(0);
+            my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+            $Self->LogExecuteCommandActive(0);
 
-            if ( $Ret ) {
+            my $Ret = $Self->execute_script( $Param{JavaScript} );
+
+            $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
+
+            if ($Ret) {
                 $Success = 1;
 
                 last WAIT;
             }
         }
         elsif ( $Param{WindowCount} ) {
-            $Self->_SuppressTestingEvents(1);
+            my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+            $Self->LogExecuteCommandActive(0);
+
             my $NumWindows = scalar $Self->get_window_handles()->@*;
-            $Self->_SuppressTestingEvents(0);
+
+            $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
 
             if ( $NumWindows == $Param{WindowCount} ) {
                 $Success = 1;
@@ -598,36 +605,46 @@ sub WaitFor {
             }
         }
         elsif ( $Param{AlertPresent} ) {
-            $Self->_SuppressTestingEvents(1);
+
+            my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+            $Self->LogExecuteCommandActive(0);
+
             # Eval is needed because the method would throw if no alert is present (yet).
             my $Ret = eval { $Self->get_alert_text() };
-            $Self->_SuppressTestingEvents(0);
 
-            if ( $Ret ) {
+            $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
+
+            if ($Ret) {
                 $Success = 1;
 
                 last WAIT;
             }
         }
         elsif ( $Param{Callback} ) {
-            $Self->_SuppressTestingEvents(1);
-            my $Ret =  $Param{Callback}->();
-            $Self->_SuppressTestingEvents(0);
+            my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+            $Self->LogExecuteCommandActive(0);
 
-            if ( $Ret ) {
+            my $Ret = $Param{Callback}->();
+
+            $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
+
+            if ($Ret) {
                 $Success = 1;
 
                 last WAIT;
             }
         }
         elsif ( $Param{ElementExists} ) {
-            my @Arguments
-                = ref( $Param{ElementExists} ) eq 'ARRAY' ? @{ $Param{ElementExists} } : $Param{ElementExists};
+            my @Arguments = ref( $Param{ElementExists} ) eq 'ARRAY' ? @{ $Param{ElementExists} } : $Param{ElementExists};
 
-            $Self->_SuppressTestingEvents(1);
+            my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+            $Self->LogExecuteCommandActive(0);
+
             my $Ret = eval { $Self->find_element(@Arguments) };
-            $Self->_SuppressTestingEvents(0);
-            if ( $Ret ) {
+
+            $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
+
+            if ($Ret) {
                 Time::HiRes::sleep($FindElementSleepSeconds);
 
                 $Success = 1;
@@ -636,13 +653,16 @@ sub WaitFor {
             }
         }
         elsif ( $Param{ElementMissing} ) {
-            my @Arguments
-                = ref( $Param{ElementMissing} ) eq 'ARRAY' ? @{ $Param{ElementMissing} } : $Param{ElementMissing};
+            my @Arguments = ref( $Param{ElementMissing} ) eq 'ARRAY' ? @{ $Param{ElementMissing} } : $Param{ElementMissing};
 
-            $Self->_SuppressTestingEvents(1);
+            my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+            $Self->LogExecuteCommandActive(0);
+
             my $Ret = eval { $Self->find_element(@Arguments) };
-            $Self->_SuppressTestingEvents(0);
-            if ( ! $Ret ) {
+
+            $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
+
+            if ( !$Ret ) {
                 Time::HiRes::sleep($FindElementSleepSeconds);
 
                 $Success = 1;
@@ -659,13 +679,13 @@ sub WaitFor {
         $WaitedSeconds += $Interval;
         $Interval      += 0.1;
 
-        $Context->note( "waited for $WaitedSeconds s" );
+        $Context->note("waited for $WaitedSeconds s");
     }
 
     # something short that identfies the WaitFor target
     my $Argument = '';
     {
-        for my $Key ( qw(JavaScript WindowCount AlertPresent) ) {
+        for my $Key (qw(JavaScript WindowCount AlertPresent)) {
             $Argument = "$Key => $Param{$Key}" if $Param{$Key};
         }
 
@@ -676,10 +696,10 @@ sub WaitFor {
 
     # Release context and throw exception in case of failure.
     # Don't care about any special handling for the stack trace.
-    $Context->throw( "WaitFor($Argument) timed out") unless $Success;
+    $Context->throw("WaitFor($Argument) timed out") unless $Success;
 
     # successful
-    $Context->pass_and_release( "WaitFor($Argument)" );
+    $Context->pass_and_release("WaitFor($Argument)");
 
     return 1;
 }
@@ -702,7 +722,7 @@ sub SwitchToFrame {
 
     my $Context = context();
 
-    $Context->throw( 'Need FrameSelector.' ) unless $Param{FrameSelector};
+    $Context->throw('Need FrameSelector.') unless $Param{FrameSelector};
 
     if ( $Param{WaitForLoad} ) {
         $Self->WaitFor(
@@ -745,7 +765,7 @@ sub DragAndDrop {
 
     # Value is optional parameter
     for my $Needed (qw(Element Target)) {
-        $Context->throw( "Need $Needed" ) unless $Param{$Needed};
+        $Context->throw("Need $Needed") unless $Param{$Needed};
     }
 
     my $Code = sub {
@@ -790,10 +810,17 @@ sub DragAndDrop {
         $Self->general_action();
     };
 
-    my $Pass = run_subtest( 'DragAndDrop', $Code, { buffered => 1, inherit_trace => 1 } );
+    my $Pass = run_subtest(
+        'DragAndDrop',
+        $Code,
+        {
+            buffered      => 1,
+            inherit_trace => 1
+        }
+    );
 
     # run_subtest() does an implicit eval(), but we want do bail out on the first error
-    $Context->throw( 'DragAndDrop failed' ) unless $Pass;
+    $Context->throw('DragAndDrop failed') unless $Pass;
 
     $Context->release();
 
@@ -820,8 +847,8 @@ sub HandleError {
     # If we can't store the screenshots, then there is no use in creating them.
     my $LocalScreenshotDir = $Kernel::OM->Get('Kernel::Config')->Get('Home') . '/var/httpd/htdocs/SeleniumScreenshots';
     mkdir $LocalScreenshotDir unless -e $LocalScreenshotDir;
-    if ( ! -d $LocalScreenshotDir ) {
-        $Context->note( "Could not create the screenshot directory $LocalScreenshotDir: $!" );
+    if ( !-d $LocalScreenshotDir ) {
+        $Context->note("Could not create the screenshot directory $LocalScreenshotDir: $!");
         $Context->release();
 
         return;
@@ -833,16 +860,16 @@ sub HandleError {
 
         $SharedScreenshotDir = '/var/otobo-unittest/SeleniumScreenshots';
         mkdir $SharedScreenshotDir unless -e $SharedScreenshotDir;
-        if ( ! -d $SharedScreenshotDir ) {
-            $Context->note( "Could not create the directory $SharedScreenshotDir: $!" );
+        if ( !-d $SharedScreenshotDir ) {
+            $Context->note("Could not create the directory $SharedScreenshotDir: $!");
 
             undef $SharedScreenshotDir;
         }
     }
 
     # No need to log generation of the screenshot.
-    my $PrevSuppressTestingEvents = $Self->_SuppressTestingEvents();
-    $Self->_SuppressTestingEvents(1);
+    my $PrevLogExecuteCommandActive = $Self->LogExecuteCommandActive;
+    $Self->LogExecuteCommandActive(0);
 
     # the file name of the screenshot is random
     my $RandomID = $Kernel::OM->Get('Kernel::System::UnitTest::Helper')->GetRandomNumber();
@@ -860,14 +887,14 @@ sub HandleError {
             next WINDOW_HANDLE;
         };
 
-        my $Filename       = "${RandomID}_${WindowCount}.png";
-        my $LocalPath      = File::Spec->catfile( $LocalScreenshotDir, $Filename );
+        my $Filename  = "${RandomID}_${WindowCount}.png";
+        my $LocalPath = File::Spec->catfile( $LocalScreenshotDir, $Filename );
 
         # No worries when the screenshot can't be written.
         $Self->capture_screenshot($LocalPath);
 
-        if ( ! -f $LocalPath ) {
-            $Context->note( "Could not create screenshot $LocalPath" );
+        if ( !-f $LocalPath ) {
+            $Context->note("Could not create screenshot $LocalPath");
 
             next WINDOW_HANDLE;
         }
@@ -880,7 +907,7 @@ sub HandleError {
                 . $Kernel::OM->Get('Kernel::Config')->Get('Frontend::WebPath')
                 . "SeleniumScreenshots/$Filename";
 
-            $Context->note( "Saved screenshot in $URL" );
+            $Context->note("Saved screenshot in $URL");
         }
 
         # If a shared screenshot folder is present, then we also store the screenshot there for external use.
@@ -888,22 +915,22 @@ sub HandleError {
 
         my $SharedScreenshotDir = '/var/otobo-unittest/SeleniumScreenshots';
         mkdir $SharedScreenshotDir unless -e $SharedScreenshotDir;
-        if ( ! -d $SharedScreenshotDir ) {
-            $Context->note( "Could not create the directory $SharedScreenshotDir: $!" );
+        if ( !-d $SharedScreenshotDir ) {
+            $Context->note("Could not create the directory $SharedScreenshotDir: $!");
 
             next WINDOW_HANDLE;
         }
 
         my $CopySuccess = copy( $LocalPath, $SharedScreenshotDir );
-        if ( ! $CopySuccess ) {
-            $Context->note( "Could not write file $SharedScreenshotDir/$Filename" );
+        if ( !$CopySuccess ) {
+            $Context->note("Could not write file $SharedScreenshotDir/$Filename");
         }
     }
     continue {
         $WindowCount++;
     }
 
-    $Self->_SuppressTestingEvents($PrevSuppressTestingEvents);
+    $Self->LogExecuteCommandActive($PrevLogExecuteCommandActive);
 
     $Context->release();
 
@@ -921,16 +948,12 @@ and performs some clean-ups.
 sub DEMOLISH {
     my $Self = shift;
 
-    $Self->_SuppressTestingEvents(1);
-
-    if ($Self->_TestException()) {
-        $Self->HandleError($Self->_TestException());
-    }
-
     return unless $Self->SeleniumTestsActive();
 
+    $Self->LogExecuteCommandActive(0);
+
+    # Cleanup possibly leftover zombie firefox profiles.
     {
-        # Cleanup possibly leftover zombie firefox profiles.
         my @LeftoverFirefoxProfiles = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
             Directory => '/tmp/',
             Filter    => 'anonymous*webdriver-profile',
@@ -941,8 +964,10 @@ sub DEMOLISH {
                 remove_tree($LeftoverFirefoxProfile);
             }
         }
+    }
 
-        # Cleanup all sessions which were created after the selenium test start time.
+    # Cleanup all sessions which were created after the selenium test start time.
+    {
         my $AuthSessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
 
         my @Sessions = $AuthSessionObject->GetAllSessionIDs();
@@ -963,11 +988,9 @@ sub DEMOLISH {
     return;
 }
 
-=head1 DEPRECATED FUNCTIONS
-
 =head2 WaitForjQueryEventBound()
 
-waits until event handler is bound to the selected C<jQuery> element. Deprecated - it will be removed in the future releases.
+waits until event handler is bound to the selected C<jQuery> element.
 
     $SeleniumObject->WaitForjQueryEventBound(
         CSSSelector => 'li > a#Test',       # (required) css selector
@@ -979,6 +1002,8 @@ waits until event handler is bound to the selected C<jQuery> element. Deprecated
 sub WaitForjQueryEventBound {
     my ( $Self, %Param ) = @_;
 
+    my $Context = context();
+
     # Check needed stuff.
     if ( !$Param{CSSSelector} ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -989,51 +1014,64 @@ sub WaitForjQueryEventBound {
         return;
     }
 
-    my $Context = context();
-
     my $Event = $Param{Event} || 'click';
 
-    # Wait for element availability.
-    $Self->WaitFor(
-        JavaScript => 'return typeof($) === "function" && $("' . $Param{CSSSelector} . '").length;'
-    );
+    my $Code = sub {
 
-    # Wait for jQuery initialization.
-    $Self->WaitFor(
-        JavaScript =>
-            'return Object.keys($("' . $Param{CSSSelector} . '")[0]).length > 0'
-    );
+        # Wait for element availability.
+        $Self->WaitFor(
+            JavaScript => 'return typeof($) === "function" && $("' . $Param{CSSSelector} . '").length;'
+        );
 
-    # Get jQuery object keys.
-    my $Keys = $Self->execute_script(
-        'return Object.keys($("' . $Param{CSSSelector} . '")[0]);'
-    );
+        # Wait for jQuery initialization.
+        $Self->WaitFor(
+            JavaScript => 'return Object.keys($("' . $Param{CSSSelector} . '")[0]).length > 0'
+        );
 
-    if ( !IsArrayRefWithData($Keys) ) {
-        $Context->throw( "Couldn't determine jQuery object id" );
-    }
+        # Get jQuery object keys.
+        my $Keys = $Self->execute_script(
+            'return Object.keys($("' . $Param{CSSSelector} . '")[0]);'
+        );
 
-    my $JQueryObjectID;
-
-    KEY:
-    for my $Key ( @{$Keys} ) {
-        if ( $Key =~ m{^jQuery\d+$} ) {
-            $JQueryObjectID = $Key;
-            last KEY;
+        if ( !IsArrayRefWithData($Keys) ) {
+            $Context->throw("Couldn't determine jQuery object id");
         }
-    }
 
-    if ( !$JQueryObjectID ) {
-        $Context->throw( "Couldn't determine jQuery object id." );
-    }
+        my $JQueryObjectID;
 
-    # Wait until click event is bound to the element.
-    $Self->WaitFor(
-        JavaScript =>
-            'return $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events
-                && $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events.' . $Event . '
-                && $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events.' . $Event . '.length > 0;',
+        KEY:
+        for my $Key ( @{$Keys} ) {
+            if ( $Key =~ m{^jQuery\d+$} ) {
+                $JQueryObjectID = $Key;
+
+                last KEY;
+            }
+        }
+
+        if ( !$JQueryObjectID ) {
+            $Context->throw("Couldn't determine jQuery object id.");
+        }
+
+        # Wait until click event is bound to the element.
+        $Self->WaitFor(
+            JavaScript =>
+                'return $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events
+                    && $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events.' . $Event . '
+                    && $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events.' . $Event . '.length > 0;',
+        );
+    };
+
+    my $Pass = run_subtest(
+        'WaitForjQueryEventBound()',
+        $Code,
+        {
+            buffered      => 1,
+            inherit_trace => 1
+        }
     );
+
+    # run_subtest() does an implicit eval(), but we want do bail out on the first error
+    $Context->throw('WaitForjQueryEventBound() failed') unless $Pass;
 
     $Context->release();
 
@@ -1070,7 +1108,7 @@ sub InputFieldValueSet {
             Message  => "Need Element!",
         );
 
-        $Context->throw( 'Missing Element.' );
+        $Context->throw('Missing Element.');
     }
 
     my $Value = $Param{Value} // '';
@@ -1094,14 +1132,125 @@ sub InputFieldValueSet {
         );
     };
 
-    my $Pass = run_subtest( 'InputFieldValueSet()', $Code, { buffered => 1, inherit_trace => 1 } );
+    my $Pass = run_subtest(
+        'InputFieldValueSet()',
+        $Code,
+        {
+            buffered      => 1,
+            inherit_trace => 1
+        }
+    );
 
     # run_subtest() does an implicit eval(), but we want do bail out on the first error
-    $Context->throw( 'InputFieldValueSet() failed' ) unless $Pass;
+    $Context->throw('InputFieldValueSet() failed') unless $Pass;
 
     $Context->release();
 
     return 1;
+}
+
+=head2 find_element_by_xpath_ok
+
+Call call Selenium::Remote::Driver::find_element_by_xpath() and emit testing event accordingly.
+
+=cut
+
+sub find_element_by_xpath_ok {
+    my ( $Self, $Selector, $TestDescription ) = @_;
+
+    $TestDescription //= 'find_element_by_xpath_ok';
+
+    my $Context = context();
+
+    my $MaybeElement = $Self->find_element_by_xpath($Selector);
+
+    if ($MaybeElement) {
+        $Context->pass_and_release($TestDescription);
+
+        return 1;
+    }
+
+    $Context->fail_and_release($TestDescription);
+
+    return 0;
+}
+
+=head2 find_no_element_by_xpath_ok
+
+Call call Selenium::Remote::Driver::find_element_by_xpath() and emit testing event accordingly.
+
+=cut
+
+sub find_no_element_by_xpath_ok {
+    my ( $Self, $Selector, $TestDescription ) = @_;
+
+    $TestDescription //= 'find_no_element_by_xpath_ok';
+
+    my $Context = context();
+
+    my $MaybeElement = $Self->find_element_by_xpath($Selector);
+
+    if ( !$MaybeElement ) {
+        $Context->pass_and_release($TestDescription);
+
+        return 1;
+    }
+
+    $Context->fail_and_release($TestDescription);
+
+    return 0;
+}
+
+=head2 find_element_by_css_ok
+
+Call call Selenium::Remote::Driver::find_element_by_css() and emit testing event accordingly.
+
+=cut
+
+sub find_element_by_css_ok {
+    my ( $Self, $Selector, $TestDescription ) = @_;
+
+    $TestDescription //= 'find_element_by_css_ok';
+
+    my $Context = context();
+
+    my $MaybeElement = $Self->find_element_by_css($Selector);
+
+    if ($MaybeElement) {
+        $Context->pass_and_release($TestDescription);
+
+        return 1;
+    }
+
+    $Context->fail_and_release($TestDescription);
+
+    return 0;
+}
+
+=head2 find_no_element_by_css_ok
+
+Call call Selenium::Remote::Driver::find_element_by_css() and emit testing event accordingly.
+
+=cut
+
+sub find_no_element_by_css_ok {
+    my ( $Self, $Selector, $TestDescription ) = @_;
+
+    $TestDescription //= 'find_no_element_by_css_ok';
+
+    my $Context = context();
+
+    my $MaybeElement = $Self->find_element_by_css($Selector);
+
+    if ( !$MaybeElement ) {
+        $Context->pass_and_release($TestDescription);
+
+        return 1;
+    }
+
+    $Context->fail_and_release($TestDescription);
+
+    return 0;
 }
 
 1;

@@ -63,7 +63,7 @@ sub CheckSessionID {
     }
 
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $RemoteAddr  = $ParamObject->RemoteAddr()      || 'none';
+    my $RemoteAddr  = $ParamObject->RemoteAddr() || 'none';
 
     # set default message
     $Self->{SessionIDErrorMessage} = Translatable('Session invalid. Please log in again.');
@@ -116,7 +116,7 @@ sub CheckSessionID {
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'notice',
-            Message =>
+            Message  =>
                 "SessionID ($Param{SessionID}) idle timeout ($Timeout h)! Don't grant access!!!",
         );
 

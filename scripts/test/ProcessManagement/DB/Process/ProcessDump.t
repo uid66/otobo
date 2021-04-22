@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -339,6 +338,5 @@ for my $Entity (qw(P-Test1 A-Test1 AD-Test1 T-Test1 TA-Test1)) {
 }
 
 # cleanup is done by RestoreDatabase
-
 
 $Self->DoneTesting();

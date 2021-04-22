@@ -25,7 +25,10 @@ use vars (qw($Self));
 
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
-my $Selenium     = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -165,8 +168,7 @@ $Selenium->RunTest(
         }
 
         # Edit test Signature, clear comment and set it to invalid.
-        my $EditSignatureRichText
-            = "Your Ticket-Team \n\n<OTOBO_Responsible_UserFirstname> <OTOBO_Responsible_UserLastname>";
+        my $EditSignatureRichText = "Your Ticket-Team \n\n<OTOBO_Responsible_UserFirstname> <OTOBO_Responsible_UserLastname>";
 
         $Selenium->find_element( "#RichText", 'css' )->clear();
         $Selenium->find_element( "#RichText", 'css' )->send_keys($EditSignatureRichText);
@@ -236,7 +238,4 @@ $Selenium->RunTest(
 
 );
 
-
 $Self->DoneTesting();
-
-

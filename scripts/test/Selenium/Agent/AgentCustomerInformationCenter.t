@@ -23,7 +23,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -175,8 +177,7 @@ $Selenium->RunTest(
         );
 
         # Input search parameters for CustomerUser.
-        $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerUser", 'css' )
-            ->send_keys( $RandomID . 'CustomerUser' . '*' );
+        $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerUser", 'css' )->send_keys( $RandomID . 'CustomerUser' . '*' );
         sleep 1;
 
         # Check result of customer user search (there should be 5 matches).
@@ -185,8 +186,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerUser", 'css' )->clear();
 
         # Input search parameters CustomerID.
-        $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerID", 'css' )
-            ->send_keys($TestCustomerUserLogin);
+        $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerID", 'css' )->send_keys($TestCustomerUserLogin);
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length;' );
         $Selenium->execute_script("\$('li.ui-menu-item:contains($TestCustomerUserLogin)').click();");
 
@@ -379,7 +379,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

@@ -25,13 +25,13 @@ use utf8;
 use Test2::V0;
 
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # Set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::Selenium;
+use Kernel::GenericInterface::Operation::Session::Common;
 
 our $Self;
 
-use Kernel::GenericInterface::Operation::Session::Common;
-
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 # Cleanup existing settings to make sure session limit calculations are correct.
 my $AuthSessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
@@ -68,8 +68,8 @@ $Selenium->RunTest(
         $Selenium->delete_all_cookies();
 
         # Check Secure::DisableBanner functionality.
-        my $Product          = $Kernel::OM->Get('Kernel::Config')->Get('Product');
-        my $Version          = $Kernel::OM->Get('Kernel::Config')->Get('Version');
+        my $Product = $Kernel::OM->Get('Kernel::Config')->Get('Product');
+        my $Version = $Kernel::OM->Get('Kernel::Config')->Get('Version');
 
         for my $Disabled ( reverse 0 .. 1 ) {
             $Helper->ConfigSettingChange(
@@ -161,7 +161,7 @@ $Selenium->RunTest(
             push @SessionIDs, $NewSessionID;
         }
 
- # Create also two webservice session, to check that the sessions are not influence the active sessions and limit check.
+        # Create also two webservice session, to check that the sessions are not influence the active sessions and limit check.
         for my $Counter ( 1 .. 2 ) {
 
             my $NewSessionID = Kernel::GenericInterface::Operation::Session::Common->CreateSessionID(
@@ -197,7 +197,7 @@ $Selenium->RunTest(
         # Check for the prior warning.
         my $PageSource = $Selenium->get_page_source();
         {
-            my $ToDo = todo( 'no session limit in OTOBO, issue #734' );
+            my $ToDo = todo('no session limit in OTOBO, issue #734');
 
             ok(
                 index( $PageSource, 'Please note that the session limit is almost reached.' ) > -1,

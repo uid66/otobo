@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -819,8 +818,7 @@ for my $Test (@Tests) {
         # Check for type of key containing article dynamic field data, since it might be a hash on systems without
         #   multiple fields defined. In this case normalize it to an array of hashes for easier comparison later.
         if ( ref $RequesterResult->{Data}->{Ticket}->{Article}->{DynamicField} eq 'HASH' ) {
-            $RequesterResult->{Data}->{Ticket}->{Article}->{DynamicField}
-                = [ $RequesterResult->{Data}->{Ticket}->{Article}->{DynamicField} ];
+            $RequesterResult->{Data}->{Ticket}->{Article}->{DynamicField} = [ $RequesterResult->{Data}->{Ticket}->{Article}->{DynamicField} ];
         }
 
         LOCALRESULTARTICLE:
@@ -976,7 +974,4 @@ $Self->True(
 # cleanup cache
 $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
-
 $Self->DoneTesting();
-
-

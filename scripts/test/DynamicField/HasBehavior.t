@@ -284,8 +284,8 @@ for my $Test (@Tests) {
     BEHAVIOR:
     for my $Behavior (
         qw(
-        IsACLReducible IsNotificationEventCondition IsSortable IsFiltrable IsStatsCondition
-        IsCustomerInterfaceCapable NotExisting
+            IsACLReducible IsNotificationEventCondition IsSortable IsFiltrable IsStatsCondition
+            IsCustomerInterfaceCapable NotExisting
         )
         )
     {
@@ -339,5 +339,3 @@ for my $Test (@Tests) {
 # we don't need any cleanup
 
 $Self->DoneTesting();
-
-

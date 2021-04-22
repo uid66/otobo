@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -38,12 +37,12 @@ my $UserID = 1;
 my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
 # clear some tables
-for my $Table ( qw(sysconfig_modified_version sysconfig_modified sysconfig_deployment) ) {
+for my $Table (qw(sysconfig_modified_version sysconfig_modified sysconfig_deployment)) {
     my $DoSuccess = $Kernel::OM->Get('Kernel::System::DB')->Do(
         SQL => "DELETE FROM $Table",
     );
 
-    skip_all( "cannot delete from $Table" ) unless $DoSuccess;
+    skip_all("cannot delete from $Table") unless $DoSuccess;
 }
 
 my %DefaultSettingAddTemplate = (
@@ -274,7 +273,7 @@ my $EffectiveValueStrgFile = <<"EOF";
 package Kernel::Config::Files::ZZZAAuto;
 use strict;
 use warnings;
-no warnings 'redefine';
+no warnings 'redefine'; ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 use utf8;
 
  sub Load {
@@ -734,6 +733,5 @@ for my $ModifiedVersionID ( sort @ModifiedVersions ) {
         $Index++;
     }
 }
-
 
 done_testing();

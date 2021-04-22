@@ -349,7 +349,7 @@ my @Tests = (
         Result => [ $TicketIDs[1], $TicketIDs[2] ],
     },
     {
-        Name => 'Only CustomerUserID and UserID (with a UserID which has more permission than the CustomerUserID)',
+        Name          => 'Only CustomerUserID and UserID (with a UserID which has more permission than the CustomerUserID)',
         ChangeCompany => {
             CustomerUserID => $CustomerUserIDs[2],
             CustomerID     => $CustomerCompanyIDs[1],
@@ -428,7 +428,4 @@ for my $Test (@Tests) {
 
 # cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

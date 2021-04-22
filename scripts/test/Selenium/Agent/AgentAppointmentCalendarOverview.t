@@ -29,7 +29,10 @@ $Kernel::OM->ObjectParamAdd(
     },
 );
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 my $ElementReadOnly = sub {
     my (%Param) = @_;
@@ -693,8 +696,7 @@ $Selenium->RunTest(
         $AppointmentLink->click();
         $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function' && \$('#Title').length;" );
 
-        my $TeamObjectRegistered
-            = $Kernel::OM->Get('Kernel::System::Main')->Require( 'Kernel::System::Calendar::Team', Silent => 1 );
+        my $TeamObjectRegistered = $Kernel::OM->Get('Kernel::System::Main')->Require( 'Kernel::System::Calendar::Team', Silent => 1 );
 
         # Check if fields are disabled.
         ELEMENT:
@@ -991,7 +993,4 @@ $Selenium->RunTest(
     },
 );
 
-
 $Self->DoneTesting();
-
-

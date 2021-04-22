@@ -25,8 +25,9 @@ use utf8;
 use Test2::V0;
 
 use Kernel::System::UnitTest::MockTime qw(:all);
+
 # OTOBO modules
-use Kernel::System::UnitTest::RegisterDriver; # set up $Self and $Kernel::OM
+use Kernel::System::UnitTest::RegisterDriver;    # set up $Self and $Kernel::OM
 use Kernel::System::VariableCheck qw(:all);
 
 our $Self;
@@ -110,7 +111,7 @@ sub TestObjectLogGet {
     my %Param = @_;
 
     my $GetRandomPriority = sub {
-        my $Idx        = int( rand(4) );                      ## no critic
+        my $Idx        = int( rand(4) );                      ## no critic qw(OTOBO::ProhibitRandInTests)
         my @Priorities = qw( Error Warn Info Debug Trace );
         return $Priorities[$Idx];
     };
@@ -171,7 +172,7 @@ sub TestObjectLogEntryList {
     my %Param = @_;
 
     my $GetRandomPriority = sub {
-        my $Idx        = int( rand(4) );                      ## no critic
+        my $Idx        = int( rand(4) );                      ## no critic qw(OTOBO::ProhibitRandInTests)
         my @Priorities = qw( Error Warn Info Debug Trace );
         return $Priorities[$Idx];
     };
@@ -553,8 +554,8 @@ for my $Test (@Test) {
             Direction => $Test->{Create}->{Direction},
             Status    => $Test->{Stop}->{Status},
         );
-use Data::Dumper;
-warn Dumper( $Test, $CommunicationListAfterStop );
+        use Data::Dumper;
+        warn Dumper( $Test, $CommunicationListAfterStop );
 
         $Existing = IsArrayRefWithData($CommunicationListAfterStop);
 

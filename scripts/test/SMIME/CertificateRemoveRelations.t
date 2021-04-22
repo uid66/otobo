@@ -51,8 +51,8 @@ my $HomeDir = $ConfigObject->Get('Home');
 # Create directory for certificates and private keys.
 my $CertPath    = $ConfigObject->Get('Home') . "/var/tmp/certs";
 my $PrivatePath = $ConfigObject->Get('Home') . "/var/tmp/private";
-mkpath( [$CertPath],    0, 0770 );    ## no critic
-mkpath( [$PrivatePath], 0, 0770 );    ## no critic
+mkpath( [$CertPath],    0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
+mkpath( [$PrivatePath], 0, 0770 );    ## no critic qw(ValuesAndExpressions::ProhibitLeadingZeros)
 
 # Set SMIME paths.
 $ConfigObject->Set(
@@ -328,7 +328,4 @@ for my $Directory ( $CertPath, $PrivatePath ) {
 
 # Cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

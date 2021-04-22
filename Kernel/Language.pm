@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(Translatable);    ## no critic
+our @EXPORT_OK = qw(Translatable);    ## no critic qw(OTOBO::RequireCamelCase)
 
 use File::stat;
 use Digest::MD5;
@@ -274,7 +274,7 @@ sub Translate {
 
     # Expecting that the replacements do not contain a '%'.
     # That the substitutions stop at the first undefined replacement can be considered a bug.
-    for my $Replacement ( @Replacements ) {
+    for my $Replacement (@Replacements) {
         return $Text unless defined $Replacement;
 
         $Text =~ s/\%(?:s|d)/$Replacement/;
@@ -526,8 +526,8 @@ sub Time {
         }
         else {
             $Time  = sprintf( "%02d:%02d:%02d", $Hour, $Minute, $Second );
-            $Day   = sprintf( "%02d",           $Day );
-            $Month = sprintf( "%02d",           $Month );
+            $Day   = sprintf( "%02d", $Day );
+            $Month = sprintf( "%02d", $Month );
         }
         $ReturnString =~ s/\%T/$Time/g;
         $ReturnString =~ s/\%D/$Day/g;

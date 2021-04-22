@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -497,7 +496,7 @@ my @Tests = (
         ExpectedResult => {
             'Description' => {
                 'Translatable' => '1',
-                'Valueß'      => "Test ščćžç∂ßâ¢."
+                'Valueß'       => "Test ščćžç∂ßâ¢."
             },
             'Name'       => 'Frontend::Module###Dummy',
             'Navigation' => 'Frontend::Agent::ModuleRegistration',
@@ -509,7 +508,7 @@ my @Tests = (
                         {
                             'Key'          => 'Description',
                             'Translatable' => '1',
-                            'Valueß'      => 'Overview of all open Tickets.'
+                            'Valueß'       => 'Overview of all open Tickets.'
                         },
                         {
                             'Array' => {
@@ -519,10 +518,10 @@ my @Tests = (
                                             {
                                                 'Key'          => 'Description',
                                                 'Translatable' => '1',
-                                                'Valueß'      => 'Overview of all open Tickets.'
+                                                'Valueß'       => 'Overview of all open Tickets.'
                                             },
                                             {
-                                                'Key'     => 'NavBar',
+                                                'Key'    => 'NavBar',
                                                 'Valueß' => 'Ticket'
                                             }
                                         ]
@@ -722,11 +721,11 @@ my @Tests = (
                                                 'Key'          => 'Description',
                                                 'Translatable' => '1',
                                                 'ValueContent' =>
-                                                    'Overview of all open Tickets.'   # There are more than 1 attributes
+                                                    'Overview of all open Tickets.'    # There are more than 1 attributes
                                             },
                                             {
                                                 'Key'          => 'NavBar',
-                                                'ValueContent' => 'Ticket'            # There are more than 1 attributes
+                                                'ValueContent' => 'Ticket'             # There are more than 1 attributes
                                             }
                                         ]
                                     }
@@ -767,5 +766,3 @@ for my $Test (@Tests) {
 }
 
 $Self->DoneTesting();
-
-

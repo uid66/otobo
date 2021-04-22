@@ -14,13 +14,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-package scripts::test::ObjectManager::Dummy;    ## no critic
+package scripts::test::ObjectManager::Dummy;
 
 use strict;
 use warnings;
 
 ## nofilter(TidyAll::Plugin::OTOBO::Perl::ObjectDependencies)
-our @ObjectDependencies = ();                   # we want to use an undeclared dependency for testing
+our @ObjectDependencies = ();    # we want to use an undeclared dependency for testing
 
 sub new {
     my ( $Class, %Param ) = @_;

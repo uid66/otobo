@@ -1,7 +1,7 @@
 # --
 # OTOBO is a web-based ticketing system for service organisations.
 # --
-# Copyright (C) 2020 Rother OSS GmbH, https://otobo.de/
+# Copyright (C) 2019-2021 Rother OSS GmbH, https://otobo.de/
 # --
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -30,8 +30,9 @@ Support for running test scripts as standalone scripts.
 
 =cut
 
-use v5.24;
+use strict;
 use warnings;
+use v5.24;
 use utf8;
 
 # core modules
@@ -41,14 +42,14 @@ use utf8;
 # OTOBO modules
 use Kernel::System::ObjectManager;
 
-# TODO: why still warnings from Perl::Critic ??, find better location for the no critic
-## no critic qw(OTOBO::RequireCamelCase)
-sub import {
+our $ObjectManagerDisabled = 1;
+
+sub import {    ## no critic qw(OTOBO::RequireCamelCase)
 
     # RegisterDriver is meant for test scripts,
     # meaning that each sript has it's own process.
     # This means that we don't have to localize $Kernel::OM.
-    # This is good, we are in a subroutine that does not eval the test script.
+    # This is good, as we are in a subroutine that does not eval the test script.
     $Kernel::OM = Kernel::System::ObjectManager->new(
         'Kernel::System::Log' => {
             LogPrefix => 'OTOBO-otobo.UnitTest',
@@ -56,27 +57,18 @@ sub import {
     );
 
     # provide $Self in the test scripts
-    $main::Self = $Kernel::OM->Get( 'Kernel::System::UnitTest::Driver' );
+    $main::Self = $Kernel::OM->Get('Kernel::System::UnitTest::Driver');
 
     return;
 }
 
-# NOTE: it is not obvious whether this is still needed
-{
-    # remember the id of the process that loaded this module.
-    my $OriginalPID = $$;
+END {
 
-    END {
-        # Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker, and maybe other modules, is forking processes.
-        # But we want no cleanup in the child processes.
-        if ( $$ == $OriginalPID ) {
-            # trigger Kernel::System::UnitTest::Helper::DESTROY()
-            # perform cleanup actions, including some tests, in Kernel::System::UnitTest::Helper::DESTROY
-            $Kernel::OM->ObjectsDiscard(
-                Objects            => ['Kernel::System::UnitTest::Helper'],
-            );
-        }
-    }
+    # trigger Kernel::System::UnitTest::Helper::DESTROY()
+    # perform cleanup actions, including some tests, in Kernel::System::UnitTest::Helper::DESTROY
+    $Kernel::OM->ObjectsDiscard(
+        Objects => ['Kernel::System::UnitTest::Helper'],
+    );
 }
 
 1;

@@ -35,7 +35,7 @@ sub Configure {
 
     $Self->Description('Run all generic agent jobs from a configuration file.');
     $Self->AddOption(
-        Name => 'configuration-module',
+        Name        => 'configuration-module',
         Description =>
             "Specify the name of the generic agent configuration module (e.g. 'Kernel::System::GenericAgent')",
         Required   => 1,
@@ -137,7 +137,7 @@ sub Run {
         $Self->PrintError("Could not load agent job file '$ConfigurationModule': $!\n");
         return $Self->ExitCodeError();
     }
-    eval "import $ConfigurationModule";    ## no critic
+    eval "import $ConfigurationModule";    ## no critic qw(BuiltinFunctions::ProhibitStringyEval)
 
     # set the maximum number of affected tickets
     my $Limit = $Self->GetOption('ticket-limit');

@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -422,8 +425,7 @@ $Selenium->RunTest(
         );
 
         # Click 'Failing accounts' for account overview.
-        $Selenium->find_element("//a[contains(\@href, \'Action=AdminCommunicationLog;Subaction=Accounts' )]")
-            ->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AdminCommunicationLog;Subaction=Accounts' )]")->VerifiedClick();
 
         # Wait until page has loaded, if necessary.
         $Selenium->WaitFor(
@@ -517,7 +519,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

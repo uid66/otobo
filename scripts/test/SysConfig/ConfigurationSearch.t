@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -58,7 +57,7 @@ my $DoSuccess = $DBObject->Prepare(
         ",
 );
 
-skip_all( 'cannot get defaults' ) unless $DoSuccess;
+skip_all('cannot get defaults') unless $DoSuccess;
 
 my $OTOBOSettings;
 while ( my @Data = $DBObject->FetchrowArray() ) {

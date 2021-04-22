@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -111,8 +110,8 @@ my @Tests = (
     ",
     },
     {
-        Name       => 'Test unsupported tags',
-        Salutation => 'Test: <OTOBO_AGENT_SUBJECT> <OTOBO_AGENT_BODY> <OTOBO_CUSTOMER_BODY> <OTOBO_CUSTOMER_SUBJECT>',
+        Name           => 'Test unsupported tags',
+        Salutation     => 'Test: <OTOBO_AGENT_SUBJECT> <OTOBO_AGENT_BODY> <OTOBO_CUSTOMER_BODY> <OTOBO_CUSTOMER_SUBJECT>',
         ExpectedResult => 'Test: - - - -',
     },
     {
@@ -232,7 +231,4 @@ for my $Test (@Tests) {
 
 # Cleanup is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

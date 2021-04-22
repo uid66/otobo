@@ -23,7 +23,10 @@ use Kernel::System::UnitTest::RegisterDriver;
 
 use vars (qw($Self));
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
+
 
 $Selenium->RunTest(
     sub {
@@ -126,8 +129,7 @@ $Selenium->RunTest(
 
         # Create test articles.
         for my $Test (@Tests) {
-            my $ArticleID
-                = $Kernel::OM->Get("Kernel::System::Ticket::Article::Backend::$Test->{Backend}")->ArticleCreate(
+            my $ArticleID = $Kernel::OM->Get("Kernel::System::Ticket::Article::Backend::$Test->{Backend}")->ArticleCreate(
                 TicketID             => $TicketID,
                 IsVisibleForCustomer => $Test->{IsVisibleForCustomer},
                 SenderType           => $Test->{SenderType},
@@ -138,7 +140,7 @@ $Selenium->RunTest(
                 HistoryType          => 'AddNote',
                 HistoryComment       => 'Some free text!',
                 UserID               => $TestUserID,
-                );
+            );
             $Self->True(
                 $ArticleID,
                 "Article $Test->{Subject} - created",
@@ -399,7 +401,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

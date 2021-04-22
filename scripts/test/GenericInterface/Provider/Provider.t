@@ -320,8 +320,7 @@ for my $Test (@Tests) {
                     );
 
                     # prepare CGI environment variables
-                    $ENV{REQUEST_URI}
-                        = "http://localhost/otobo/nph-genericinterface.pl/$WebserviceAccess?" . $QueryString;
+                    $ENV{REQUEST_URI}    = "http://localhost/otobo/nph-genericinterface.pl/$WebserviceAccess?" . $QueryString;
                     $ENV{QUERY_STRING}   = $QueryString;
                     $ENV{REQUEST_METHOD} = 'GET';
                 }
@@ -330,11 +329,11 @@ for my $Test (@Tests) {
 
                 # redirect STDIN from String so that the transport layer will use this data
                 local *STDIN;
-                open STDIN, '<:utf8', \$RequestData;    ## no critic
+                open STDIN, '<:utf8', \$RequestData;    ## no critic qw(InputOutput::RequireEncodingWithUTF8Layer)
 
                 # redirect STDOUT from String so that the transport layer will write there
                 local *STDOUT;
-                open STDOUT, '>:utf8', \$ResponseData;    ## no critic
+                open STDOUT, '>:utf8', \$ResponseData;    ## no critic qw(InputOutput::RequireEncodingWithUTF8Layer)
 
                 # reset CGI object from previous runs
                 CGI::initialize_globals();
@@ -478,7 +477,4 @@ for my $RequestMethod (qw(get post)) {
 # cleanup cache
 $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
-
 $Self->DoneTesting();
-
-

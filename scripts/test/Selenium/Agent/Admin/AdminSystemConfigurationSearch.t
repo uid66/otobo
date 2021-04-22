@@ -24,7 +24,9 @@ use Kernel::System::UnitTest::RegisterDriver;
 use vars (qw($Self));
 
 # get selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 $Selenium->RunTest(
     sub {
@@ -53,8 +55,7 @@ $Selenium->RunTest(
         );
 
         # Search for CloudService::Admin::Module###100-SupportDataCollector(setting with : and # to test encoding).
-        $Selenium->find_element( '#SysConfigSearch', 'css' )
-            ->send_keys('CloudService::Admin::Module###100-SupportDataCollector');
+        $Selenium->find_element( '#SysConfigSearch', 'css' )->send_keys('CloudService::Admin::Module###100-SupportDataCollector');
         $Selenium->WaitFor(
             JavaScript => 'return $("ul.ui-autocomplete a:visible").length',
         );
@@ -86,7 +87,4 @@ $Selenium->RunTest(
     }
 );
 
-
 $Self->DoneTesting();
-
-

@@ -60,6 +60,9 @@ sub LoadPreferences {
     # how to turn off foreign key checks for the current session
     #$Self->{'DB::DeactivateForeignKeyChecks'} not supported in Oracle
 
+    # how to delete all rows of a table, use with sprintf for inserting the table name
+    $Self->{'DB::PurgeTable'} = 'TRUNCATE TABLE %s';
+
     # dbi attributes
     $Self->{'DB::Attribute'} = {
         LongTruncOk => 1,
@@ -341,10 +344,10 @@ EOF
         for ( 0 .. $#Array ) {
             push @{ $Self->{Post} },
                 $Self->ForeignKeyCreate(
-                LocalTableName   => $TableName,
-                Local            => $Array[$_]->{Local},
-                ForeignTableName => $ForeignKey,
-                Foreign          => $Array[$_]->{Foreign},
+                    LocalTableName   => $TableName,
+                    Local            => $Array[$_]->{Local},
+                    ForeignTableName => $ForeignKey,
+                    Foreign          => $Array[$_]->{Foreign},
                 );
         }
     }
@@ -353,9 +356,9 @@ EOF
     for my $Name ( sort keys %Index ) {
         push @Return,
             $Self->IndexCreate(
-            TableName => $TableName,
-            Name      => $Name,
-            Data      => $Index{$Name},
+                TableName => $TableName,
+                Name      => $Name,
+                Data      => $Index{$Name},
             );
     }
 

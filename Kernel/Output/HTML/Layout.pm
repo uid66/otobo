@@ -80,7 +80,7 @@ sub new {
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object
-    my $Self = bless { %Param }, $Type;
+    my $Self = bless {%Param}, $Type;
 
     # set debug
     $Self->{Debug} = 0;
@@ -105,7 +105,7 @@ sub new {
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
     if ( !$Self->{UserLanguage} ) {
         my @BrowserLanguages = split /\s*,\s*/, $Self->{Lang} || $ENV{HTTP_ACCEPT_LANGUAGE} || '';
-        my %Data             = %{ $ConfigObject->Get('DefaultUsedLanguages') };
+        my %Data = %{ $ConfigObject->Get('DefaultUsedLanguages') };
         LANGUAGE:
         for my $BrowserLang (@BrowserLanguages) {
             for my $Language ( reverse sort keys %Data ) {
@@ -146,9 +146,9 @@ sub new {
 
     # set charset if there is no charset given
     $Self->{UserCharset} = 'utf-8';
-    $Self->{Charset}     = $Self->{UserCharset};                            # just for compat.
-    $Self->{SessionID}   = $Param{SessionID} || '';
-    $Self->{SessionName} = $Param{SessionName} || 'SessionID';
+    $Self->{Charset}     = $Self->{UserCharset};    # just for compat.
+    $Self->{SessionID}   = $Param{SessionID}                                              || '';
+    $Self->{SessionName} = $Param{SessionName}                                            || 'SessionID';
     $Self->{CGIHandle}   = $Kernel::OM->Get('Kernel::System::Web::Request')->ScriptName() || 'No-$ENV{"SCRIPT_NAME"}';
 
     # baselink
@@ -377,7 +377,7 @@ EOF
 
     # force a theme based on host name
     my $DefaultThemeHostBased = $ConfigObject->Get('DefaultTheme::HostBased');
-    my $Host = $ENV{HTTP_HOST};
+    my $Host                  = $ENV{HTTP_HOST};
     if ( $DefaultThemeHostBased && $Host ) {
 
         THEME:
@@ -410,7 +410,7 @@ EOF
     if ( !-e $Self->{TemplateDir} ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message =>
+            Message  =>
                 "No existing template directory found ('$Self->{TemplateDir}')!.
                 Default theme used instead.",
         );
@@ -502,8 +502,8 @@ sub Block {
     }
     push @{ $Self->{BlockData} },
         {
-        Name => $Param{Name},
-        Data => $Param{Data},
+            Name => $Param{Name},
+            Data => $Param{Data},
         };
 
     return 1;
@@ -577,8 +577,8 @@ sub Redirect {
         $Param{Redirect} = $Param{ExtURL};
         return $Cookies
             . $Self->Output(
-            TemplateFile => 'Redirect',
-            Data         => \%Param
+                TemplateFile => 'Redirect',
+                Data         => \%Param
             );
     }
 
@@ -616,8 +616,8 @@ sub Redirect {
 
     my $Output = $Cookies
         . $Self->Output(
-        TemplateFile => 'Redirect',
-        Data         => \%Param
+            TemplateFile => 'Redirect',
+            Data         => \%Param
         );
 
     # add session id to redirect if no cookie is enabled
@@ -658,7 +658,7 @@ sub Redirect {
 }
 
 sub Login {
-    my ($Self, %Param) = @_;
+    my ( $Self, %Param ) = @_;
 
     # set Action parameter for the loader
     $Self->{Action} = 'Login';
@@ -1073,8 +1073,8 @@ sub Warning {
         What => 'Message',
         )
         || $Kernel::OM->Get('Kernel::System::Log')->GetLogEntry(
-        Type => 'Error',
-        What => 'Message',
+            Type => 'Error',
+            What => 'Message',
         ) || '';
 
     if ( !$Param{Message} ) {
@@ -1133,8 +1133,8 @@ sub Notify {
             What => 'Message',
             )
             || $Kernel::OM->Get('Kernel::System::Log')->GetLogEntry(
-            Type => 'Error',
-            What => 'Message',
+                Type => 'Error',
+                What => 'Message',
             ) || '';
 
         $Param{Info} = $Param{BackendMessage};
@@ -1221,8 +1221,7 @@ sub NotifyNonUpdatedTickets {
     );
 
     return $Self->Notify(
-        Info => $Self->{LanguageObject}
-            ->Translate( "The following tickets are not updated: %s.", $NonUpdatedTicketsString ),
+        Info => $Self->{LanguageObject}->Translate( "The following tickets are not updated: %s.", $NonUpdatedTicketsString ),
     );
 
 }
@@ -1243,7 +1242,7 @@ generates the HTML for the page begin in the Agent interface.
 =cut
 
 sub Header {
-    my ($Self, %Param) = @_;
+    my ( $Self, %Param ) = @_;
 
     # extract params
     my $Type = $Param{Type} || '';
@@ -1521,8 +1520,7 @@ sub Header {
                 # See bug#13790 (https://bugs.otrs.org/show_bug.cgi?id=13790).
                 if ( $ConfigObject->Get('Ticket::ArchiveSystem') && $Modules{$Key}->{Block} eq 'ToolBarSearchFulltext' )
                 {
-                    $Modules{$Key}->{SearchInArchive}
-                        = $ConfigObject->Get('Ticket::Frontend::AgentTicketSearch')->{Defaults}->{SearchInArchive};
+                    $Modules{$Key}->{SearchInArchive} = $ConfigObject->Get('Ticket::Frontend::AgentTicketSearch')->{Defaults}->{SearchInArchive};
                 }
 
                 $Self->Block(
@@ -1559,8 +1557,7 @@ sub Header {
         if ( $ConfigObject->Get('Frontend::AvatarEngine') eq 'Gravatar' && $Self->{UserEmail} ) {
             my $DefaultIcon = $ConfigObject->Get('Frontend::Gravatar::DefaultImage') || 'mp';
             $Kernel::OM->Get('Kernel::System::Encode')->EncodeOutput( \$Self->{UserEmail} );
-            $Param{Avatar}
-                = '//www.gravatar.com/avatar/' . md5_hex( lc $Self->{UserEmail} ) . '?s=100&d=' . $DefaultIcon;
+            $Param{Avatar} = '//www.gravatar.com/avatar/' . md5_hex( lc $Self->{UserEmail} ) . '?s=100&d=' . $DefaultIcon;
         }
         else {
             my %User = $Kernel::OM->Get('Kernel::System::User')->GetUserData(
@@ -1679,8 +1676,8 @@ sub Footer {
     # Set an array with pending states. Skip for installer and migration script.
     my @PendingStateIDs = $ConfigObject->Get('SecureMode')
         ? $Kernel::OM->Get('Kernel::System::State')->StateGetStatesByType(
-        StateType => [ 'pending reminder', 'pending auto' ],
-        Result    => 'ID',
+            StateType => [ 'pending reminder', 'pending auto' ],
+            Result    => 'ID',
         )
         : ();
 
@@ -1712,8 +1709,8 @@ sub Footer {
             $ConfigObject->Get('Ticket::SearchIndex::WarnOnStopWordUsage')
                 &&
                 (
-                $ConfigObject->Get('Ticket::SearchIndexModule')
-                eq 'Kernel::System::Ticket::ArticleSearchIndex::DB'
+                    $ConfigObject->Get('Ticket::SearchIndexModule')
+                    eq 'Kernel::System::Ticket::ArticleSearchIndex::DB'
                 )
         ) ? 1 : 0,
         SearchFrontend => $JSCall,
@@ -1764,7 +1761,7 @@ sub ApplyOutputFilters {
 
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message =>
+                Message  =>
                     "Please add a template list to output filter $FilterConfig->{Module} "
                     . "to improve performance. Use ALL if OutputFilter should modify all "
                     . "templates of the system (deprecated).",
@@ -1801,7 +1798,7 @@ sub Print {
     my ( $Self, %Param ) = @_;
 
     # the string referenced by $Param{Content} might be modified here
-    $Self->ApplyOutputFilters( %Param );
+    $Self->ApplyOutputFilters(%Param);
 
     # There seems to be a bug in FastCGI that it cannot handle unicode output properly.
     #   Work around this by converting to an utf8 byte stream instead.
@@ -1814,7 +1811,7 @@ sub Print {
 
     # Disable perl warnings in case of printing unicode private chars,
     #   see https://rt.perl.org/Public/Bug/Display.html?id=121226.
-    no warnings 'nonchar';    ## no critic
+    no warnings 'nonchar';    ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 
     print ${ $Param{Output} };
 
@@ -1894,7 +1891,7 @@ sub Ascii2Html {
 
                 $Kernel::OM->Get('Kernel::System::Log')->Log(
                     Priority => 'error',
-                    Message =>
+                    Message  =>
                         "Please add a template list to output filter $FilterConfig->{Module} "
                         . "to improve performance. Use ALL if OutputFilter should modify all "
                         . "templates of the system (deprecated).",
@@ -2058,7 +2055,7 @@ sub LinkQuote {
 
                 $Kernel::OM->Get('Kernel::System::Log')->Log(
                     Priority => 'error',
-                    Message =>
+                    Message  =>
                         "Please add a template list to output filter $FilterConfig->{Module} "
                         . "to improve performance. Use ALL if OutputFilter should modify all "
                         . "templates of the system (deprecated).",
@@ -2759,7 +2756,7 @@ sub PageNavBar {
     my $Pages      = int( ( $Param{AllHits} / $Param{PageShown} ) + 0.99999 );
     my $Page       = int( ( $Param{StartHit} / $Param{PageShown} ) + 0.99999 );
     my $WindowSize = $Param{WindowSize} || 5;
-    my $IDPrefix   = $Param{IDPrefix} || 'Generic';
+    my $IDPrefix   = $Param{IDPrefix}   || 'Generic';
 
     # build Results (1-5 or 16-30)
     if ( $Param{AllHits} >= ( $Param{StartHit} + $Param{PageShown} ) ) {
@@ -2781,8 +2778,8 @@ sub PageNavBar {
     my $WindowStart = sprintf( "%.0f", ( $Param{StartHit} / $Param{PageShown} ) );
     $WindowStart = int( ( $WindowStart / $WindowSize ) ) + 1;
     $WindowStart = ( $WindowStart * $WindowSize ) - ($WindowSize);
-    my $Action = $Param{Action} || '';
-    my $Link   = $Param{Link}   || '';
+    my $Action   = $Param{Action} || '';
+    my $Link     = $Param{Link}   || '';
     my $Baselink = "$Self->{Baselink}$Action;$Link";
     my $i        = 0;
     my %PaginationData;
@@ -3374,7 +3371,7 @@ sub TransformDateSelection {
                 Year     => $Param{ $Prefix . 'Year' },
                 Month    => $Param{ $Prefix . 'Month' },
                 Day      => $Param{ $Prefix . 'Day' },
-                Hour     => $Param{ $Prefix . 'Hour' } || 0,
+                Hour     => $Param{ $Prefix . 'Hour' }   || 0,
                 Minute   => $Param{ $Prefix . 'Minute' } || 0,
                 Second   => $Param{ $Prefix . 'Second' } || 0,
                 TimeZone => $Self->{UserTimeZone},
@@ -3461,14 +3458,14 @@ sub BuildDateSelection {
 
     my $DateInputStyle = $ConfigObject->Get('TimeInputFormat');
     my $MinuteStep     = $ConfigObject->Get('TimeInputMinutesStep');
-    my $Prefix         = $Param{Prefix} || '';
+    my $Prefix         = $Param{Prefix}   || '';
     my $DiffTime       = $Param{DiffTime} || 0;
     my $Format         = defined( $Param{Format} ) ? $Param{Format} : 'DateInputFormatLong';
-    my $Area           = $Param{Area} || 'Agent';
+    my $Area           = $Param{Area}                   || 'Agent';
     my $Optional       = $Param{ $Prefix . 'Optional' } || 0;
     my $Required       = $Param{ $Prefix . 'Required' } || 0;
-    my $Used           = $Param{ $Prefix . 'Used' } || 0;
-    my $Class          = $Param{ $Prefix . 'Class' } || '';
+    my $Used           = $Param{ $Prefix . 'Used' }     || 0;
+    my $Class          = $Param{ $Prefix . 'Class' }    || '';
 
     # Defines, if the date selection should be validated on client side with JS
     my $Validate = $Param{Validate} || 0;
@@ -3521,7 +3518,7 @@ sub BuildDateSelection {
                 Year   => $Param{ $Prefix . 'Year' },
                 Month  => $Param{ $Prefix . 'Month' },
                 Day    => $Param{ $Prefix . 'Day' },
-                Hour   => $Param{ $Prefix . 'Hour' } || 0,
+                Hour   => $Param{ $Prefix . 'Hour' }   || 0,
                 Minute => $Param{ $Prefix . 'Minute' } || 0,
                 Second => $Param{ $Prefix . 'Second' } || 0,
             },
@@ -3688,8 +3685,8 @@ sub BuildDateSelection {
                 . $Self->{LanguageObject}->Translate('Hours')
                 . "\" value=\""
                 . sprintf(
-                "%02d",
-                ( defined( $Param{ $Prefix . 'Hour' } ) ? int( $Param{ $Prefix . 'Hour' } ) : $h )
+                    "%02d",
+                    ( defined( $Param{ $Prefix . 'Hour' } ) ? int( $Param{ $Prefix . 'Hour' } ) : $h )
                 )
                 . "\" "
                 . ( $Param{Disabled} ? 'readonly="readonly"' : '' ) . "/>";
@@ -3698,8 +3695,7 @@ sub BuildDateSelection {
 
         # minute
         if ( $DateInputStyle eq 'Option' ) {
-            my %Minute
-                = map { $_ => sprintf( "%02d", $_ ); } map { $_ * $MinuteStep } ( 0 .. ( 60 / $MinuteStep - 1 ) );
+            my %Minute = map { $_ => sprintf( "%02d", $_ ); } map { $_ * $MinuteStep } ( 0 .. ( 60 / $MinuteStep - 1 ) );
             $Param{Minute} = $Self->BuildSelection(
                 Name       => $Prefix . 'Minute',
                 Data       => \%Minute,
@@ -3720,12 +3716,12 @@ sub BuildDateSelection {
                 . $Self->{LanguageObject}->Translate('Minutes')
                 . "\" value=\""
                 . sprintf(
-                "%02d",
-                (
-                    defined( $Param{ $Prefix . 'Minute' } )
-                    ? int( $Param{ $Prefix . 'Minute' } )
-                    : $m
-                )
+                    "%02d",
+                    (
+                        defined( $Param{ $Prefix . 'Minute' } )
+                        ? int( $Param{ $Prefix . 'Minute' } )
+                        : $m
+                    )
                 ) . "\" "
                 . ( $Param{Disabled} ? 'readonly="readonly"' : '' ) . "/>";
         }
@@ -4723,7 +4719,7 @@ sub CustomerNavigationBar {
         $Param{Avatar} = '//www.gravatar.com/avatar/' . md5_hex( lc $Self->{UserEmail} ) . '?s=100&d=' . $DefaultIcon;
     }
     else {
-        $Param{UserInitials} = substr( $User{UserFirstName}, 0, 1 ) . substr( $User{UserLastName}, 0, 1 );
+        $Param{UserInitials} = substr( $User{UserFirstname}, 0, 1 ) . substr( $User{UserLastname}, 0, 1 );
     }
 
     # define (custom) logo
@@ -4742,6 +4738,45 @@ sub CustomerNavigationBar {
             }
             else {
                 $Param{$Statement} = $CustomerLogo{$Statement};
+            }
+        }
+    }
+
+    # check whether customer preferences should be shown
+    PERMISSION:
+    for my $Permission (qw(GroupRo Group)) {
+
+        # No access restriction.
+        if (
+            ref $FrontendModule->{CustomerPreferences}->{GroupRo} eq 'ARRAY'
+            && !scalar @{ $FrontendModule->{CustomerPreferences}->{GroupRo} }
+            && ref $FrontendModule->{CustomerPreferences}->{Group} eq 'ARRAY'
+            && !scalar @{ $FrontendModule->{CustomerPreferences}->{Group} }
+            )
+        {
+            $Param{ShowPreferences} = 1;
+            last PERMISSION;
+        }
+
+        # Array access restriction.
+        elsif (
+            $FrontendModule->{CustomerPreferences}->{$Permission}
+            && ref $FrontendModule->{CustomerPreferences}->{$Permission} eq 'ARRAY'
+            )
+        {
+            GROUP:
+            for my $Group ( @{ $FrontendModule->{CustomerPreferences}->{$Permission} } ) {
+                next GROUP if !$Group;
+                my $HasPermission = $GroupObject->PermissionCheck(
+                    UserID    => $Self->{UserID},
+                    GroupName => $Group,
+                    Type      => $Permission eq 'GroupRo' ? 'ro' : 'rw',
+
+                );
+                if ($HasPermission) {
+                    $Param{ShowPreferences} = 1;
+                    last PERMISSION;
+                }
             }
         }
     }
@@ -4806,8 +4841,8 @@ sub CustomerWarning {
         What => 'Message',
         )
         || $Kernel::OM->Get('Kernel::System::Log')->GetLogEntry(
-        Type => 'Error',
-        What => 'Message',
+            Type => 'Error',
+            What => 'Message',
         ) || '';
 
     if ( !$Param{Message} ) {
@@ -5109,7 +5144,7 @@ sub RichTextDocumentServe {
 
             $Param{Data}->{Content} = $SafetyCheckResult{String};
 
-           # Show confirmation button to load external content explicitly only if BlockLoadingRemoteContent is disabled.
+            # Show confirmation button to load external content explicitly only if BlockLoadingRemoteContent is disabled.
             if (
                 $SafetyCheckResult{Replace}
                 && !$Kernel::OM->Get('Kernel::Config')->Get('Ticket::Frontend::BlockLoadingRemoteContent')
@@ -6127,12 +6162,12 @@ sub SetRichTextParameters {
     my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
 
     # get needed variables
-    my $ScreenRichTextHeight = $Param{Data}->{RichTextHeight} || $ConfigObject->Get("Frontend::RichTextHeight");
-    my $ScreenRichTextWidth  = $Param{Data}->{RichTextWidth}  || $ConfigObject->Get("Frontend::RichTextWidth");
-    my $RichTextType         = $Param{Data}->{RichTextType}   || '';
-    my $PictureUploadAction = $Param{Data}->{RichTextPictureUploadAction} || '';
-    my $TextDir             = $Self->{TextDirection}                      || '';
-    my $EditingAreaCSS      = 'body.cke_editable { ' . $ConfigObject->Get("Frontend::RichText::DefaultCSS") . ' }';
+    my $ScreenRichTextHeight = $Param{Data}->{RichTextHeight}              || $ConfigObject->Get("Frontend::RichTextHeight");
+    my $ScreenRichTextWidth  = $Param{Data}->{RichTextWidth}               || $ConfigObject->Get("Frontend::RichTextWidth");
+    my $RichTextType         = $Param{Data}->{RichTextType}                || '';
+    my $PictureUploadAction  = $Param{Data}->{RichTextPictureUploadAction} || '';
+    my $TextDir              = $Self->{TextDirection}                      || '';
+    my $EditingAreaCSS       = 'body.cke_editable { ' . $ConfigObject->Get("Frontend::RichText::DefaultCSS") . ' }';
 
     # decide if we need to use the enhanced mode (with tables)
     my @Toolbar;
@@ -6156,8 +6191,8 @@ sub SetRichTextParameters {
             '/',
             [
                 'Image',   'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote',
-                '-',       '-',              'Find',      'Replace',       'TextColor',
-                'BGColor', 'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar',
+                '-',       '-',            'Find', 'Replace',    'TextColor',
+                'BGColor', 'RemoveFormat', '-',    'ShowBlocks', 'Source', 'SpecialChar',
                 '-',       'Maximize'
             ],
             [ 'Format', 'Font', 'FontSize' ]
@@ -6172,8 +6207,8 @@ sub SetRichTextParameters {
             '/',
             [
                 'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote', '-',
-                '-',              'Find',      'Replace',       'TextColor',  'BGColor',
-                'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar', '-',
+                '-',            'Find', 'Replace',    'TextColor', 'BGColor',
+                'RemoveFormat', '-',    'ShowBlocks', 'Source',    'SpecialChar', '-',
                 'Maximize'
             ],
             [ 'Format', 'Font', 'FontSize' ]
@@ -6266,7 +6301,7 @@ sub CustomerSetRichTextParameters {
 
     my $ScreenRichTextHeight = $ConfigObject->Get("Frontend::RichTextHeight");
     my $ScreenRichTextWidth  = $ConfigObject->Get("Frontend::RichTextWidth");
-    my $TextDir              = $Self->{TextDirection} || '';
+    my $TextDir              = $Self->{TextDirection}                      || '';
     my $PictureUploadAction  = $Param{Data}->{RichTextPictureUploadAction} || '';
     my $EditingAreaCSS       = 'body { ' . $ConfigObject->Get("Frontend::RichText::DefaultCSS") . ' }';
 
@@ -6287,8 +6322,8 @@ sub CustomerSetRichTextParameters {
             '/',
             [
                 'Image',   'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote',
-                '-',       '-',              'Find',      'Replace',       'TextColor',
-                'BGColor', 'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar',
+                '-',       '-',            'Find', 'Replace',    'TextColor',
+                'BGColor', 'RemoveFormat', '-',    'ShowBlocks', 'Source', 'SpecialChar',
                 '-',       'Maximize'
             ],
             [ 'Format', 'Font', 'FontSize' ]
@@ -6303,8 +6338,8 @@ sub CustomerSetRichTextParameters {
             '/',
             [
                 'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote', '-',
-                '-',              'Find',      'Replace',       'TextColor',  'BGColor',
-                'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar', '-',
+                '-',            'Find', 'Replace',    'TextColor', 'BGColor',
+                'RemoveFormat', '-',    'ShowBlocks', 'Source',    'SpecialChar', '-',
                 'Maximize'
             ],
             [ 'Format', 'Font', 'FontSize' ]
@@ -6351,8 +6386,8 @@ sub CustomerSetRichTextParameters {
             ],
             '/',
             [
-                'FontSize', '-', 'TextColor', 'BGColor', 'RemoveFormat',
-                '-', 'SpecialChar', 'SplitQuote', 'RemoveQuote',
+                'FontSize', '-',           'TextColor',  'BGColor', 'RemoveFormat',
+                '-',        'SpecialChar', 'SplitQuote', 'RemoveQuote',
             ]
         ];
         @ToolbarMini = [

@@ -410,7 +410,7 @@ sub Export {
         $ICalEvent->add_properties(
             summary         => $Appointment{Title},
             dtstart         => $Appointment{AllDay} ? substr( $ICalStartTime->ical(), 0, -1 ) : $ICalStartTime->ical(),
-            dtend           => $Appointment{AllDay} ? substr( $ICalEndTime->ical(), 0, -1 ) : $ICalEndTime->ical(),
+            dtend           => $Appointment{AllDay} ? substr( $ICalEndTime->ical(),   0, -1 ) : $ICalEndTime->ical(),
             uid             => $Appointment{UniqueID},
             'last-modified' => $ICalChangeTime->ical(),
             %ICalEventProperties,
@@ -430,11 +430,11 @@ sub Export {
 }
 
 {
-    no warnings 'redefine';    ## no critic
+    no warnings 'redefine';    ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 
     # Include product name and version in product ID property for debugging purposes, by redefining
     #   external library method.
-    sub Data::ICal::product_id {    ## no critic
+    sub Data::ICal::product_id {    ## no critic qw(OTOBO::RequireCamelCase)
         return 'OTOBO ' . $Kernel::OM->Get('Kernel::Config')->Get('Version');
     }
 }

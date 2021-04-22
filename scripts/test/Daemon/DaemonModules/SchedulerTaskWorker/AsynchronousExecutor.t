@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -213,8 +212,7 @@ my @Tests = (
 );
 
 # get task handler objects
-my $TaskHandlerObject
-    = $Kernel::OM->Get('Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker::AsynchronousExecutor');
+my $TaskHandlerObject = $Kernel::OM->Get('Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker::AsynchronousExecutor');
 
 for my $Test (@Tests) {
 
@@ -230,7 +228,4 @@ for my $Test (@Tests) {
 
 # cleanup cache is done by RestoreDatabase.
 
-
 $Self->DoneTesting();
-
-

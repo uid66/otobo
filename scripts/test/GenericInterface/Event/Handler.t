@@ -14,7 +14,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 # --
 
-## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
 use utf8;
@@ -575,7 +574,7 @@ for my $Test (@Tests) {
                     @{ $LogData->[0]->{Data} }
                 ) +
                 scalar(
-                grep { $_->{Data} =~ m/'ResponseContent' \s+ => \s+ 'TicketID=$TicketID&Event=TicketCreate'/smx }
+                    grep { $_->{Data} =~ m/'ResponseContent' \s+ => \s+ 'TicketID=$TicketID&Event=TicketCreate'/smx }
                     @{ $LogData->[0]->{Data} }
                 ),
             1,
@@ -648,7 +647,4 @@ $Self->Is(
     "Daemon has original state again.",
 );
 
-
 $Self->DoneTesting();
-
-

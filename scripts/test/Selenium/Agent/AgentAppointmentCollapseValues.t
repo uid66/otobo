@@ -25,7 +25,9 @@ use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
 
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# OTOBO modules
+use Kernel::System::UnitTest::Selenium;
+my $Selenium = Kernel::System::UnitTest::Selenium->new( LogExecuteCommandActive => 1 );
 
 # Check if team object is registered.
 if ( !$Kernel::OM->Get('Kernel::System::Main')->Require( 'Kernel::System::Calendar::Team', Silent => 1 ) ) {
@@ -265,7 +267,4 @@ else {
     );
 }
 
-
 $Self->DoneTesting();
-
-
